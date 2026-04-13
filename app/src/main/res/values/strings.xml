@@ -10,17 +10,31 @@
     <string name="nav_settings">Settings</string>
 
     <!-- Home Screen -->
-    <string name="good_morning">Good Morning</string>
-    <string name="good_afternoon">Good Afternoon</string>
-    <string name="good_evening">Good Evening</string>
+    <string name="good_morning">Good Morning,</string>
+    <string name="good_afternoon">Good Afternoon,</string>
+    <string name="good_evening">Good Evening,</string>
     <string name="todays_habits">Today\'s Habits</string>
-    <string name="habits_complete">%1$d / %2$d Complete</string>
+    <string name="habits_complete">%1$d / %2$d</string>
     <string name="streak_label">🔥 %1$d day streak</string>
     <string name="add_habit">+ New Habit</string>
     <string name="label_rest_day">Mark as Rest Day</string>
     <string name="label_my_habits">My Habits</string>
     <string name="empty_title">No habits yet</string>
     <string name="empty_subtitle">Start your journey by adding a habit!</string>
+
+    <string name="progress_start">Add habits to get started!</string>
+    <string name="progress_keep_going">%1$d%% complete — keep going! 💪</string>
+    <string name="progress_almost_there">%1$d%% complete — almost there! 🔥</string>
+    <string name="progress_done">All done for today! 🎉</string>
+
+    <plurals name="streak_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+
+    <string name="quote_format">\"%1$s\"</string>
+    <string name="quote_author_format">— %1$s</string>
+    <string name="rest_day_toast">Rest day marked! Enjoy your break 🌿</string>
 
     <!-- Add/Edit Habit -->
     <string name="add_habit_title">New Habit</string>
