@@ -21,18 +21,16 @@ import com.habitflow.adapters.HabitAdapter;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.Habit;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 public class HomeFragment extends Fragment {
 
     private RecyclerView    rvHabits;
     private HabitAdapter    adapter;
-    private List<Habit>     displayList = new ArrayList<>();
+    private final List<Habit> displayList = new ArrayList<>();
     private ProgressBar     pbToday;
     private TextView        tvProgressCount, tvProgressLabel;
     private TextView        tvGreeting, tvUsername, tvStreak;
@@ -103,9 +101,7 @@ public class HomeFragment extends Fragment {
     // ── Segment chips ─────────────────────────────────────────────────────────
 
     private void setupSegmentChips() {
-        chipGroupSegments.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            loadHabits(getActiveSegment());
-        });
+        chipGroupSegments.setOnCheckedStateChangeListener((group, checkedIds) -> loadHabits(getActiveSegment()));
     }
 
     private String getActiveSegment() {
@@ -141,13 +137,13 @@ public class HomeFragment extends Fragment {
         int done          = HabitStore.get().completedTodayCount();
         int pct           = total > 0 ? (done * 100 / total) : 0;
 
-        tvProgressCount.setText(done + " / " + total);
+        tvProgressCount.setText(getString(R.string.habits_complete, done, total));
         pbToday.setProgress(pct);
 
-        if (pct == 0)        tvProgressLabel.setText("Add habits to get started!");
-        else if (pct < 50)   tvProgressLabel.setText(pct + "% complete — keep going! 💪");
-        else if (pct < 100)  tvProgressLabel.setText(pct + "% complete — almost there! 🔥");
-        else                 tvProgressLabel.setText("All done for today! 🎉");
+        if (pct == 0)        tvProgressLabel.setText(R.string.progress_start);
+        else if (pct < 50)   tvProgressLabel.setText(getString(R.string.progress_keep_going, pct));
+        else if (pct < 100)  tvProgressLabel.setText(getString(R.string.progress_almost_there, pct));
+        else                 tvProgressLabel.setText(R.string.progress_done);
     }
 
     // ── Streak badge ──────────────────────────────────────────────────────────
@@ -158,18 +154,18 @@ public class HomeFragment extends Fragment {
         for (Habit h : HabitStore.get().getHabits()) {
             if (h.currentStreak > maxStreak) maxStreak = h.currentStreak;
         }
-        tvStreak.setText(maxStreak + " day" + (maxStreak == 1 ? "" : "s"));
+        tvStreak.setText(getResources().getQuantityString(R.plurals.streak_days, maxStreak, maxStreak));
     }
 
     // ── Greeting ──────────────────────────────────────────────────────────────
 
     private void setGreeting() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        String greeting;
-        if (hour < 12)      greeting = "Good Morning,";
-        else if (hour < 17) greeting = "Good Afternoon,";
-        else                greeting = "Good Evening,";
-        tvGreeting.setText(greeting);
+        int greetingRes;
+        if (hour < 12)      greetingRes = R.string.good_morning;
+        else if (hour < 17) greetingRes = R.string.good_afternoon;
+        else                greetingRes = R.string.good_evening;
+        tvGreeting.setText(greetingRes);
         // TODO: replace "Alex" with logged-in user's name from SharedPreferences
         tvUsername.setText("Alex 👋");
     }
@@ -180,8 +176,8 @@ public class HomeFragment extends Fragment {
         String[] raw = getResources().getStringArray(R.array.quotes);
         String entry = raw[new Random().nextInt(raw.length)];
         String[] parts = entry.split("\\|");
-        tvQuote.setText("\"" + parts[0] + "\"");
-        tvQuoteAuthor.setText(parts.length > 1 ? "— " + parts[1] : "");
+        tvQuote.setText(getString(R.string.quote_format, parts[0]));
+        tvQuoteAuthor.setText(parts.length > 1 ? getString(R.string.quote_author_format, parts[1]) : "");
     }
 
     // ── Rest Day dialog ───────────────────────────────────────────────────────
@@ -191,7 +187,7 @@ public class HomeFragment extends Fragment {
                 .setTitle("😴 Rest Day")
                 .setMessage("Mark today as a rest day? Your streaks won't be broken.")
                 .setPositiveButton("Yes, rest today", (d, w) ->
-                        Toast.makeText(getContext(), "Rest day marked! Enjoy your break 🌿",
+                        Toast.makeText(getContext(), R.string.rest_day_toast,
                                 Toast.LENGTH_SHORT).show())
                 .setNegativeButton("Cancel", null)
                 .show();
