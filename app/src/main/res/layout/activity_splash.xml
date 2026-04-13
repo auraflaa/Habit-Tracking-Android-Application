@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_bg_primary">
+
+    <!-- Blue ambient glow top-right -->
+    <View
+        android:id="@+id/glow_tr"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:background="@drawable/bg_glow_blue"
+        android:alpha="0.18"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="-80dp"
+        android:layout_marginEnd="-80dp"/>
+
+    <!-- Green glow bottom-left -->
+    <View
+        android:id="@+id/glow_bl"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:background="@drawable/bg_glow_green"
+        android:alpha="0.12"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="-60dp"
+        android:layout_marginStart="-60dp"/>
+
+    <!-- Logo + App Name (center) -->
+    <LinearLayout
+        android:id="@+id/ll_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:alpha="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="60dp">
+
+        <!-- Icon card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            app:cardCornerRadius="26dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/dark_bg_card">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:background="@drawable/bg_btn_primary">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚡"
+                    android:textSize="44sp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- App name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HabitFlow"
+            android:textColor="@color/dark_text_primary"
+            android:textSize="38sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02"
+            android:layout_marginTop="20dp"/>
+
+            <!-- Tagline -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_tagline"
+            android:textColor="@color/dark_text_secondary"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+
+    <!-- Loading dots -->
+    <LinearLayout
+        android:id="@+id/ll_dots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:alpha="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="64dp">
+
+        <View android:id="@+id/dot1" android:layout_width="8dp" android:layout_height="8dp"
+            android:layout_marginHorizontal="5dp" android:background="@drawable/bg_dot_inactive"/>
+        <View android:id="@+id/dot2" android:layout_width="8dp" android:layout_height="8dp"
+            android:layout_marginHorizontal="5dp" android:background="@drawable/bg_dot_inactive"/>
+        <View android:id="@+id/dot3" android:layout_width="8dp" android:layout_height="8dp"
+            android:layout_marginHorizontal="5dp" android:background="@drawable/bg_dot_inactive"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

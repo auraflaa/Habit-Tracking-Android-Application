@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom_sheet"
+    android:paddingBottom="36dp">
+
+    <!-- Handle -->
+    <View android:layout_width="40dp" android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp" android:layout_marginBottom="4dp"
+        android:background="@drawable/bg_sheet_handle"/>
+
+    <!-- Header -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingHorizontal="24dp" android:paddingVertical="14dp">
+
+        <TextView android:id="@+id/tv_sheet_title"
+            android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/add_habit_title"
+            android:textColor="@color/text_primary" android:textSize="22sp"
+            android:textStyle="bold"/>
+
+        <ImageButton android:id="@+id/btn_close"
+            android:layout_width="36dp" android:layout_height="36dp"
+            android:background="@drawable/bg_icon_btn"
+            android:src="@drawable/ic_close"
+            android:tint="@color/text_secondary"
+            android:contentDescription="Close"/>
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingHorizontal="24dp">
+
+            <!-- Habit name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_name"
+                style="@style/InputField"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="@string/hint_habit_name" android:layout_marginBottom="14dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_name"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"
+                    android:textColor="@color/text_primary"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Description -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_desc"
+                style="@style/InputField"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:hint="@string/hint_habit_desc" android:layout_marginBottom="20dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_desc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:minLines="2" android:maxLines="3"
+                    android:textColor="@color/text_primary"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Emoji picker -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/label_icon"
+                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textStyle="bold" android:letterSpacing="0.06"
+                android:layout_marginBottom="10dp"/>
+
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:scrollbars="none" android:layout_marginBottom="20dp">
+                <LinearLayout android:id="@+id/ll_emojis"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:orientation="horizontal"/>
+                <!-- Emoji buttons added programmatically in Fragment -->
+            </HorizontalScrollView>
+
+            <!-- Category -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/label_category"
+                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textStyle="bold" android:letterSpacing="0.06"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chips_category"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                app:singleSelection="true" app:selectionRequired="true"
+                android:layout_marginBottom="20dp">
+
+                <com.google.android.material.chip.Chip android:id="@+id/chip_fitness"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="💪 Fitness" android:checked="true"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_learning"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="📚 Learning"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_wellness"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="🧘 Wellness"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_nutrition"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="🥗 Nutrition"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_productivity"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="⚡ Productivity"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_social"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="🤝 Social"/>
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Priority -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/label_priority"
+                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textStyle="bold" android:letterSpacing="0.06"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chips_priority"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                app:singleSelection="true" app:selectionRequired="true"
+                android:layout_marginBottom="20dp">
+
+                <com.google.android.material.chip.Chip android:id="@+id/chip_high"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="🔴 High"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_medium"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="🟡 Medium" android:checked="true"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_low"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="🟢 Low"/>
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Time of Day -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/label_time_of_day"
+                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textStyle="bold" android:letterSpacing="0.06"
+                android:layout_marginBottom="10dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chips_segment"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                app:singleSelection="true" app:selectionRequired="true"
+                android:layout_marginBottom="20dp">
+
+                <com.google.android.material.chip.Chip android:id="@+id/chip_morning"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="🌅 Morning" android:checked="true"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_afternoon"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="☀️ Afternoon"/>
+                <com.google.android.material.chip.Chip android:id="@+id/chip_evening"
+                    style="@style/FilterChip" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="🌙 Evening"/>
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Reminder row -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_card"
+                android:paddingHorizontal="16dp" android:paddingVertical="14dp"
+                android:layout_marginBottom="20dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="⏰" android:textSize="20sp" android:layout_marginEnd="12dp"/>
+
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="@string/label_reminder"
+                        android:textColor="@color/text_primary" android:textSize="14sp"
+                        android:textStyle="bold"/>
+                    <TextView android:id="@+id/tv_reminder_time"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="@string/no_reminder"
+                        android:textColor="@color/text_secondary" android:textSize="12sp"/>
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_reminder"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <!-- Color picker -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/label_color"
+                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textStyle="bold" android:letterSpacing="0.06"
+                android:layout_marginBottom="10dp"/>
+
+            <LinearLayout android:id="@+id/ll_colors"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:layout_marginBottom="28dp"/>
+            <!-- Color swatches added programmatically -->
+
+            <!-- Save button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save"
+                style="@style/PrimaryButton"
+                android:layout_width="match_parent" android:layout_height="56dp"
+                android:text="@string/btn_save"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Delete (edit mode) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_delete"
+                android:layout_width="match_parent" android:layout_height="48dp"
+                android:text="@string/btn_delete"
+                android:textColor="@color/error_red"
+                android:background="@android:color/transparent"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

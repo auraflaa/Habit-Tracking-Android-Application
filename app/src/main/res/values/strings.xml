@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HabitFlow</string>
+    <string name="app_tagline">Build your best self, one day at a time.</string>
+
+    <!-- Nav Labels -->
+    <string name="nav_today">Today</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_progress">Progress</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Home Screen -->
+    <string name="good_morning">Good Morning</string>
+    <string name="good_afternoon">Good Afternoon</string>
+    <string name="good_evening">Good Evening</string>
+    <string name="todays_habits">Today\'s Habits</string>
+    <string name="habits_complete">%1$d / %2$d Complete</string>
+    <string name="streak_label">🔥 %1$d day streak</string>
+    <string name="add_habit">+ New Habit</string>
+    <string name="label_rest_day">Mark as Rest Day</string>
+    <string name="label_my_habits">My Habits</string>
+    <string name="empty_title">No habits yet</string>
+    <string name="empty_subtitle">Start your journey by adding a habit!</string>
+
+    <!-- Add/Edit Habit -->
+    <string name="add_habit_title">New Habit</string>
+    <string name="edit_habit_title">Edit Habit</string>
+    <string name="hint_habit_name">What habit do you want to build?</string>
+    <string name="hint_habit_desc">Why does this matter to you? (optional)</string>
+    <string name="label_category">Category</string>
+    <string name="label_priority">Priority</string>
+    <string name="label_time_of_day">Time of Day</string>
+    <string name="label_reminder">Reminder</string>
+    <string name="label_color">Habit Color</string>
+    <string name="label_icon">Icon</string>
+    <string name="no_reminder">No reminder set</string>
+    <string name="btn_save">Save Habit</string>
+    <string name="btn_delete">Delete Habit</string>
+    <string name="content_description_add_habit">Add Habit</string>
+
+    <!-- Calendar -->
+    <string name="calendar_title">Calendar</string>
+
+    <!-- Progress -->
+    <string name="progress_title">Progress</string>
+    <string name="label_best_streak">Best Streak</string>
+    <string name="label_completed">Total Completions</string>
+    <string name="label_current">Current Streak</string>
+    <string name="label_breakdown">Habit Breakdown</string>
+    <string name="label_heatmap">Activity Heatmap</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+
+    <!-- Login -->
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Your habits are waiting.</string>
+    <string name="register_title">Start Your Journey</string>
+    <string name="register_subtitle">Build habits that stick.</string>
+    <string name="hint_name">Full name</string>
+    <string name="hint_email">Email address</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_login">Sign In</string>
+    <string name="btn_register">Create Account</string>
+    <string name="link_register">New here? Create an account</string>
+    <string name="link_login">Already have an account? Sign In</string>
+    <string name="skip">Continue without account</string>
+
+    <!-- Quotes -->
+    <string-array name="quotes">
+        <item>We are what we repeatedly do. Excellence, then, is not an act, but a habit.|Aristotle</item>
+        <item>Success is the sum of small efforts, repeated day in and day out.|Robert Collier</item>
+        <item>Motivation is what gets you started. Habit is what keeps you going.|Jim Ryun</item>
+        <item>The secret of your future is hidden in your daily routine.|Mike Murdock</item>
+    </string-array>
+</resources>

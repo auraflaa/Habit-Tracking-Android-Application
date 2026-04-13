@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:clipToPadding="false"
+        android:paddingBottom="32dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ── HEADER ─────────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="24dp"
+                android:paddingTop="56dp"
+                android:paddingBottom="16dp">
+
+                <!-- Greeting row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:orientation="vertical">
+
+                        <TextView android:id="@+id/tv_greeting"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Good Morning,"
+                            android:textColor="@color/text_secondary" android:textSize="14sp"/>
+
+                        <TextView android:id="@+id/tv_username"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Alex 👋"
+                            android:textColor="@color/text_primary" android:textSize="26sp"
+                            android:textStyle="bold" android:letterSpacing="-0.01"/>
+                    </LinearLayout>
+
+                    <!-- Streak badge -->
+                    <LinearLayout android:id="@+id/ll_streak"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:background="@drawable/bg_streak_badge"
+                        android:paddingHorizontal="14dp" android:paddingVertical="8dp"
+                        android:orientation="horizontal" android:gravity="center_vertical">
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="🔥" android:textSize="16sp"/>
+                        <TextView android:id="@+id/tv_streak"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="7 days"
+                            android:textColor="@color/white" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Daily Progress Card -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_progress"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    app:cardCornerRadius="20dp" app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/bg_card">
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:padding="20dp">
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:orientation="horizontal" android:gravity="center_vertical">
+                            <TextView android:layout_width="0dp" android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Today's Progress"
+                                android:textColor="@color/text_secondary" android:textSize="12sp"
+                                android:letterSpacing="0.04"/>
+                            <TextView android:id="@+id/tv_progress_count"
+                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="0 / 0"
+                                android:textColor="@color/brand_blue" android:textSize="14sp"
+                                android:textStyle="bold"/>
+                        </LinearLayout>
+
+                        <ProgressBar android:id="@+id/pb_today"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent" android:layout_height="8dp"
+                            android:layout_marginTop="12dp" android:layout_marginBottom="4dp"
+                            android:progressDrawable="@drawable/progress_bar_gradient"
+                            android:max="100" android:progress="0"/>
+
+                        <TextView android:id="@+id/tv_progress_label"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Add habits to get started!"
+                            android:textColor="@color/text_dim" android:textSize="11sp"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </LinearLayout>
+
+            <!-- ── QUOTE CARD ──────────────────────────────── -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:paddingHorizontal="24dp" android:paddingBottom="16dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:background="@drawable/bg_quote_card" android:padding="20dp"
+                    android:orientation="vertical">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="✨ Daily Spark"
+                        android:textColor="@color/brand_blue" android:textSize="11sp"
+                        android:textStyle="bold" android:letterSpacing="0.08"
+                        android:layout_marginBottom="10dp"/>
+
+                    <TextView android:id="@+id/tv_quote"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary" android:textSize="14sp"
+                        android:textStyle="italic" android:lineSpacingMultiplier="1.6"/>
+
+                    <TextView android:id="@+id/tv_quote_author"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:textColor="@color/text_secondary" android:textSize="12sp"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ── SEGMENT CHIPS ───────────────────────────── -->
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:scrollbars="none" android:paddingStart="24dp" android:paddingBottom="12dp"
+                android:clipToPadding="false">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group_segments"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    app:singleSelection="true" app:selectionRequired="true">
+
+                    <com.google.android.material.chip.Chip android:id="@+id/chip_all"
+                        style="@style/FilterChip" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="All" android:checked="true"/>
+                    <com.google.android.material.chip.Chip android:id="@+id/chip_morning"
+                        style="@style/FilterChip" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="🌅 Morning"/>
+                    <com.google.android.material.chip.Chip android:id="@+id/chip_afternoon"
+                        style="@style/FilterChip" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="☀️ Afternoon"/>
+                    <com.google.android.material.chip.Chip android:id="@+id/chip_evening"
+                        style="@style/FilterChip" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="🌙 Evening"/>
+                </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
+
+            <!-- ── HABITS HEADER ──────────────────────────── -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingHorizontal="24dp" android:paddingBottom="12dp">
+
+                <TextView android:layout_width="0dp" android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_my_habits"
+                    android:textColor="@color/text_primary" android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <TextView android:id="@+id/btn_rest_day"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/label_rest_day"
+                    android:textColor="@color/text_secondary" android:textSize="12sp"
+                    android:background="@drawable/bg_chip_outline"
+                    android:paddingHorizontal="12dp" android:paddingVertical="6dp"
+                    android:clickable="true" android:focusable="true"/>
+            </LinearLayout>
+
+            <!-- ── HABITS LIST ─────────────────────────────── -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_habits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp"/>
+
+            <!-- ── EMPTY STATE ─────────────────────────────── -->
+            <LinearLayout android:id="@+id/ll_empty"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:gravity="center"
+                android:paddingVertical="60dp" android:visibility="gone">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="🌱" android:textSize="56sp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/empty_title"
+                    android:textColor="@color/text_primary" android:textSize="20sp"
+                    android:textStyle="bold" android:layout_marginTop="16dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/empty_subtitle"
+                    android:textColor="@color/text_secondary" android:textSize="14sp"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
