@@ -166,8 +166,8 @@ public class HomeFragment extends Fragment {
         else if (hour < 17) greetingRes = R.string.good_afternoon;
         else                greetingRes = R.string.good_evening;
         tvGreeting.setText(greetingRes);
-        // TODO: replace "Alex" with logged-in user's name from SharedPreferences
-        tvUsername.setText("Alex 👋");
+        // TODO: replace "V" with logged-in user's name from SharedPreferences
+        tvUsername.setText("V 👋");
     }
 
     // ── Random motivational quote ─────────────────────────────────────────────
