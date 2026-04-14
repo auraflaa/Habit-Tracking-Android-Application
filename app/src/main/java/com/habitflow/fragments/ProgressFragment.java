@@ -48,10 +48,24 @@ public class ProgressFragment extends Fragment {
         setupTabs();
     }
 
-    @Override public void onResume() { super.onResume(); loadStats(); }
+    @Override public void onResume() { 
+        super.onResume(); 
+        refreshData();
+    }
+
+    public void onHabitAdded() {
+        if (isAdded()) {
+            refreshData();
+        }
+    }
+
+    private void refreshData() {
+        loadStats();
+        setupBreakdown();
+    }
 
     private void loadStats() {
-        List<Habit> habits = HabitStore.get().getHabits();
+        List<Habit> habits = HabitStore.get(requireContext()).getHabits();
         int bestStreak = 0, currentStreak = 0, total = 0;
         for (Habit h : habits) {
             if (h.bestStreak    > bestStreak)    bestStreak    = h.bestStreak;
@@ -64,7 +78,7 @@ public class ProgressFragment extends Fragment {
     }
 
     private void setupBreakdown() {
-        List<Habit> habits = HabitStore.get().getHabits();
+        List<Habit> habits = HabitStore.get(requireContext()).getHabits();
         BreakdownAdapter adapter = new BreakdownAdapter(habits);
         rvBreakdown.setLayoutManager(new LinearLayoutManager(getContext()));
         rvBreakdown.setAdapter(adapter);

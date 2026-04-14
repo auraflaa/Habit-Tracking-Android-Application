@@ -134,7 +134,6 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     private void updateColorSelection() {
         for (int i = 0; i < llColors.getChildCount(); i++) {
             View v = llColors.getChildAt(i);
-            // Simple visual indicator for selection
             if (colors[i].equals(selectedColor)) {
                 v.setScaleX(1.2f);
                 v.setScaleY(1.2f);
@@ -188,9 +187,9 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         h.segment = getSelectedChipText(chipsSegment);
 
         if (habitToEdit != null) {
-            HabitStore.get().update(h);
+            HabitStore.get(requireContext()).update(requireContext(), h);
         } else {
-            HabitStore.get().add(h);
+            HabitStore.get(requireContext()).add(requireContext(), h);
         }
 
         if (onSaveListener != null) onSaveListener.run();
@@ -202,13 +201,12 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         if (id == View.NO_ID) return "";
         Chip chip = group.findViewById(id);
         String text = chip.getText().toString();
-        // Remove emoji from chip text if present (e.g., "💪 Fitness" -> "Fitness")
         return text.replaceAll("[^a-zA-Z]", "").trim();
     }
 
     private void deleteHabit() {
         if (habitToEdit != null) {
-            HabitStore.get().delete(habitToEdit.id);
+            HabitStore.get(requireContext()).delete(requireContext(), habitToEdit.id);
             if (onSaveListener != null) onSaveListener.run();
             dismiss();
         }

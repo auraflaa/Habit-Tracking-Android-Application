@@ -54,6 +54,7 @@
 
     <!-- Calendar -->
     <string name="calendar_title">Calendar</string>
+    <string name="completion_percentage">%1$d%% completion</string>
 
     <!-- Progress -->
     <string name="progress_title">Progress</string>

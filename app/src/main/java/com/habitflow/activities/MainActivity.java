@@ -5,6 +5,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -46,14 +47,29 @@ public class MainActivity extends AppCompatActivity {
     // ── Fragment management ───────────────────────────────────────────────────
 
     private void initFragments(Bundle saved) {
-        if (saved != null) return; // Fragments already re-created by system
+        FragmentManager fm = getSupportFragmentManager();
+        
+        if (saved != null) {
+            homeFragment     = (HomeFragment) fm.findFragmentByTag("home");
+            calendarFragment = (CalendarFragment) fm.findFragmentByTag("calendar");
+            progressFragment = (ProgressFragment) fm.findFragmentByTag("progress");
+            settingsFragment = (SettingsFragment) fm.findFragmentByTag("settings");
+
+            if (homeFragment != null && !homeFragment.isHidden()) activeFragment = homeFragment;
+            else if (calendarFragment != null && !calendarFragment.isHidden()) activeFragment = calendarFragment;
+            else if (progressFragment != null && !progressFragment.isHidden()) activeFragment = progressFragment;
+            else if (settingsFragment != null && !settingsFragment.isHidden()) activeFragment = settingsFragment;
+            
+            if (activeFragment == null) activeFragment = homeFragment;
+            return;
+        }
 
         homeFragment     = new HomeFragment();
         calendarFragment = new CalendarFragment();
         progressFragment = new ProgressFragment();
         settingsFragment = new SettingsFragment();
 
-        getSupportFragmentManager().beginTransaction()
+        fm.beginTransaction()
                 .add(R.id.fragment_container, homeFragment,     "home")
                 .add(R.id.fragment_container, calendarFragment, "calendar").hide(calendarFragment)
                 .add(R.id.fragment_container, progressFragment, "progress").hide(progressFragment)
@@ -64,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showFragment(Fragment target) {
-        if (target == activeFragment) return;
+        if (target == null || target == activeFragment) return;
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .hide(activeFragment)
@@ -80,16 +96,12 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
             if (id == R.id.nav_today) {
                 showFragment(homeFragment);
-                fab.show();
             } else if (id == R.id.nav_calendar) {
                 showFragment(calendarFragment);
-                fab.hide();
             } else if (id == R.id.nav_progress) {
                 showFragment(progressFragment);
-                fab.hide();
             } else if (id == R.id.nav_settings) {
                 showFragment(settingsFragment);
-                fab.hide();
             }
             return true;
         });
@@ -99,14 +111,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupFab() {
         fab.setOnClickListener(v -> {
-            AddHabitSheet sheet = AddHabitSheet.newInstance(null); // null = add mode
+            AddHabitSheet sheet = AddHabitSheet.newInstance(null);
+            sheet.setOnSaveListener(this::notifyDataChanged);
             sheet.show(getSupportFragmentManager(), "add_habit");
         });
     }
 
-    // ── Called by SettingsFragment when theme changes ─────────────────────────
+    /** Called when data in HabitStore changes (added, edited, or toggled) */
+    public void notifyDataChanged() {
+        if (homeFragment != null) homeFragment.refreshData();
+        if (calendarFragment != null) calendarFragment.onHabitAdded(); // Using existing method
+        if (progressFragment != null) progressFragment.onHabitAdded(); // Using existing method
+    }
 
     public void restartForTheme() {
-        recreate(); // Re-creates the activity with the new theme applied in onCreate
+        recreate();
     }
 }

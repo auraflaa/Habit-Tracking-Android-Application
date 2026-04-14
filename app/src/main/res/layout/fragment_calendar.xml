@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_primary">
+    android:background="?attr/customWindowBackground">
 
     <!-- Header -->
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -15,25 +15,25 @@
         <TextView android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/calendar_title"
-            android:textColor="@color/text_primary" android:textSize="28sp"
+            android:textColor="?attr/customTextPrimary" android:textSize="28sp"
             android:textStyle="bold"/>
 
         <ImageButton android:id="@+id/btn_prev"
             android:layout_width="36dp" android:layout_height="36dp"
             android:background="@drawable/bg_icon_btn"
-            android:src="@drawable/ic_chevron_left" android:tint="@color/text_secondary"
+            android:src="@drawable/ic_chevron_left" android:tint="?attr/customTextSecondary"
             android:contentDescription="Previous month"/>
 
         <TextView android:id="@+id/tv_month"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="April 2026"
-            android:textColor="@color/text_primary" android:textSize="15sp"
+            android:textColor="?attr/customTextPrimary" android:textSize="15sp"
             android:textStyle="bold" android:paddingHorizontal="12dp"/>
 
         <ImageButton android:id="@+id/btn_next"
             android:layout_width="36dp" android:layout_height="36dp"
             android:background="@drawable/bg_icon_btn"
-            android:src="@drawable/ic_chevron_right" android:tint="@color/text_secondary"
+            android:src="@drawable/ic_chevron_right" android:tint="?attr/customTextSecondary"
             android:contentDescription="Next month"/>
     </LinearLayout>
 
@@ -41,26 +41,26 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="horizontal" android:paddingHorizontal="12dp" android:paddingBottom="8dp">
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Su" android:textColor="@color/text_dim" android:textSize="12sp"
-            android:textStyle="bold" android:gravity="center"/>
+            android:text="Su" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Mo" android:textColor="@color/text_dim" android:textSize="12sp"
-            android:textStyle="bold" android:gravity="center"/>
+            android:text="Mo" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Tu" android:textColor="@color/text_dim" android:textSize="12sp"
-            android:textStyle="bold" android:gravity="center"/>
+            android:text="Tu" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="We" android:textColor="@color/text_dim" android:textSize="12sp"
-            android:textStyle="bold" android:gravity="center"/>
+            android:text="We" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Th" android:textColor="@color/text_dim" android:textSize="12sp"
-            android:textStyle="bold" android:gravity="center"/>
+            android:text="Th" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Fr" android:textColor="@color/text_dim" android:textSize="12sp"
-            android:textStyle="bold" android:gravity="center"/>
+            android:text="Fr" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="Sa" android:textColor="@color/text_dim" android:textSize="12sp"
-            android:textStyle="bold" android:gravity="center"/>
+            android:text="Sa" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
     </LinearLayout>
 
     <!-- Calendar grid (7×6 built programmatically) -->
@@ -74,7 +74,7 @@
 
     <!-- Divider -->
     <View android:layout_width="match_parent" android:layout_height="1dp"
-        android:background="@color/border_color"
+        android:background="?attr/customBorderColor"
         android:layout_marginHorizontal="24dp" android:layout_marginVertical="12dp"/>
 
     <!-- Selected day summary -->
@@ -87,20 +87,20 @@
             <TextView android:id="@+id/tv_selected_date"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="Today"
-                android:textColor="@color/text_primary" android:textSize="17sp"
+                android:textColor="?attr/customTextPrimary" android:textSize="17sp"
                 android:textStyle="bold"/>
             <TextView android:id="@+id/tv_selected_rate"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="0% completion"
-                android:textColor="@color/text_secondary" android:textSize="13sp"/>
+                android:textColor="?attr/customTextSecondary" android:textSize="13sp"/>
         </LinearLayout>
 
         <!-- Heatmap legend -->
         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="Less" android:textColor="@color/text_dim" android:textSize="10sp"
-                android:layout_marginEnd="4dp"/>
+                android:text="Less" android:textColor="?attr/customTextSecondary" android:textSize="10sp"
+                android:layout_marginEnd="4dp" android:alpha="0.6"/>
             <View android:layout_width="10dp" android:layout_height="10dp"
                 android:background="@drawable/bg_heatmap_0" android:layout_marginEnd="2dp"/>
             <View android:layout_width="10dp" android:layout_height="10dp"
@@ -110,7 +110,8 @@
             <View android:layout_width="10dp" android:layout_height="10dp"
                 android:background="@drawable/bg_heatmap_3" android:layout_marginEnd="4dp"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="More" android:textColor="@color/text_dim" android:textSize="10sp"/>
+                android:text="More" android:textColor="?attr/customTextSecondary" android:textSize="10sp"
+                android:alpha="0.6"/>
         </LinearLayout>
     </LinearLayout>
 

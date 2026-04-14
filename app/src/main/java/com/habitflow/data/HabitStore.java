@@ -1,29 +1,57 @@
 package com.habitflow.data;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.habitflow.model.Habit;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Simple in-memory store for demo/UI purposes.
- * Replace this with Room + Repository when wiring up the DB.
- *
- * Usage:  HabitStore.get().getHabits()
+ * Local Storage implementation using SharedPreferences and Gson.
+ * This can be easily swapped for a Room database or a Remote API later.
  */
 public class HabitStore {
 
-    private static HabitStore instance;
-    private final List<Habit> habits = new ArrayList<>();
-    private int nextId = 1;
+    private static final String PREF_NAME = "habit_flow_prefs";
+    private static final String KEY_HABITS = "habits_data";
 
-    private HabitStore() {
-        seedDemoData();
+    private static HabitStore instance;
+    private List<Habit> habits = new ArrayList<>();
+    private final Gson gson = new Gson();
+
+    private HabitStore(Context context) {
+        load(context);
     }
 
-    public static HabitStore get() {
-        if (instance == null) instance = new HabitStore();
+    public static HabitStore get(Context context) {
+        if (instance == null) {
+            instance = new HabitStore(context.getApplicationContext());
+        }
         return instance;
+    }
+
+    // ── Persistence ──────────────────────────────────────────────────────────
+
+    private void save(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String json = gson.toJson(habits);
+        prefs.edit().putString(KEY_HABITS, json).apply();
+    }
+
+    private void load(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String json = prefs.getString(KEY_HABITS, null);
+        if (json != null) {
+            Type type = new TypeToken<ArrayList<Habit>>() {}.getType();
+            habits = gson.fromJson(json, type);
+            if (habits == null) habits = new ArrayList<>();
+        }
     }
 
     // ── CRUD ─────────────────────────────────────────────────────────────────
@@ -38,28 +66,35 @@ public class HabitStore {
         return result;
     }
 
-    public void add(Habit h) {
-        h.id = nextId++;
+    public void add(Context context, Habit h) {
         habits.add(h);
+        save(context);
     }
 
-    public void update(Habit updated) {
+    public void update(Context context, Habit updated) {
         for (int i = 0; i < habits.size(); i++) {
-            if (habits.get(i).id == updated.id) { habits.set(i, updated); return; }
+            if (Objects.equals(habits.get(i).id, updated.id)) {
+                habits.set(i, updated);
+                save(context);
+                return;
+            }
         }
     }
 
-    public void delete(int id) {
-        habits.removeIf(h -> h.id == id);
+    public void delete(Context context, String id) {
+        habits.removeIf(h -> Objects.equals(h.id, id));
+        save(context);
     }
 
-    public Habit findById(int id) {
-        for (Habit h : habits) if (h.id == id) return h;
+    public Habit findById(String id) {
+        for (Habit h : habits) {
+            if (Objects.equals(h.id, id)) return h;
+        }
         return null;
     }
 
     /** Toggle completedToday flag and update streak. */
-    public void toggleComplete(int id) {
+    public void toggleComplete(Context context, String id) {
         Habit h = findById(id);
         if (h == null) return;
         h.completedToday = !h.completedToday;
@@ -71,6 +106,7 @@ public class HabitStore {
             h.currentStreak = Math.max(0, h.currentStreak - 1);
             h.totalCompletions = Math.max(0, h.totalCompletions - 1);
         }
+        save(context);
     }
 
     /** Count how many habits are completed today. */
@@ -78,33 +114,5 @@ public class HabitStore {
         int c = 0;
         for (Habit h : habits) if (h.completedToday) c++;
         return c;
-    }
-
-    // ── Seed demo habits ──────────────────────────────────────────────────────
-
-    private void seedDemoData() {
-        Habit h1 = new Habit(nextId++, "Morning Run",      "🏃", Habit.CAT_FITNESS,      Habit.PRIORITY_HIGH,   Habit.SEG_MORNING,   "#FF5252");
-        h1.currentStreak = 7; h1.bestStreak = 14; h1.totalCompletions = 42;
-        habits.add(h1);
-
-        Habit h2 = new Habit(nextId++, "Read 20 Pages",    "📚", Habit.CAT_LEARNING,     Habit.PRIORITY_MEDIUM, Habit.SEG_MORNING,   "#FFD600");
-        h2.currentStreak = 3; h2.bestStreak = 10; h2.totalCompletions = 18;
-        habits.add(h2);
-
-        Habit h3 = new Habit(nextId++, "Meditate 10 min",  "🧘", Habit.CAT_WELLNESS,     Habit.PRIORITY_MEDIUM, Habit.SEG_AFTERNOON, "#00BCD4");
-        h3.currentStreak = 5; h3.bestStreak = 5; h3.totalCompletions = 20;
-        habits.add(h3);
-
-        Habit h4 = new Habit(nextId++, "Drink 8 Glasses",  "💧", Habit.CAT_NUTRITION,    Habit.PRIORITY_LOW,    Habit.SEG_AFTERNOON, "#7AD326");
-        h4.currentStreak = 2; h4.bestStreak = 7; h4.totalCompletions = 15;
-        habits.add(h4);
-
-        Habit h5 = new Habit(nextId++, "Deep Work 2h",     "⚡", Habit.CAT_PRODUCTIVITY, Habit.PRIORITY_HIGH,   Habit.SEG_AFTERNOON, "#728AED");
-        h5.currentStreak = 1; h5.bestStreak = 9; h5.totalCompletions = 30;
-        habits.add(h5);
-
-        Habit h6 = new Habit(nextId++, "Journal",          "✍️", Habit.CAT_WELLNESS,     Habit.PRIORITY_LOW,    Habit.SEG_EVENING,   "#9C6AE6");
-        h6.currentStreak = 4; h6.bestStreak = 12; h6.totalCompletions = 22;
-        habits.add(h6);
     }
 }

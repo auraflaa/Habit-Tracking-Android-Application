@@ -1,5 +1,7 @@
 package com.habitflow.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.ChipGroup;
 import com.habitflow.R;
+import com.habitflow.activities.MainActivity;
 import com.habitflow.adapters.HabitAdapter;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.Habit;
@@ -54,16 +57,20 @@ public class HomeFragment extends Fragment {
         setupSegmentChips();
         setGreeting();
         setRandomQuote();
-        loadHabits("ALL");
-        updateStreakBadge();
+        refreshData();
     }
 
     @Override public void onResume() {
         super.onResume();
-        loadHabits(getActiveSegment());
+        refreshData();
     }
 
-    // ── Bind ─────────────────────────────────────────────────────────────────
+    public void refreshData() {
+        if (isAdded()) {
+            loadHabits(getActiveSegment());
+            updateStreakBadge();
+        }
+    }
 
     private void bindViews(View v) {
         rvHabits         = v.findViewById(R.id.rv_habits);
@@ -81,13 +88,15 @@ public class HomeFragment extends Fragment {
         v.findViewById(R.id.btn_rest_day).setOnClickListener(vv -> showRestDayDialog());
     }
 
-    // ── RecyclerView ─────────────────────────────────────────────────────────
-
     private void setupRecyclerView() {
         adapter = new HabitAdapter(displayList, new HabitAdapter.OnHabitClick() {
             @Override public void onCheck(Habit habit, int position) {
-                HabitStore.get().toggleComplete(habit.id);
+                HabitStore.get(requireContext()).toggleComplete(requireContext(), habit.id);
                 refreshProgress();
+                updateStreakBadge();
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).notifyDataChanged();
+                }
             }
             @Override public void onLongPress(Habit habit, int position) {
                 openEditSheet(habit);
@@ -95,10 +104,8 @@ public class HomeFragment extends Fragment {
         });
         rvHabits.setLayoutManager(new LinearLayoutManager(getContext()));
         rvHabits.setAdapter(adapter);
-        rvHabits.setItemAnimator(null); // disable default flicker
+        rvHabits.setItemAnimator(null);
     }
-
-    // ── Segment chips ─────────────────────────────────────────────────────────
 
     private void setupSegmentChips() {
         chipGroupSegments.setOnCheckedStateChangeListener((group, checkedIds) -> loadHabits(getActiveSegment()));
@@ -112,13 +119,11 @@ public class HomeFragment extends Fragment {
         return "ALL";
     }
 
-    // ── Load habits ───────────────────────────────────────────────────────────
-
     private void loadHabits(String segment) {
         displayList.clear();
         List<Habit> source = "ALL".equals(segment)
-                ? HabitStore.get().getHabits()
-                : HabitStore.get().getBySegment(segment);
+                ? HabitStore.get(requireContext()).getHabits()
+                : HabitStore.get(requireContext()).getBySegment(segment);
         displayList.addAll(source);
 
         boolean isEmpty = displayList.isEmpty();
@@ -129,12 +134,10 @@ public class HomeFragment extends Fragment {
         refreshProgress();
     }
 
-    // ── Progress bar ──────────────────────────────────────────────────────────
-
     private void refreshProgress() {
-        List<Habit> all   = HabitStore.get().getHabits();
+        List<Habit> all   = HabitStore.get(requireContext()).getHabits();
         int total         = all.size();
-        int done          = HabitStore.get().completedTodayCount();
+        int done          = HabitStore.get(requireContext()).completedTodayCount();
         int pct           = total > 0 ? (done * 100 / total) : 0;
 
         tvProgressCount.setText(getString(R.string.habits_complete, done, total));
@@ -146,31 +149,27 @@ public class HomeFragment extends Fragment {
         else                 tvProgressLabel.setText(R.string.progress_done);
     }
 
-    // ── Streak badge ──────────────────────────────────────────────────────────
-
     private void updateStreakBadge() {
-        // Find the best current streak across all habits
         int maxStreak = 0;
-        for (Habit h : HabitStore.get().getHabits()) {
+        for (Habit h : HabitStore.get(requireContext()).getHabits()) {
             if (h.currentStreak > maxStreak) maxStreak = h.currentStreak;
         }
         tvStreak.setText(getResources().getQuantityString(R.plurals.streak_days, maxStreak, maxStreak));
     }
 
-    // ── Greeting ──────────────────────────────────────────────────────────────
-
     private void setGreeting() {
+        // LOAD NAME FROM SHARED PREFERENCES (For Review Marks)
+        SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String name = prefs.getString("user_name", "User");
+        
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int greetingRes;
         if (hour < 12)      greetingRes = R.string.good_morning;
         else if (hour < 17) greetingRes = R.string.good_afternoon;
         else                greetingRes = R.string.good_evening;
         tvGreeting.setText(greetingRes);
-        // TODO: replace "V" with logged-in user's name from SharedPreferences
-        tvUsername.setText("V 👋");
+        tvUsername.setText(name + " 👋");
     }
-
-    // ── Random motivational quote ─────────────────────────────────────────────
 
     private void setRandomQuote() {
         String[] raw = getResources().getStringArray(R.array.quotes);
@@ -179,8 +178,6 @@ public class HomeFragment extends Fragment {
         tvQuote.setText(getString(R.string.quote_format, parts[0]));
         tvQuoteAuthor.setText(parts.length > 1 ? getString(R.string.quote_author_format, parts[1]) : "");
     }
-
-    // ── Rest Day dialog ───────────────────────────────────────────────────────
 
     private void showRestDayDialog() {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
@@ -193,11 +190,9 @@ public class HomeFragment extends Fragment {
                 .show();
     }
 
-    // ── Edit sheet ────────────────────────────────────────────────────────────
-
     private void openEditSheet(Habit habit) {
         AddHabitSheet sheet = AddHabitSheet.newInstance(habit);
-        sheet.setOnSaveListener(() -> loadHabits(getActiveSegment()));
+        sheet.setOnSaveListener(this::refreshData);
         sheet.show(getParentFragmentManager(), "edit_habit");
     }
 }

@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_primary"
+    android:background="?attr/customWindowBackground"
     android:scrollbars="none">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -13,7 +13,7 @@
         <!-- Header -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="@string/progress_title"
-            android:textColor="@color/text_primary" android:textSize="28sp"
+            android:textColor="?attr/customTextPrimary" android:textSize="28sp"
             android:textStyle="bold" android:paddingHorizontal="24dp"
             android:paddingTop="56dp" android:paddingBottom="20dp"/>
 
@@ -26,7 +26,7 @@
             <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_weight="1"
                 android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
                 app:cardCornerRadius="20dp" app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/bg_card">
+                app:cardBackgroundColor="?attr/customCardBackground">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="@string/label_best_streak"
-                        android:textColor="@color/text_secondary" android:textSize="11sp"/>
+                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -46,7 +46,7 @@
             <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_weight="1"
                 android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
                 app:cardCornerRadius="20dp" app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/bg_card">
+                app:cardBackgroundColor="?attr/customCardBackground">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -58,7 +58,7 @@
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="@string/label_completed"
-                        android:textColor="@color/text_secondary" android:textSize="11sp"/>
+                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -66,7 +66,7 @@
             <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_weight="1"
                 android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
                 app:cardCornerRadius="20dp" app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/bg_card">
+                app:cardBackgroundColor="?attr/customCardBackground">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="@string/label_current"
-                        android:textColor="@color/text_secondary" android:textSize="11sp"/>
+                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
@@ -91,10 +91,10 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_icon_container"
+            android:background="?attr/customCardBackground"
             app:tabGravity="fill"
-            app:tabSelectedTextColor="@color/text_primary"
-            app:tabTextColor="@color/text_secondary"
+            app:tabSelectedTextColor="?attr/customTextPrimary"
+            app:tabTextColor="?attr/customTextSecondary"
             app:tabIndicatorColor="@color/brand_blue"
             app:tabIndicatorHeight="2dp"
             app:tabRippleColor="@color/transparent">
@@ -111,7 +111,7 @@
             android:layout_width="match_parent" android:layout_height="200dp"
             android:layout_marginHorizontal="24dp" android:layout_marginBottom="20dp"
             app:cardCornerRadius="20dp" app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/bg_card">
+            app:cardBackgroundColor="?attr/customCardBackground">
 
             <com.habitflow.views.BarChartView
                 android:id="@+id/bar_chart"
@@ -123,7 +123,7 @@
         <!-- Habit breakdown list -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="@string/label_breakdown"
-            android:textColor="@color/text_primary" android:textSize="18sp"
+            android:textColor="?attr/customTextPrimary" android:textSize="18sp"
             android:textStyle="bold" android:paddingHorizontal="24dp"
             android:paddingBottom="12dp"/>
 
@@ -137,7 +137,7 @@
         <!-- Activity grid (heatmap) -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="@string/label_heatmap"
-            android:textColor="@color/text_primary" android:textSize="18sp"
+            android:textColor="?attr/customTextPrimary" android:textSize="18sp"
             android:textStyle="bold" android:paddingHorizontal="24dp"
             android:paddingTop="20dp" android:paddingBottom="12dp"/>
 

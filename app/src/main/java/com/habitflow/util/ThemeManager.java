@@ -31,6 +31,9 @@ public class ThemeManager {
             case THEME_FOREST:
                 activity.setTheme(R.style.Theme_HabitFlow_Forest);
                 break;
+            case THEME_AMOLED:
+                activity.setTheme(R.style.Theme_HabitFlow_Amoled);
+                break;
             default:
                 activity.setTheme(R.style.Theme_HabitFlow_Dark);
                 break;

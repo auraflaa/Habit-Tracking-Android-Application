@@ -1,5 +1,6 @@
 package com.habitflow.fragments;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -35,7 +36,7 @@ public class CalendarFragment extends Fragment {
     private TextView        tvMonth, tvSelectedDate, tvSelectedRate;
     private RecyclerView    rvDayHabits;
     private HabitAdapter    dayAdapter;
-    private List<Habit>     dayHabits = new ArrayList<>();
+    private final List<Habit> dayHabits = new ArrayList<>();
 
     private Calendar currentCal;
     private int selectedDay = -1;
@@ -64,6 +65,25 @@ public class CalendarFragment extends Fragment {
         setupNavButtons(view);
         renderCalendar();
         showDayHabits(selectedDay);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshData();
+    }
+
+    public void onHabitAdded() {
+        if (isAdded()) {
+            refreshData();
+        }
+    }
+
+    private void refreshData() {
+        if (selectedDay != -1) {
+            showDayHabits(selectedDay);
+        }
+        renderCalendar();
     }
 
     private void setupDayRecycler() {
@@ -146,7 +166,8 @@ public class CalendarFragment extends Fragment {
             }
 
             cell.setBackground(bg);
-            cell.setPadding(4, 4, 4, 4);
+            int padding = dpToPx(4);
+            cell.setPadding(padding, padding, padding, padding);
             cell.setOnClickListener(v -> {
                 selectedDay = d;
                 renderCalendar();
@@ -165,6 +186,7 @@ public class CalendarFragment extends Fragment {
         gridCalendar.addView(blank);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void showDayHabits(int day) {
         Calendar target = (Calendar) currentCal.clone();
         target.set(Calendar.DAY_OF_MONTH, day);
@@ -177,12 +199,12 @@ public class CalendarFragment extends Fragment {
         tvSelectedDate.setText(isToday ? "Today" : fmt.format(target.getTime()));
 
         dayHabits.clear();
-        dayHabits.addAll(HabitStore.get().getHabits());
+        dayHabits.addAll(HabitStore.get(requireContext()).getHabits());
         dayAdapter.notifyDataSetChanged();
 
         float pct = fakeCompletion(day);
         int pctInt = Math.round(pct * 100);
-        tvSelectedRate.setText(pctInt + "% completion");
+        tvSelectedRate.setText(getString(R.string.completion_percentage, pctInt));
     }
 
     private float fakeCompletion(int day) {

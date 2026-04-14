@@ -1,6 +1,7 @@
 package com.habitflow.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class Habit implements Serializable {
     public static final String CAT_FITNESS = "Fitness";
@@ -18,7 +19,7 @@ public class Habit implements Serializable {
     public static final String SEG_AFTERNOON = "Afternoon";
     public static final String SEG_EVENING = "Evening";
 
-    public int id;
+    public String id; // Changed from int to String for Backend/UUID compatibility
     public String name;
     public String description = "";
     public String emoji;
@@ -34,9 +35,11 @@ public class Habit implements Serializable {
     public int totalCompletions = 0;
     public boolean completedToday = false;
 
-    public Habit() {}
+    public Habit() {
+        this.id = UUID.randomUUID().toString(); // Default ID generation
+    }
 
-    public Habit(int id, String name, String emoji, String category, String priority, String segment, String colorHex) {
+    public Habit(String id, String name, String emoji, String category, String priority, String segment, String colorHex) {
         this.id = id;
         this.name = name;
         this.emoji = emoji;

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="customWindowBackground" format="color" />
+    <attr name="customCardBackground" format="color" />
+    <attr name="customTextPrimary" format="color" />
+    <attr name="customTextSecondary" format="color" />
+    <attr name="customBorderColor" format="color" />
+    <attr name="customNavBackground" format="color" />
+</resources>

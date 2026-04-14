@@ -7,9 +7,17 @@
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/primary_green</item>
         <item name="colorTertiary">@color/accent_purple</item>
-        <item name="android:statusBarColor">@color/dark_bg_primary</item>
-        <item name="android:navigationBarColor">@color/dark_nav_bg</item>
-        <item name="android:windowBackground">@color/dark_bg_primary</item>
+        <item name="android:statusBarColor">?attr/customNavBackground</item>
+        <item name="android:navigationBarColor">?attr/customNavBackground</item>
+        <item name="android:windowBackground">?attr/customWindowBackground</item>
+
+        <!-- Default (Dark) attributes -->
+        <item name="customWindowBackground">@color/dark_bg_primary</item>
+        <item name="customCardBackground">@color/dark_bg_card</item>
+        <item name="customTextPrimary">@color/dark_text_primary</item>
+        <item name="customTextSecondary">@color/dark_text_secondary</item>
+        <item name="customBorderColor">@color/dark_border</item>
+        <item name="customNavBackground">@color/dark_nav_bg</item>
     </style>
 
     <style name="Theme.HabitFlow" parent="Base.Theme.HabitFlow" />
@@ -18,25 +26,66 @@
 
     <style name="Theme.HabitFlow.Light" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_blue</item>
-        <item name="android:windowBackground">#FFFFFF</item>
+        <item name="customWindowBackground">@color/light_bg_primary</item>
+        <item name="customCardBackground">@color/light_bg_card</item>
+        <item name="customTextPrimary">@color/light_text_primary</item>
+        <item name="customTextSecondary">@color/light_text_secondary</item>
+        <item name="customBorderColor">@color/light_border</item>
+        <item name="customNavBackground">@color/light_nav_bg</item>
+        <item name="android:windowBackground">?attr/customWindowBackground</item>
+        <item name="android:statusBarColor">?attr/customNavBackground</item>
+        <item name="android:navigationBarColor">?attr/customNavBackground</item>
     </style>
 
     <style name="Theme.HabitFlow.Ocean" parent="Base.Theme.HabitFlow">
-        <item name="android:windowBackground">#0A1628</item>
+        <item name="customWindowBackground">@color/ocean_bg_primary</item>
+        <item name="customCardBackground">@color/ocean_bg_card</item>
+        <item name="customTextPrimary">#FFFFFF</item>
+        <item name="customTextSecondary">#B0C4DE</item>
+        <item name="customBorderColor">#1A3A5A</item>
+        <item name="customNavBackground">@color/ocean_bg_secondary</item>
+        <item name="colorPrimary">@color/ocean_accent</item>
     </style>
 
     <style name="Theme.HabitFlow.Sunset" parent="Base.Theme.HabitFlow">
-        <item name="android:windowBackground">#1A0A0A</item>
+        <item name="customWindowBackground">@color/sunset_bg_primary</item>
+        <item name="customCardBackground">@color/sunset_bg_card</item>
+        <item name="customTextPrimary">#FFF0E0</item>
+        <item name="customTextSecondary">#D2B48C</item>
+        <item name="customBorderColor">#3D1A1A</item>
+        <item name="customNavBackground">@color/sunset_bg_secondary</item>
+        <item name="colorPrimary">@color/sunset_accent</item>
     </style>
 
     <style name="Theme.HabitFlow.Forest" parent="Base.Theme.HabitFlow">
-        <item name="android:windowBackground">#0A150A</item>
+        <item name="customWindowBackground">@color/forest_bg_primary</item>
+        <item name="customCardBackground">@color/forest_bg_card</item>
+        <item name="customTextPrimary">#E8F5E9</item>
+        <item name="customTextSecondary">#A5D6A7</item>
+        <item name="customBorderColor">#1B301B</item>
+        <item name="customNavBackground">@color/forest_bg_secondary</item>
+        <item name="colorPrimary">@color/forest_accent</item>
+    </style>
+
+    <style name="Theme.HabitFlow.Amoled" parent="Base.Theme.HabitFlow">
+        <item name="customWindowBackground">#000000</item>
+        <item name="customCardBackground">#121212</item>
+        <item name="customTextPrimary">#FFFFFF</item>
+        <item name="customTextSecondary">#BBBBBB</item>
+        <item name="customBorderColor">#222222</item>
+        <item name="customNavBackground">#000000</item>
     </style>
 
     <style name="Theme.HabitFlow.Splash" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/primary_blue</item>
         <item name="android:statusBarColor">@color/primary_blue</item>
         <item name="android:navigationBarColor">@color/primary_blue</item>
+    </style>
+
+    <style name="Theme.HabitFlow.Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <!-- ── WIDGET STYLES ── -->
@@ -59,14 +108,10 @@
         <item name="boxCornerRadiusTopEnd">14dp</item>
         <item name="boxCornerRadiusBottomStart">14dp</item>
         <item name="boxCornerRadiusBottomEnd">14dp</item>
-        <item name="boxBackgroundColor">@color/dark_bg_elevated</item>
     </style>
 
-    <style name="FilterChip" parent="Widget.Material3.Chip.Filter">
-        <item name="chipCornerRadius">12dp</item>
-        <item name="chipBackgroundColor">@color/dark_bg_card</item>
-        <item name="android:textColor">@color/dark_text_secondary</item>
-        <item name="chipStrokeWidth">0dp</item>
+    <style name="NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/brand_blue</item>
     </style>
 
     <style name="FabShape" parent="">
@@ -74,8 +119,11 @@
         <item name="cornerSize">18dp</item>
     </style>
 
-    <style name="NavIndicator" parent="">
-        <item name="android:color">@color/primary_blue</item>
+    <style name="FilterChip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">?attr/customCardBackground</item>
+        <item name="android:textColor">?attr/customTextSecondary</item>
+        <item name="chipStrokeColor">?attr/customBorderColor</item>
+        <item name="chipStrokeWidth">1dp</item>
     </style>
 
 </resources>

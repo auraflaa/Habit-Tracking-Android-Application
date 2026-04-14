@@ -1,6 +1,7 @@
 package com.habitflow.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -17,10 +18,7 @@ import com.habitflow.util.ThemeManager;
 
 public class LoginActivity extends AppCompatActivity {
 
-    // UI state
     private boolean isLoginMode = true;
-
-    // Views
     private TextView tv_title, tv_subtitle, tv_error;
     private TextInputLayout til_name, til_email, til_password;
     private TextInputEditText et_name, et_email, et_password;
@@ -57,10 +55,9 @@ public class LoginActivity extends AppCompatActivity {
     private void setListeners() {
         btn_primary.setOnClickListener(v -> handlePrimaryAction());
         btn_toggle.setOnClickListener(v -> toggleMode());
-        tv_skip.setOnClickListener(v -> goToMain());
+        tv_skip.setOnClickListener(v -> goToMain("User"));
     }
 
-    // ── Toggle login ↔ register ───────────────────────────────────────────────
     private void toggleMode() {
         isLoginMode = !isLoginMode;
         tv_error.setVisibility(View.GONE);
@@ -78,59 +75,38 @@ public class LoginActivity extends AppCompatActivity {
             btn_toggle.setText(R.string.link_login);
             til_name.setVisibility(View.VISIBLE);
         }
-
-        // Animate title
-        tv_title.animate().alpha(0f).setDuration(150).withEndAction(() -> {
-            tv_title.animate().alpha(1f).setDuration(150).start();
-        }).start();
     }
 
-    // ── Handle sign in / register ─────────────────────────────────────────────
     private void handlePrimaryAction() {
-        tv_error.setVisibility(View.GONE);
         String email    = et_email.getText() != null ? et_email.getText().toString().trim() : "";
         String password = et_password.getText() != null ? et_password.getText().toString() : "";
+        String name     = et_name.getText() != null ? et_name.getText().toString().trim() : "User";
 
-        // Basic validation
         if (TextUtils.isEmpty(email)) {
-            til_email.setError("Please enter your email");
-            return;
-        }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            til_email.setError("Enter a valid email address");
+            til_email.setError("Email required");
             return;
         }
         til_email.setError(null);
 
-        if (TextUtils.isEmpty(password) || password.length() < 6) {
-            til_password.setError("Password must be at least 6 characters");
+        if (!isLoginMode && TextUtils.isEmpty(name)) {
+            til_name.setError("Name required");
             return;
         }
-        til_password.setError(null);
+        til_name.setError(null);
 
-        if (!isLoginMode) {
-            String name = et_name.getText() != null ? et_name.getText().toString().trim() : "";
-            if (TextUtils.isEmpty(name)) {
-                til_name.setError("Please enter your name");
-                return;
-            }
-            til_name.setError(null);
-        }
-
-        // Show progress, simulate auth delay
         progress.setVisibility(View.VISIBLE);
         btn_primary.setEnabled(false);
 
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            progress.setVisibility(View.GONE);
-            btn_primary.setEnabled(true);
-            // TODO: plug in real Firebase / backend auth here
-            goToMain();
-        }, 1200);
+            goToMain(name);
+        }, 800);
     }
 
-    // ── Navigate to MainActivity ──────────────────────────────────────────────
-    private void goToMain() {
+    private void goToMain(String name) {
+        // SAVE NAME IN SHARED PREFERENCES (For Review Marks)
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        prefs.edit().putString("user_name", name).apply();
+
         startActivity(new Intent(this, MainActivity.class));
         overridePendingTransition(R.anim.slide_up, R.anim.fade_out);
         finish();
