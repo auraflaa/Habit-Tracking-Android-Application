@@ -1,5 +1,6 @@
 package com.habitflow.fragments;
 
+import android.app.TimePickerDialog;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -17,9 +18,13 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.habitflow.R;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.Habit;
+import com.habitflow.util.ReminderManager;
+
+import java.util.Locale;
 
 public class AddHabitSheet extends BottomSheetDialogFragment {
 
@@ -27,11 +32,13 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     private Runnable onSaveListener;
 
     private EditText etName, etDesc;
-    private TextView tvSheetTitle;
+    private TextView tvSheetTitle, tvReminderTime;
     private ChipGroup chipsCategory, chipsPriority, chipsSegment;
     private LinearLayout llEmojis, llColors;
+    private SwitchMaterial switchNotify;
     private String selectedEmoji = "🏃";
     private String selectedColor = "#FF5252";
+    private String selectedTime = "08:00";
 
     private final String[] emojis = {"🏃", "📚", "🧘", "🥗", "⚡", "🤝", "💧", "✍️", "🍎", "🚲", "💻", "🎸", "💊", "🚭", "💵", "🧹", "🛌", "🚶", "🏊", "🧠"};
     private final String[] colors = {"#FF5252", "#FFD600", "#00BCD4", "#7AD326", "#728AED", "#9C6AE6", "#FF9800", "#E91E63", "#4CAF50", "#2196F3"};
@@ -59,9 +66,10 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         bindViews(view);
         setupEmojiPicker();
         setupColorPicker();
+        setupTimePicker();
 
         if (habitToEdit != null) {
-            setupEditMode();
+            setupEditMode(view);
         }
 
         view.findViewById(R.id.btn_close).setOnClickListener(v -> dismiss());
@@ -78,6 +86,21 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         chipsSegment = v.findViewById(R.id.chips_segment);
         llEmojis = v.findViewById(R.id.ll_emojis);
         llColors = v.findViewById(R.id.ll_colors);
+        switchNotify = v.findViewById(R.id.switch_reminder);
+        tvReminderTime = v.findViewById(R.id.tv_reminder_time);
+    }
+
+    private void setupTimePicker() {
+        tvReminderTime.setOnClickListener(v -> {
+            String[] parts = selectedTime.split(":");
+            int h = Integer.parseInt(parts[0]);
+            int m = Integer.parseInt(parts[1]);
+
+            new TimePickerDialog(getContext(), (view, hourOfDay, minute) -> {
+                selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+                tvReminderTime.setText(selectedTime);
+            }, h, m, true).show();
+        });
     }
 
     private void setupEmojiPicker() {
@@ -144,12 +167,16 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         }
     }
 
-    private void setupEditMode() {
+    private void setupEditMode(View view) {
         tvSheetTitle.setText("Edit Habit");
         etName.setText(habitToEdit.name);
         etDesc.setText(habitToEdit.description);
         selectedEmoji = habitToEdit.emoji;
         selectedColor = habitToEdit.colorHex;
+        selectedTime = habitToEdit.notifyTime.isEmpty() ? "08:00" : habitToEdit.notifyTime;
+        tvReminderTime.setText(selectedTime);
+        switchNotify.setChecked(habitToEdit.notifyEnabled);
+        
         updateEmojiSelection();
         updateColorSelection();
 
@@ -157,7 +184,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         setChipSelected(chipsPriority, habitToEdit.priority);
         setChipSelected(chipsSegment, habitToEdit.segment);
 
-        getView().findViewById(R.id.btn_delete).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.btn_delete).setVisibility(View.VISIBLE);
     }
 
     private void setChipSelected(ChipGroup group, String text) {
@@ -185,12 +212,17 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         h.category = getSelectedChipText(chipsCategory);
         h.priority = getSelectedChipText(chipsPriority);
         h.segment = getSelectedChipText(chipsSegment);
+        h.notifyEnabled = switchNotify.isChecked();
+        h.notifyTime = selectedTime;
 
         if (habitToEdit != null) {
             HabitStore.get(requireContext()).update(requireContext(), h);
         } else {
             HabitStore.get(requireContext()).add(requireContext(), h);
         }
+
+        // Handle Reminder scheduling
+        ReminderManager.scheduleReminder(requireContext(), h);
 
         if (onSaveListener != null) onSaveListener.run();
         dismiss();
@@ -206,6 +238,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
 
     private void deleteHabit() {
         if (habitToEdit != null) {
+            ReminderManager.cancelReminder(requireContext(), habitToEdit);
             HabitStore.get(requireContext()).delete(requireContext(), habitToEdit.id);
             if (onSaveListener != null) onSaveListener.run();
             dismiss();

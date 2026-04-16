@@ -59,29 +59,31 @@ public class HabitStore {
         }
     }
 
-    /** 
-     * Resets habits if a new day has arrived.
-     * If a day was skipped, streaks are reset to 0.
-     */
     private void checkNewDay(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String lastDate = prefs.getString(KEY_LAST_DATE, "");
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        String lastDateStr = prefs.getString(KEY_LAST_DATE, "");
+        String todayStr = getTodayString();
 
-        if (!today.equals(lastDate)) {
-            // It's a new day!
+        if (!todayStr.equals(lastDateStr)) {
+            // Check if we skipped yesterday (to reset streaks)
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+            String yesterdayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+
             for (Habit h : habits) {
-                // If they didn't finish it yesterday, they lose their streak
-                if (!h.completedToday) {
+                // If yesterday was NOT completed AND NOT a rest day, streak resets
+                boolean finishedYesterday = h.completedDates.contains(yesterdayStr);
+                boolean wasRestDay = h.restDates.contains(yesterdayStr);
+
+                if (!finishedYesterday && !wasRestDay) {
                     h.currentStreak = 0;
                 }
-                // Reset for the new day
+
                 h.completedToday = false;
             }
             
-            // Save the new state and update the last reset date
             save(context);
-            prefs.edit().putString(KEY_LAST_DATE, today).apply();
+            prefs.edit().putString(KEY_LAST_DATE, todayStr).apply();
         }
     }
 
@@ -124,21 +126,33 @@ public class HabitStore {
         return null;
     }
 
-    /** Toggle completedToday flag and update streak correctly. */
     public void toggleComplete(Context context, String id) {
         Habit h = findById(id);
         if (h == null) return;
         
+        String today = getTodayString();
         h.completedToday = !h.completedToday;
         
         if (h.completedToday) {
+            h.completedDates.add(today);
+            h.restDates.remove(today); // Completion overrides rest
             h.currentStreak++;
             h.totalCompletions++;
             if (h.currentStreak > h.bestStreak) h.bestStreak = h.currentStreak;
         } else {
-            // If they uncheck it, we revert the increment
+            h.completedDates.remove(today);
             h.currentStreak = Math.max(0, h.currentStreak - 1);
             h.totalCompletions = Math.max(0, h.totalCompletions - 1);
+        }
+        save(context);
+    }
+
+    public void markRestDay(Context context) {
+        String today = getTodayString();
+        for (Habit h : habits) {
+            if (!h.completedToday) {
+                h.restDates.add(today);
+            }
         }
         save(context);
     }
@@ -147,5 +161,9 @@ public class HabitStore {
         int c = 0;
         for (Habit h : habits) if (h.completedToday) c++;
         return c;
+    }
+
+    private String getTodayString() {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
 }

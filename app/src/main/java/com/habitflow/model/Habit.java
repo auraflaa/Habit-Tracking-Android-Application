@@ -1,6 +1,8 @@
 package com.habitflow.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class Habit implements Serializable {
@@ -19,7 +21,7 @@ public class Habit implements Serializable {
     public static final String SEG_AFTERNOON = "Afternoon";
     public static final String SEG_EVENING = "Evening";
 
-    public String id; // Changed from int to String for Backend/UUID compatibility
+    public String id;
     public String name;
     public String description = "";
     public String emoji;
@@ -34,9 +36,13 @@ public class Habit implements Serializable {
     public int bestStreak = 0;
     public int totalCompletions = 0;
     public boolean completedToday = false;
+    
+    // New: Track completion history and rest days
+    public Set<String> completedDates = new HashSet<>();
+    public Set<String> restDates = new HashSet<>();
 
     public Habit() {
-        this.id = UUID.randomUUID().toString(); // Default ID generation
+        this.id = UUID.randomUUID().toString();
     }
 
     public Habit(String id, String name, String emoji, String category, String priority, String segment, String colorHex) {

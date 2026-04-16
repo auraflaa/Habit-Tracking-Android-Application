@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class CalendarFragment extends Fragment {
 
@@ -147,7 +146,7 @@ public class CalendarFragment extends Fragment {
             boolean isPast = cellDate.before(today);
             boolean isSelected = (d == selectedDay);
 
-            float completionPct = fakeCompletion(day);
+            float completionPct = calculateDayCompletion(cellDate);
 
             TextView cell = new TextView(requireContext());
             cell.setText(String.valueOf(day));
@@ -158,8 +157,7 @@ public class CalendarFragment extends Fragment {
             lp.width  = cellWidth;
             lp.height = cellHeight;
             
-            // Continuous stripe logic: remove horizontal margins for past days
-            int marginV = dpToPx(1); 
+            int marginV = dpToPx(1);
             int marginH = isPast ? 0 : dpToPx(2);
             lp.setMargins(marginH, marginV, marginH, marginV);
             cell.setLayoutParams(lp);
@@ -167,9 +165,9 @@ public class CalendarFragment extends Fragment {
             GradientDrawable bg = new GradientDrawable();
             
             if (isPast) {
-                bg.setCornerRadius(0); // Square corners to connect the "stripe"
-                bg.setColor(Color.parseColor("#14141F")); // Subtle dark background
-                cell.setTextColor(Color.parseColor("#5A5A75")); // Dimmed text
+                bg.setCornerRadius(0);
+                bg.setColor(Color.parseColor("#14141F"));
+                cell.setTextColor(Color.parseColor("#5A5A75"));
             } else if (isSelected) {
                 bg.setCornerRadius(dpToPx(12));
                 bg.setColor(Color.parseColor("#1A728AED"));
@@ -212,6 +210,7 @@ public class CalendarFragment extends Fragment {
     private void showDayHabits(int day) {
         Calendar target = (Calendar) currentCal.clone();
         target.set(Calendar.DAY_OF_MONTH, day);
+        String dateKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(target.getTime());
 
         SimpleDateFormat fmt = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
         Calendar today = Calendar.getInstance();
@@ -221,23 +220,38 @@ public class CalendarFragment extends Fragment {
         tvSelectedDate.setText(isToday ? "Today" : fmt.format(target.getTime()));
 
         dayHabits.clear();
-        dayHabits.addAll(HabitStore.get(requireContext()).getHabits());
+        List<Habit> all = HabitStore.get(requireContext()).getHabits();
+
+        // Filter habits that were completed on THIS specific day in history
+        for (Habit h : all) {
+            if (h.completedDates.contains(dateKey)) {
+                dayHabits.add(h);
+            }
+        }
+
         dayAdapter.notifyDataSetChanged();
 
-        float pct = fakeCompletion(day);
+        float pct = calculateDayCompletion(target);
         int pctInt = Math.round(pct * 100);
         tvSelectedRate.setText(getString(R.string.completion_percentage, pctInt));
     }
 
-    private float fakeCompletion(int day) {
-        Random rng = new Random(day * 31L + currentCal.get(Calendar.MONTH) * 7);
-        return rng.nextFloat();
+    private float calculateDayCompletion(Calendar date) {
+        String dateKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date.getTime());
+        List<Habit> all = HabitStore.get(requireContext()).getHabits();
+        if (all.isEmpty()) return 0;
+
+        int completed = 0;
+        for (Habit h : all) {
+            if (h.completedDates.contains(dateKey)) completed++;
+        }
+        return (float) completed / all.size();
     }
 
     private int heatmapColor(float pct) {
-        if (pct < 0.2f) return Color.parseColor("#12121A");
-        if (pct < 0.5f) return Color.parseColor("#1A1A2E");
-        if (pct < 0.8f) return Color.parseColor("#2A2A4E");
+        if (pct < 0.01f) return Color.parseColor("#12121A");
+        if (pct < 0.35f) return Color.parseColor("#1A1A2E");
+        if (pct < 0.65f) return Color.parseColor("#2A2A4E");
         return Color.parseColor("#4A4A8E");
     }
 
