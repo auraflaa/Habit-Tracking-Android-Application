@@ -61,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
     private void toggleMode() {
         isLoginMode = !isLoginMode;
         tv_error.setVisibility(View.GONE);
+        clearErrors();
 
         if (isLoginMode) {
             tv_title.setText(R.string.login_title);
@@ -77,22 +78,44 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void clearErrors() {
+        til_email.setError(null);
+        til_password.setError(null);
+        til_name.setError(null);
+    }
+
     private void handlePrimaryAction() {
         String email    = et_email.getText() != null ? et_email.getText().toString().trim() : "";
         String password = et_password.getText() != null ? et_password.getText().toString() : "";
         String name     = et_name.getText() != null ? et_name.getText().toString().trim() : "User";
 
+        boolean hasError = false;
+
         if (TextUtils.isEmpty(email)) {
             til_email.setError("Email required");
-            return;
+            hasError = true;
+        } else {
+            til_email.setError(null);
         }
-        til_email.setError(null);
+
+        if (TextUtils.isEmpty(password)) {
+            til_password.setError("Password required");
+            hasError = true;
+        } else if (password.length() < 6) {
+            til_password.setError("Min 6 characters required");
+            hasError = true;
+        } else {
+            til_password.setError(null);
+        }
 
         if (!isLoginMode && TextUtils.isEmpty(name)) {
             til_name.setError("Name required");
-            return;
+            hasError = true;
+        } else {
+            til_name.setError(null);
         }
-        til_name.setError(null);
+
+        if (hasError) return;
 
         progress.setVisibility(View.VISIBLE);
         btn_primary.setEnabled(false);
@@ -103,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void goToMain(String name) {
-        // SAVE NAME IN SHARED PREFERENCES (For Review Marks)
+        // SAVE NAME IN SHARED PREFERENCES
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         prefs.edit().putString("user_name", name).apply();
 

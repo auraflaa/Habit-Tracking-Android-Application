@@ -10,118 +10,150 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:paddingBottom="40dp">
 
+        <!-- Header -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="@string/settings_title"
             android:textColor="?attr/customTextPrimary" android:textSize="28sp"
             android:textStyle="bold" android:paddingHorizontal="24dp"
             android:paddingTop="56dp" android:paddingBottom="24dp"/>
 
-        <!-- Theme section -->
+        <!-- Appearance Card -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Appearance"
-            android:textColor="@color/brand_blue" android:textSize="12sp"
-            android:textStyle="bold" android:letterSpacing="0.08"
-            android:paddingHorizontal="24dp" android:layout_marginBottom="12dp"/>
+            android:text="APPEARANCE"
+            android:textColor="?attr/customTextSecondary" android:textSize="11sp"
+            android:textStyle="bold" android:letterSpacing="0.1"
+            android:paddingHorizontal="28dp" android:layout_marginBottom="12dp"/>
 
-        <androidx.gridlayout.widget.GridLayout
-            android:id="@+id/grid_themes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            app:columnCount="3"
-            android:layout_marginBottom="32dp"/>
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            app:cardCornerRadius="24dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/customCardBackground">
 
-        <!-- General section -->
+            <androidx.gridlayout.widget.GridLayout
+                android:id="@+id/grid_themes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                app:columnCount="3"/>
+        </androidx.cardview.widget.CardView>
+
+        <!-- General Section -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="General"
-            android:textColor="@color/brand_blue" android:textSize="12sp"
-            android:textStyle="bold" android:letterSpacing="0.08"
-            android:paddingHorizontal="24dp" android:layout_marginBottom="12dp"/>
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical" android:background="?attr/customCardBackground"
-            android:layout_marginHorizontal="20dp" android:paddingHorizontal="16dp">
-
-            <LinearLayout android:layout_width="match_parent" android:layout_height="64dp"
-                android:orientation="horizontal" android:gravity="center_vertical">
-                <TextView android:layout_width="0dp" android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Notifications"
-                    android:textColor="?attr/customTextPrimary" android:textSize="15sp"/>
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switch_notifs"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:checked="true"/>
-            </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="1dp"
-                android:background="?attr/customBorderColor"/>
-
-            <LinearLayout android:id="@+id/row_reminders"
-                android:layout_width="match_parent" android:layout_height="64dp"
-                android:orientation="horizontal" android:gravity="center_vertical"
-                android:clickable="true" android:focusable="true">
-                <TextView android:layout_width="0dp" android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Reminders"
-                    android:textColor="?attr/customTextPrimary" android:textSize="15sp"/>
-                <ImageView android:layout_width="20dp" android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right" android:tint="?attr/customTextSecondary"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- About section -->
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="About"
-            android:textColor="@color/brand_blue" android:textSize="12sp"
-            android:textStyle="bold" android:letterSpacing="0.08"
-            android:paddingHorizontal="24dp" android:layout_marginTop="32dp"
+            android:text="PREFERENCES"
+            android:textColor="?attr/customTextSecondary" android:textSize="11sp"
+            android:textStyle="bold" android:letterSpacing="0.1"
+            android:paddingHorizontal="28dp" android:layout_marginTop="32dp"
             android:layout_marginBottom="12dp"/>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical" android:background="?attr/customCardBackground"
-            android:layout_marginHorizontal="20dp" android:paddingHorizontal="16dp">
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            app:cardCornerRadius="24dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/customCardBackground">
 
-            <LinearLayout android:id="@+id/row_rate"
-                android:layout_width="match_parent" android:layout_height="60dp"
-                android:orientation="horizontal" android:gravity="center_vertical"
-                android:clickable="true" android:focusable="true">
-                <TextView android:layout_width="0dp" android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Rate on Play Store"
-                    android:textColor="?attr/customTextPrimary" android:textSize="15sp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="⭐" android:textSize="14sp"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:paddingHorizontal="8dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="64dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp">
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                        android:src="@drawable/ic_settings" android:tint="@color/brand_blue"
+                        android:layout_marginEnd="16dp"/>
+                    <TextView android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Push Notifications"
+                        android:textColor="?attr/customTextPrimary" android:textSize="15sp"/>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switch_notifs"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:checked="true"/>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="?attr/customBorderColor" android:layout_marginHorizontal="16dp"/>
+
+                <LinearLayout android:id="@+id/row_reminders"
+                    android:layout_width="match_parent" android:layout_height="64dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp" android:clickable="true" android:focusable="true">
+                    <ImageView android:layout_width="20dp" android:layout_height="20dp"
+                        android:src="@drawable/ic_calendar" android:tint="@color/brand_blue"
+                        android:layout_marginEnd="16dp"/>
+                    <TextView android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Daily Reminders"
+                        android:textColor="?attr/customTextPrimary" android:textSize="15sp"/>
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right" android:tint="?attr/customTextSecondary"/>
+                </LinearLayout>
             </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp"
-                android:background="?attr/customBorderColor"/>
+        <!-- Support Card -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="SUPPORT"
+            android:textColor="?attr/customTextSecondary" android:textSize="11sp"
+            android:textStyle="bold" android:letterSpacing="0.1"
+            android:paddingHorizontal="28dp" android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"/>
 
-            <LinearLayout android:id="@+id/row_share"
-                android:layout_width="match_parent" android:layout_height="60dp"
-                android:orientation="horizontal" android:gravity="center_vertical"
-                android:clickable="true" android:focusable="true">
-                <TextView android:layout_width="0dp" android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Share HabitFlow"
-                    android:textColor="?attr/customTextPrimary" android:textSize="15sp"/>
-                <ImageView android:layout_width="20dp" android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right" android:tint="?attr/customTextSecondary"/>
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            app:cardCornerRadius="24dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/customCardBackground">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:paddingHorizontal="8dp">
+
+                <LinearLayout android:id="@+id/row_rate"
+                    android:layout_width="match_parent" android:layout_height="60dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp" android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Rate HabitFlow"
+                        android:textColor="?attr/customTextPrimary" android:textSize="15sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="⭐" android:textSize="14sp"/>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="?attr/customBorderColor" android:layout_marginHorizontal="16dp"/>
+
+                <LinearLayout android:id="@+id/row_share"
+                    android:layout_width="match_parent" android:layout_height="60dp"
+                    android:orientation="horizontal" android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp" android:clickable="true" android:focusable="true">
+                    <TextView android:layout_width="0dp" android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="Invite Friends"
+                        android:textColor="?attr/customTextPrimary" android:textSize="15sp"/>
+                    <ImageView android:layout_width="16dp" android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right" android:tint="?attr/customTextSecondary"/>
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-        <!-- Sign out -->
+        <!-- Sign out Button (Secondary Look) -->
         <LinearLayout android:id="@+id/row_logout"
-            android:layout_width="match_parent" android:layout_height="60dp"
+            android:layout_width="match_parent" android:layout_height="56dp"
             android:orientation="horizontal" android:gravity="center"
-            android:layout_marginHorizontal="20dp" android:layout_marginTop="32dp"
-            android:background="?attr/customCardBackground"
+            android:layout_marginHorizontal="20dp" android:layout_marginTop="40dp"
+            android:background="@drawable/bg_chip_outline"
             android:clickable="true" android:focusable="true">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="Sign Out"
-                android:textColor="@color/error_red" android:textSize="15sp"
-                android:textStyle="bold"/>
+                android:textColor="@color/error_red" android:textSize="14sp"
+                android:textStyle="bold" android:letterSpacing="0.05"/>
         </LinearLayout>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="HabitFlow v1.0.0"
+            android:textColor="?attr/customTextSecondary" android:textSize="10sp"
+            android:gravity="center" android:layout_marginTop="24dp" android:alpha="0.4"/>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

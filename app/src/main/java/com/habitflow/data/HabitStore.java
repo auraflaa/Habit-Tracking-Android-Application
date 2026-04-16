@@ -8,18 +8,22 @@ import com.google.gson.reflect.TypeToken;
 import com.habitflow.model.Habit;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
  * Local Storage implementation using SharedPreferences and Gson.
- * This can be easily swapped for a Room database or a Remote API later.
  */
 public class HabitStore {
 
     private static final String PREF_NAME = "habit_flow_prefs";
     private static final String KEY_HABITS = "habits_data";
+    private static final String KEY_LAST_DATE = "last_reset_date";
 
     private static HabitStore instance;
     private List<Habit> habits = new ArrayList<>();
@@ -27,6 +31,7 @@ public class HabitStore {
 
     private HabitStore(Context context) {
         load(context);
+        checkNewDay(context);
     }
 
     public static HabitStore get(Context context) {
@@ -51,6 +56,32 @@ public class HabitStore {
             Type type = new TypeToken<ArrayList<Habit>>() {}.getType();
             habits = gson.fromJson(json, type);
             if (habits == null) habits = new ArrayList<>();
+        }
+    }
+
+    /** 
+     * Resets habits if a new day has arrived.
+     * If a day was skipped, streaks are reset to 0.
+     */
+    private void checkNewDay(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String lastDate = prefs.getString(KEY_LAST_DATE, "");
+        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+        if (!today.equals(lastDate)) {
+            // It's a new day!
+            for (Habit h : habits) {
+                // If they didn't finish it yesterday, they lose their streak
+                if (!h.completedToday) {
+                    h.currentStreak = 0;
+                }
+                // Reset for the new day
+                h.completedToday = false;
+            }
+            
+            // Save the new state and update the last reset date
+            save(context);
+            prefs.edit().putString(KEY_LAST_DATE, today).apply();
         }
     }
 
@@ -93,23 +124,25 @@ public class HabitStore {
         return null;
     }
 
-    /** Toggle completedToday flag and update streak. */
+    /** Toggle completedToday flag and update streak correctly. */
     public void toggleComplete(Context context, String id) {
         Habit h = findById(id);
         if (h == null) return;
+        
         h.completedToday = !h.completedToday;
+        
         if (h.completedToday) {
             h.currentStreak++;
             h.totalCompletions++;
             if (h.currentStreak > h.bestStreak) h.bestStreak = h.currentStreak;
         } else {
+            // If they uncheck it, we revert the increment
             h.currentStreak = Math.max(0, h.currentStreak - 1);
             h.totalCompletions = Math.max(0, h.totalCompletions - 1);
         }
         save(context);
     }
 
-    /** Count how many habits are completed today. */
     public int completedTodayCount() {
         int c = 0;
         for (Habit h : habits) if (h.completedToday) c++;

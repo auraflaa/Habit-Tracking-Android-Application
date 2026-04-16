@@ -17,6 +17,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.habitflow.R;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.Habit;
+import com.habitflow.views.BarChartView;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class ProgressFragment extends Fragment {
     private TextView    tvBestStreak, tvTotal, tvCurrentStreak;
     private RecyclerView rvBreakdown;
     private TabLayout   tabScope;
+    private BarChartView barChart;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -42,9 +44,9 @@ public class ProgressFragment extends Fragment {
         tvCurrentStreak = view.findViewById(R.id.tv_current_streak);
         rvBreakdown     = view.findViewById(R.id.rv_breakdown);
         tabScope        = view.findViewById(R.id.tab_scope);
+        barChart        = view.findViewById(R.id.bar_chart);
 
-        loadStats();
-        setupBreakdown();
+        refreshData();
         setupTabs();
     }
 
@@ -60,12 +62,15 @@ public class ProgressFragment extends Fragment {
     }
 
     private void refreshData() {
-        loadStats();
-        setupBreakdown();
+        List<Habit> habits = HabitStore.get(requireContext()).getHabits();
+        loadStats(habits);
+        setupBreakdown(habits);
+        if (barChart != null) {
+            barChart.setData(habits);
+        }
     }
 
-    private void loadStats() {
-        List<Habit> habits = HabitStore.get(requireContext()).getHabits();
+    private void loadStats(List<Habit> habits) {
         int bestStreak = 0, currentStreak = 0, total = 0;
         for (Habit h : habits) {
             if (h.bestStreak    > bestStreak)    bestStreak    = h.bestStreak;
@@ -77,8 +82,7 @@ public class ProgressFragment extends Fragment {
         tvTotal.setText(String.valueOf(total));
     }
 
-    private void setupBreakdown() {
-        List<Habit> habits = HabitStore.get(requireContext()).getHabits();
+    private void setupBreakdown(List<Habit> habits) {
         BreakdownAdapter adapter = new BreakdownAdapter(habits);
         rvBreakdown.setLayoutManager(new LinearLayoutManager(getContext()));
         rvBreakdown.setAdapter(adapter);
@@ -112,7 +116,8 @@ public class ProgressFragment extends Fragment {
             h.tvStreak.setText("🔥 " + habit.currentStreak + " streak");
             h.tvTotal.setText("✅ " + habit.totalCompletions + " total");
 
-            int pct = Math.min(100, habit.totalCompletions * 5);
+            // Proxy completion percentage
+            int pct = habit.totalCompletions > 0 ? Math.min(100, (habit.totalCompletions * 100) / 30) : 0;
             h.pbHabit.setProgress(pct);
             h.tvPct.setText(pct + "%");
         }

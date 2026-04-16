@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -64,12 +65,10 @@ public class SettingsFragment extends Fragment {
     }
 
     private void setupClickListeners(View view) {
-        // Reminders
         view.findViewById(R.id.row_reminders).setOnClickListener(v -> {
             Toast.makeText(getContext(), "Reminders feature coming soon!", Toast.LENGTH_SHORT).show();
         });
 
-        // Rate on Play Store
         view.findViewById(R.id.row_rate).setOnClickListener(v -> {
             String packageName = requireContext().getPackageName();
             try {
@@ -79,19 +78,15 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        // Share HabitFlow
         view.findViewById(R.id.row_share).setOnClickListener(v -> {
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_TEXT, "Check out HabitFlow! It's helping me build better habits. https://play.google.com/store/apps/details?id=" + requireContext().getPackageName());
+            sendIntent.putExtra(Intent.EXTRA_TEXT, "Check out HabitFlow! https://play.google.com/store/apps/details?id=" + requireContext().getPackageName());
             sendIntent.setType("text/plain");
             startActivity(Intent.createChooser(sendIntent, "Share via"));
         });
 
-        // Sign Out
-        view.findViewById(R.id.row_logout).setOnClickListener(v -> {
-            showLogoutConfirmation();
-        });
+        view.findViewById(R.id.row_logout).setOnClickListener(v -> showLogoutConfirmation());
     }
 
     private void showLogoutConfirmation() {
@@ -107,8 +102,6 @@ public class SettingsFragment extends Fragment {
         btnCancel.setOnClickListener(v -> dialog.dismiss());
         btnLogout.setOnClickListener(v -> {
             dialog.dismiss();
-            Toast.makeText(getContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
-            
             Intent intent = new Intent(requireActivity(), LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -125,52 +118,62 @@ public class SettingsFragment extends Fragment {
         };
 
         gridThemes.removeAllViews();
+        // Calculate item width based on 3 columns and parent padding
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int itemWidth = (screenWidth - dpToPx(64)) / 3;
+        int gridWidth = screenWidth - dpToPx(40 + 24); // screen margins (20*2) + card padding (12*2)
+        int itemWidth = gridWidth / 3;
 
         for (String key : themeKeys) {
-            View itemView = createThemeItem(key, itemWidth);
-            gridThemes.addView(itemView);
+            gridThemes.addView(createThemeItem(key, itemWidth));
         }
     }
 
     private View createThemeItem(String key, int width) {
+        boolean isSelected = key.equals(ThemeManager.getSavedTheme(requireContext()));
+        
         LinearLayout container = new LinearLayout(getContext());
         container.setOrientation(LinearLayout.VERTICAL);
         container.setGravity(Gravity.CENTER);
-        container.setPadding(dpToPx(8), dpToPx(12), dpToPx(8), dpToPx(12));
+        container.setPadding(0, dpToPx(12), 0, dpToPx(12));
+        
+        androidx.gridlayout.widget.GridLayout.LayoutParams lp = new androidx.gridlayout.widget.GridLayout.LayoutParams();
+        lp.width = width;
+        container.setLayoutParams(lp);
 
-        // Circle Preview
-        View circle = new View(getContext());
-        int circleSize = dpToPx(56);
-        LinearLayout.LayoutParams lpCircle = new LinearLayout.LayoutParams(circleSize, circleSize);
-        lpCircle.bottomMargin = dpToPx(8);
-        circle.setLayoutParams(lpCircle);
+        // Preview Square (More mature than a circle)
+        View preview = new View(getContext());
+        int size = dpToPx(48);
+        LinearLayout.LayoutParams lpPreview = new LinearLayout.LayoutParams(size, size);
+        lpPreview.bottomMargin = dpToPx(8);
+        preview.setLayoutParams(lpPreview);
 
         GradientDrawable gd = new GradientDrawable();
-        gd.setShape(GradientDrawable.OVAL);
+        gd.setCornerRadius(dpToPx(12));
         gd.setColor(Color.parseColor(ThemeManager.previewColorFor(key)));
-        gd.setStroke(dpToPx(2), Color.parseColor(ThemeManager.accentColorFor(key)));
-        circle.setBackground(gd);
+        
+        if (isSelected) {
+            gd.setStroke(dpToPx(3), Color.parseColor(ThemeManager.accentColorFor(key)));
+        } else {
+            gd.setStroke(dpToPx(1), Color.parseColor("#338A8880"));
+        }
+        preview.setBackground(gd);
 
         // Label
         TextView label = new TextView(getContext());
         label.setText(ThemeManager.labelFor(key));
         label.setTextSize(12);
-        label.setTextColor(getResources().getColor(R.color.text_secondary));
+        label.setTextColor(isSelected ? Color.parseColor(ThemeManager.accentColorFor(key)) : Color.parseColor("#8A8880"));
+        if (isSelected) label.setTypeface(null, Typeface.BOLD);
         label.setGravity(Gravity.CENTER);
 
-        container.addView(circle);
+        container.addView(preview);
         container.addView(label);
 
-        // Selection state
-        if (key.equals(ThemeManager.getSavedTheme(requireContext()))) {
-            container.setBackgroundResource(R.drawable.bg_card_selected);
-        }
-
         container.setOnClickListener(v -> {
-            ThemeManager.saveTheme(requireContext(), key);
-            requireActivity().recreate(); // Reapply theme
+            if (!isSelected) {
+                ThemeManager.saveTheme(requireContext(), key);
+                requireActivity().recreate();
+            }
         });
 
         return container;

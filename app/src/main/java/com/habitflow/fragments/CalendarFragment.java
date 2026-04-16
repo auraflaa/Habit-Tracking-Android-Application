@@ -2,6 +2,7 @@ package com.habitflow.fragments;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -120,19 +121,30 @@ public class CalendarFragment extends Fragment {
         int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
         Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
 
-        int cellWidth  = getResources().getDisplayMetrics().widthPixels / 7;
-        int cellHeight = (int)(cellWidth * 1.05f);
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int horizontalPadding = dpToPx(16);
+        int cellWidth  = (screenWidth - horizontalPadding) / 7;
+        int cellHeight = (int)(cellWidth * 0.85f);
 
         for (int i = 0; i < firstDow; i++) addBlankCell(cellWidth, cellHeight);
 
         for (int day = 1; day <= daysInMonth; day++) {
             final int d = day;
+            
+            Calendar cellDate = (Calendar) currentCal.clone();
+            cellDate.set(Calendar.DAY_OF_MONTH, day);
+            cellDate.set(Calendar.HOUR_OF_DAY, 0);
+            cellDate.set(Calendar.MINUTE, 0);
+            cellDate.set(Calendar.SECOND, 0);
+            cellDate.set(Calendar.MILLISECOND, 0);
 
-            boolean isToday = (today.get(Calendar.YEAR)  == currentCal.get(Calendar.YEAR) &&
-                               today.get(Calendar.MONTH) == currentCal.get(Calendar.MONTH) &&
-                               today.get(Calendar.DAY_OF_MONTH) == day);
-
+            boolean isToday = cellDate.equals(today);
+            boolean isPast = cellDate.before(today);
             boolean isSelected = (d == selectedDay);
 
             float completionPct = fakeCompletion(day);
@@ -140,34 +152,43 @@ public class CalendarFragment extends Fragment {
             TextView cell = new TextView(requireContext());
             cell.setText(String.valueOf(day));
             cell.setGravity(Gravity.CENTER);
-            cell.setTextSize(13f);
+            cell.setTextSize(14f);
 
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
             lp.width  = cellWidth;
             lp.height = cellHeight;
+            
+            // Continuous stripe logic: remove horizontal margins for past days
+            int marginV = dpToPx(1); 
+            int marginH = isPast ? 0 : dpToPx(2);
+            lp.setMargins(marginH, marginV, marginH, marginV);
             cell.setLayoutParams(lp);
 
             GradientDrawable bg = new GradientDrawable();
-            bg.setShape(GradientDrawable.OVAL);
-
-            if (isToday) {
-                bg.setColor(Color.parseColor("#728AED"));
-                cell.setTextColor(Color.WHITE);
-                cell.setTypeface(null, android.graphics.Typeface.BOLD);
+            
+            if (isPast) {
+                bg.setCornerRadius(0); // Square corners to connect the "stripe"
+                bg.setColor(Color.parseColor("#14141F")); // Subtle dark background
+                cell.setTextColor(Color.parseColor("#5A5A75")); // Dimmed text
             } else if (isSelected) {
-                bg.setColor(Color.TRANSPARENT);
-                bg.setStroke(dpToPx(2), Color.parseColor("#728AED"));
+                bg.setCornerRadius(dpToPx(12));
+                bg.setColor(Color.parseColor("#1A728AED"));
+                bg.setStroke(dpToPx(1), Color.parseColor("#728AED"));
                 cell.setTextColor(Color.parseColor("#728AED"));
+                cell.setTypeface(null, Typeface.BOLD);
             } else {
+                bg.setCornerRadius(dpToPx(12));
                 bg.setColor(heatmapColor(completionPct));
-                cell.setTextColor(completionPct > 0.5f
-                    ? Color.parseColor("#EEEAE0")
-                    : Color.parseColor("#8A8880"));
+                if (isToday) {
+                    cell.setTextColor(Color.parseColor("#728AED"));
+                    cell.setTypeface(null, Typeface.BOLD);
+                } else {
+                    cell.setTextColor(Color.parseColor("#EEEAE0"));
+                    cell.setTypeface(null, Typeface.NORMAL);
+                }
             }
 
             cell.setBackground(bg);
-            int padding = dpToPx(4);
-            cell.setPadding(padding, padding, padding, padding);
             cell.setOnClickListener(v -> {
                 selectedDay = d;
                 renderCalendar();
@@ -182,6 +203,7 @@ public class CalendarFragment extends Fragment {
         View blank = new View(requireContext());
         GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
         lp.width = w; lp.height = h;
+        lp.setMargins(dpToPx(2), dpToPx(1), dpToPx(2), dpToPx(1));
         blank.setLayoutParams(lp);
         gridCalendar.addView(blank);
     }
@@ -213,10 +235,10 @@ public class CalendarFragment extends Fragment {
     }
 
     private int heatmapColor(float pct) {
-        if (pct < 0.01f) return Color.parseColor("#21212E");
-        if (pct < 0.35f) return Color.parseColor("#2A3A1A");
-        if (pct < 0.65f) return Color.parseColor("#4A6A2A");
-        return Color.parseColor("#7AD326");
+        if (pct < 0.2f) return Color.parseColor("#12121A");
+        if (pct < 0.5f) return Color.parseColor("#1A1A2E");
+        if (pct < 0.8f) return Color.parseColor("#2A2A4E");
+        return Color.parseColor("#4A4A8E");
     }
 
     private int dpToPx(int dp) {

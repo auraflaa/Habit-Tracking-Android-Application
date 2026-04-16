@@ -56,7 +56,7 @@ public class HomeFragment extends Fragment {
         setupRecyclerView();
         setupSegmentChips();
         setGreeting();
-        setRandomQuote();
+        setDailyQuote();
         refreshData();
     }
 
@@ -158,7 +158,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void setGreeting() {
-        // LOAD NAME FROM SHARED PREFERENCES (For Review Marks)
         SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         String name = prefs.getString("user_name", "User");
         
@@ -171,9 +170,18 @@ public class HomeFragment extends Fragment {
         tvUsername.setText(name + " 👋");
     }
 
-    private void setRandomQuote() {
+    /** Shows a new quote every day based on the current date. */
+    private void setDailyQuote() {
         String[] raw = getResources().getStringArray(R.array.quotes);
-        String entry = raw[new Random().nextInt(raw.length)];
+
+        // Use the day of the year as a seed so the quote only changes once every 24 hours
+        int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+
+        // Seeded random based on date
+        Random seededRandom = new Random(dayOfYear + year * 365L);
+        String entry = raw[seededRandom.nextInt(raw.length)];
+
         String[] parts = entry.split("\\|");
         tvQuote.setText(getString(R.string.quote_format, parts[0]));
         tvQuoteAuthor.setText(parts.length > 1 ? getString(R.string.quote_author_format, parts[1]) : "");
