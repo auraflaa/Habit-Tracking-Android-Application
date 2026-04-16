@@ -7,7 +7,7 @@
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/primary_green</item>
         <item name="colorTertiary">@color/accent_purple</item>
-        <item name="android:statusBarColor">?attr/customNavBackground</item>
+        <item name="android:statusBarColor">?attr/customWindowBackground</item>
         <item name="android:navigationBarColor">?attr/customNavBackground</item>
         <item name="android:windowBackground">?attr/customWindowBackground</item>
 
@@ -18,11 +18,14 @@
         <item name="customTextSecondary">@color/dark_text_secondary</item>
         <item name="customBorderColor">@color/dark_border</item>
         <item name="customNavBackground">@color/dark_nav_bg</item>
+
+        <item name="textAppearanceTitleLarge">@style/AppTitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/AppTitleMedium</item>
+        <item name="textAppearanceBodyLarge">@style/AppBodyLarge</item>
     </style>
 
-    <style name="Theme.HabitFlow" parent="Base.Theme.HabitFlow" />
-
     <style name="Theme.HabitFlow.Dark" parent="Base.Theme.HabitFlow" />
+    <style name="Theme.HabitFlow" parent="Theme.HabitFlow.Dark" />
 
     <style name="Theme.HabitFlow.Light" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_blue</item>
@@ -33,47 +36,36 @@
         <item name="customBorderColor">@color/light_border</item>
         <item name="customNavBackground">@color/light_nav_bg</item>
         <item name="android:windowBackground">?attr/customWindowBackground</item>
-        <item name="android:statusBarColor">?attr/customNavBackground</item>
+        <item name="android:statusBarColor">?attr/customWindowBackground</item>
         <item name="android:navigationBarColor">?attr/customNavBackground</item>
     </style>
 
     <style name="Theme.HabitFlow.Ocean" parent="Base.Theme.HabitFlow">
+        <item name="colorPrimary">@color/ocean_accent</item>
         <item name="customWindowBackground">@color/ocean_bg_primary</item>
         <item name="customCardBackground">@color/ocean_bg_card</item>
-        <item name="customTextPrimary">#FFFFFF</item>
-        <item name="customTextSecondary">#B0C4DE</item>
-        <item name="customBorderColor">#1A3A5A</item>
         <item name="customNavBackground">@color/ocean_bg_secondary</item>
-        <item name="colorPrimary">@color/ocean_accent</item>
     </style>
 
     <style name="Theme.HabitFlow.Sunset" parent="Base.Theme.HabitFlow">
+        <item name="colorPrimary">@color/sunset_accent</item>
         <item name="customWindowBackground">@color/sunset_bg_primary</item>
         <item name="customCardBackground">@color/sunset_bg_card</item>
-        <item name="customTextPrimary">#FFF0E0</item>
-        <item name="customTextSecondary">#D2B48C</item>
-        <item name="customBorderColor">#3D1A1A</item>
         <item name="customNavBackground">@color/sunset_bg_secondary</item>
-        <item name="colorPrimary">@color/sunset_accent</item>
     </style>
 
     <style name="Theme.HabitFlow.Forest" parent="Base.Theme.HabitFlow">
+        <item name="colorPrimary">@color/forest_accent</item>
         <item name="customWindowBackground">@color/forest_bg_primary</item>
         <item name="customCardBackground">@color/forest_bg_card</item>
-        <item name="customTextPrimary">#E8F5E9</item>
-        <item name="customTextSecondary">#A5D6A7</item>
-        <item name="customBorderColor">#1B301B</item>
         <item name="customNavBackground">@color/forest_bg_secondary</item>
-        <item name="colorPrimary">@color/forest_accent</item>
     </style>
 
     <style name="Theme.HabitFlow.Amoled" parent="Base.Theme.HabitFlow">
+        <item name="android:windowBackground">#000000</item>
         <item name="customWindowBackground">#000000</item>
-        <item name="customCardBackground">#121212</item>
-        <item name="customTextPrimary">#FFFFFF</item>
-        <item name="customTextSecondary">#BBBBBB</item>
-        <item name="customBorderColor">#222222</item>
-        <item name="customNavBackground">#000000</item>
+        <item name="customCardBackground">#000000</item>
+        <item name="customBorderColor">#333333</item>
     </style>
 
     <style name="Theme.HabitFlow.Splash" parent="Theme.Material3.DayNight.NoActionBar">
@@ -82,41 +74,73 @@
         <item name="android:navigationBarColor">@color/primary_blue</item>
     </style>
 
-    <style name="Theme.HabitFlow.Dialog" parent="Theme.AppCompat.Dialog">
-        <item name="android:windowBackground">@color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowNoTitle">true</item>
+    <style name="Theme.HabitFlow.Dialog" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+    </style>
+
+    <!-- ── TEXT STYLES ── -->
+    <style name="AppTitleLarge">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="AppTitleMedium">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="AppBodyLarge">
+        <item name="android:textSize">15sp</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <style name="TabTextAppearance" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <!-- ── WIDGET STYLES ── -->
 
     <style name="PrimaryButton" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">14dp</item>
+        <item name="cornerRadius">16dp</item>
         <item name="android:paddingTop">16dp</item>
         <item name="android:paddingBottom">16dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="SecondaryButton" parent="Widget.Material3.Button.OutlinedButton">
         <item name="strokeColor">@color/primary_blue</item>
         <item name="android:textColor">@color/primary_blue</item>
-        <item name="cornerRadius">14dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 
     <style name="InputField" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="boxCornerRadiusTopStart">14dp</item>
-        <item name="boxCornerRadiusTopEnd">14dp</item>
-        <item name="boxCornerRadiusBottomStart">14dp</item>
-        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeColor">@color/primary_blue</item>
+        <item name="hintTextColor">@color/primary_blue</item>
     </style>
 
     <style name="NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">@color/brand_blue</item>
+        <item name="android:color">#1A728AED</item>
     </style>
 
     <style name="FabShape" parent="">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">18dp</item>
+        <item name="cornerSize">20dp</item>
     </style>
 
     <style name="FilterChip" parent="Widget.Material3.Chip.Filter">
@@ -124,6 +148,12 @@
         <item name="android:textColor">?attr/customTextSecondary</item>
         <item name="chipStrokeColor">?attr/customBorderColor</item>
         <item name="chipStrokeWidth">1dp</item>
+        <item name="shapeAppearance">@style/ChipShape</item>
+    </style>
+
+    <style name="ChipShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
     </style>
 
 </resources>

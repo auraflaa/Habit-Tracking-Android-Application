@@ -4,19 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="?attr/customWindowBackground">
 
-    <!-- Ambient glows (subtle on white) -->
-    <View android:layout_width="280dp" android:layout_height="280dp"
-        android:background="@drawable/bg_glow_blue" android:alpha="0.08"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="-60dp" android:layout_marginEnd="-60dp"/>
-    <View android:layout_width="180dp" android:layout_height="180dp"
-        android:background="@drawable/bg_glow_green" android:alpha="0.05"
-        android:layout_gravity="bottom|start"
-        android:layout_marginBottom="-40dp" android:layout_marginStart="-40dp"/>
-
-    <!-- Progress bar -->
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progress"
         android:layout_width="match_parent"
@@ -24,8 +13,8 @@
         android:layout_gravity="top"
         android:visibility="gone"
         android:indeterminate="true"
-        app:indicatorColor="@color/brand_blue"
-        app:trackColor="@color/light_border"/>
+        app:indicatorColor="@color/primary_blue"
+        app:trackThickness="4dp"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -37,128 +26,106 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="28dp"
-            android:paddingTop="60dp"
-            android:paddingBottom="40dp">
+            android:paddingHorizontal="32dp"
+            android:paddingTop="80dp"
+            android:paddingBottom="40dp"
+            android:gravity="center_horizontal">
 
-            <!-- Branding Logo -->
             <ImageView
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_launcher_foreground"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="32dp"
                 android:contentDescription="App Logo"/>
 
-            <!-- Title -->
             <TextView android:id="@+id/tv_title"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/login_title"
-                android:textColor="@color/light_text_primary" android:textSize="32sp"
-                android:textStyle="bold" android:letterSpacing="-0.02"/>
+                android:text="Welcome Back"
+                style="@style/AppTitleLarge"
+                android:textColor="?attr/customTextPrimary"
+                android:gravity="center"/>
 
-            <!-- Subtitle -->
             <TextView android:id="@+id/tv_subtitle"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/login_subtitle"
-                android:textColor="@color/light_text_secondary" android:textSize="15sp"
-                android:textStyle="italic" android:layout_marginTop="6dp"
-                android:layout_marginBottom="40dp"/>
+                android:text="Track your progress and stay motivated."
+                android:textColor="?attr/customTextSecondary" android:textSize="15sp"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="48dp"/>
 
-            <!-- Name field -->
+            <!-- Name field (hidden by default) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_name"
                 style="@style/InputField"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:hint="@string/hint_name"
-                app:startIconDrawable="@drawable/ic_person"
-                app:startIconTint="@color/light_text_secondary"
+                android:hint="Full Name"
                 android:layout_marginBottom="16dp"
-                android:visibility="gone"
-                app:boxBackgroundColor="@color/light_bg_primary">
+                android:visibility="gone">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_name"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:inputType="textPersonName|textCapWords"
-                    android:textColor="@color/light_text_primary"/>
+                    android:textColor="?attr/customTextPrimary"
+                    android:textSize="16sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Email -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_email"
                 style="@style/InputField"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:hint="@string/hint_email"
-                app:startIconDrawable="@drawable/ic_email"
-                app:startIconTint="@color/light_text_secondary"
-                android:layout_marginBottom="16dp"
-                app:boxBackgroundColor="@color/light_bg_primary">
+                android:hint="Email Address"
+                android:layout_marginBottom="16dp">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_email"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@color/light_text_primary"/>
+                    android:textColor="?attr/customTextPrimary"
+                    android:textSize="16sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Password -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_password"
                 style="@style/InputField"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:hint="@string/hint_password"
-                app:startIconDrawable="@drawable/ic_lock"
-                app:startIconTint="@color/light_text_secondary"
-                app:endIconMode="password_toggle"
-                app:endIconTint="@color/light_text_secondary"
-                android:layout_marginBottom="8dp"
-                app:boxBackgroundColor="@color/light_bg_primary">
+                android:hint="Password"
+                app:passwordToggleEnabled="true"
+                android:layout_marginBottom="12dp">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_password"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="@color/light_text_primary"/>
+                    android:textColor="?attr/customTextPrimary"
+                    android:textSize="16sp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Error message -->
             <TextView android:id="@+id/tv_error"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:textColor="@color/error_red" android:textSize="13sp"
-                android:layout_marginBottom="12dp" android:visibility="gone"/>
+                android:gravity="center"
+                android:layout_marginBottom="16dp" android:visibility="gone"/>
 
-            <!-- Primary action button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_primary_action"
                 style="@style/PrimaryButton"
                 android:layout_width="match_parent" android:layout_height="56dp"
-                android:text="@string/btn_login"
-                android:layout_marginTop="16dp" android:layout_marginBottom="16dp"/>
+                android:text="Sign In"
+                android:layout_marginTop="8dp"/>
 
-            <!-- Divider -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="horizontal" android:gravity="center_vertical"
-                android:layout_marginVertical="8dp">
-                <View android:layout_width="0dp" android:layout_height="1dp"
-                    android:layout_weight="1" android:background="@color/light_border"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="or" android:textColor="@color/light_text_dim"
-                    android:paddingHorizontal="14dp" android:textSize="13sp"/>
-                <View android:layout_width="0dp" android:layout_height="1dp"
-                    android:layout_weight="1" android:background="@color/light_border"/>
-            </LinearLayout>
-
-            <!-- Toggle login/register -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_toggle_mode"
-                style="@style/SecondaryButton"
-                android:layout_width="match_parent" android:layout_height="54dp"
-                android:text="@string/link_register"
-                android:layout_marginBottom="16dp"/>
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:text="Create an account"
+                android:textColor="?attr/customTextSecondary"
+                android:textAllCaps="false"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_marginTop="16dp"/>
 
-            <!-- Skip -->
             <TextView android:id="@+id/tv_skip"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/skip"
-                android:textColor="@color/light_text_secondary" android:textSize="13sp"
-                android:layout_gravity="center" android:paddingVertical="10dp"
+                android:text="Skip for now"
+                android:textColor="?attr/customTextSecondary" android:textSize="14sp"
+                android:layout_marginTop="24dp"
+                android:alpha="0.6"
                 android:clickable="true" android:focusable="true"/>
 
         </LinearLayout>

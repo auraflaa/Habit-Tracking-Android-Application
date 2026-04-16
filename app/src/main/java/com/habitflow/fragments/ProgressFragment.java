@@ -91,10 +91,22 @@ public class ProgressFragment extends Fragment {
 
     private void setupTabs() {
         tabScope.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override public void onTabSelected(TabLayout.Tab tab) {}
+            @Override 
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (barChart == null) return;
+                
+                int position = tab.getPosition();
+                if (position == 0) barChart.setPeriod(BarChartView.Period.DAY);
+                else if (position == 1) barChart.setPeriod(BarChartView.Period.WEEK);
+                else if (position == 2) barChart.setPeriod(BarChartView.Period.MONTH);
+            }
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
+        
+        // Set initial selection to Week
+        TabLayout.Tab weekTab = tabScope.getTabAt(1);
+        if (weekTab != null) weekTab.select();
     }
 
     static class BreakdownAdapter extends RecyclerView.Adapter<BreakdownAdapter.VH> {

@@ -4,21 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/primary_blue">
 
-    <!-- Blue ambient glow top-right -->
-    <View
-        android:id="@+id/glow_tr"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:background="@drawable/bg_glow_blue"
-        android:alpha="0.1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="-80dp"
-        android:layout_marginEnd="-80dp"/>
-
-    <!-- Logo + App Name (center) -->
     <LinearLayout
         android:id="@+id/ll_logo"
         android:layout_width="wrap_content"
@@ -28,56 +15,67 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="60dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Icon -->
         <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:src="@drawable/ic_launcher_foreground"
+            app:tint="@color/white"
             android:contentDescription="App Logo"/>
 
-        <!-- App name -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="HabitFlow"
-            android:textColor="@color/light_text_primary"
-            android:textSize="38sp"
+            android:textColor="@color/white"
+            android:textSize="32sp"
             android:textStyle="bold"
             android:letterSpacing="-0.02"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="16dp"/>
 
-            <!-- Tagline -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/app_tagline"
-            android:textColor="@color/light_text_secondary"
+            android:text="Flow with your habits"
+            android:textColor="@color/white"
             android:textSize="14sp"
-            android:textStyle="italic"
+            android:alpha="0.8"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
 
-    <!-- Loading dots -->
     <LinearLayout
         android:id="@+id/ll_dots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="64dp">
+        android:layout_marginBottom="64dp"
+        android:visibility="gone">
 
-        <View android:id="@+id/dot1" android:layout_width="8dp" android:layout_height="8dp"
-            android:layout_marginHorizontal="5dp" android:background="@drawable/bg_dot_inactive"/>
-        <View android:id="@+id/dot2" android:layout_width="8dp" android:layout_height="8dp"
-            android:layout_marginHorizontal="5dp" android:background="@drawable/bg_dot_inactive"/>
-        <View android:id="@+id/dot3" android:layout_width="8dp" android:layout_height="8dp"
-            android:layout_marginHorizontal="5dp" android:background="@drawable/bg_dot_inactive"/>
+        <View android:id="@+id/dot1"
+            android:layout_width="8dp" android:layout_height="8dp"
+            android:background="@drawable/bg_dot_inactive" android:backgroundTint="@color/white"
+            android:layout_margin="4dp"/>
+        <View android:id="@+id/dot2"
+            android:layout_width="8dp" android:layout_height="8dp"
+            android:background="@drawable/bg_dot_inactive" android:backgroundTint="@color/white"
+            android:layout_margin="4dp"/>
+        <View android:id="@+id/dot3"
+            android:layout_width="8dp" android:layout_height="8dp"
+            android:background="@drawable/bg_dot_inactive" android:backgroundTint="@color/white"
+            android:layout_margin="4dp"/>
     </LinearLayout>
+
+    <ProgressBar
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:indeterminateTint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="64dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

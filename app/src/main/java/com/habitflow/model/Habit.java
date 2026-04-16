@@ -37,7 +37,7 @@ public class Habit implements Serializable {
     public int totalCompletions = 0;
     public boolean completedToday = false;
     
-    // New: Track completion history and rest days
+    // Track completion history and rest days
     public Set<String> completedDates = new HashSet<>();
     public Set<String> restDates = new HashSet<>();
 
@@ -53,5 +53,13 @@ public class Habit implements Serializable {
         this.priority = priority;
         this.segment = segment;
         this.colorHex = colorHex;
+    }
+
+    /** 
+     * Ensures sets are not null after deserialization 
+     */
+    public void ensureInitialized() {
+        if (completedDates == null) completedDates = new HashSet<>();
+        if (restDates == null) restDates = new HashSet<>();
     }
 }

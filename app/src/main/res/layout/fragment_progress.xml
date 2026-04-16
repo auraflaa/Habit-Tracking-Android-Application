@@ -8,19 +8,21 @@
     android:scrollbars="none">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="vertical" android:paddingBottom="32dp">
+        android:orientation="vertical" android:paddingBottom="100dp">
 
         <!-- Header -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="@string/progress_title"
-            android:textColor="?attr/customTextPrimary" android:textSize="28sp"
-            android:textStyle="bold" android:paddingHorizontal="24dp"
-            android:paddingTop="56dp" android:paddingBottom="20dp"/>
+            style="@style/AppTitleLarge"
+            android:textColor="?attr/customTextPrimary"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="32dp"
+            android:paddingBottom="24dp"/>
 
         <!-- Stats row -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:paddingHorizontal="16dp"
-            android:layout_marginBottom="20dp">
+            android:orientation="horizontal" android:paddingHorizontal="18dp"
+            android:layout_marginBottom="24dp">
 
             <!-- Best Streak -->
             <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_weight="1"
@@ -28,17 +30,18 @@
                 app:cardCornerRadius="20dp" app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/customCardBackground">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" android:padding="16dp">
+                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="🔥" android:textSize="24sp"/>
+                        android:text="🔥" android:textSize="20sp"/>
                     <TextView android:id="@+id/tv_best_streak"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/brand_fire" android:textSize="28sp"
+                        android:text="12"
+                        android:textColor="@color/brand_fire" android:textSize="24sp"
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="@string/label_best_streak"
-                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"/>
+                        android:text="Best Streak"
+                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"
+                        android:textAllCaps="true" android:letterSpacing="0.05"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -48,17 +51,18 @@
                 app:cardCornerRadius="20dp" app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/customCardBackground">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" android:padding="16dp">
+                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="✅" android:textSize="24sp"/>
+                        android:text="✅" android:textSize="20sp"/>
                     <TextView android:id="@+id/tv_total"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/brand_green" android:textSize="28sp"
+                        android:text="84"
+                        android:textColor="@color/primary_green" android:textSize="24sp"
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="@string/label_completed"
-                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"/>
+                        android:text="Total Done"
+                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"
+                        android:textAllCaps="true" android:letterSpacing="0.05"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -68,64 +72,62 @@
                 app:cardCornerRadius="20dp" app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/customCardBackground">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" android:padding="16dp">
+                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="⚡" android:textSize="24sp"/>
+                        android:text="⚡" android:textSize="20sp"/>
                     <TextView android:id="@+id/tv_current_streak"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/brand_blue" android:textSize="28sp"
+                        android:text="5"
+                        android:textColor="@color/primary_blue" android:textSize="24sp"
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="@string/label_current"
-                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"/>
+                        android:text="Current"
+                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"
+                        android:textAllCaps="true" android:letterSpacing="0.05"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
 
-        <!-- Scope tabs (Day / Week / Month) -->
+        <!-- Scope tabs -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_scope"
-            android:layout_width="wrap_content"
-            android:layout_height="42dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
             android:layout_marginHorizontal="24dp"
-            android:layout_marginBottom="16dp"
-            android:background="?attr/customCardBackground"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_tab_layout"
             app:tabGravity="fill"
-            app:tabSelectedTextColor="?attr/customTextPrimary"
+            app:tabMaxWidth="0dp"
+            app:tabIndicatorHeight="0dp"
+            app:tabSelectedTextColor="@color/white"
             app:tabTextColor="?attr/customTextSecondary"
-            app:tabIndicatorColor="@color/brand_blue"
-            app:tabIndicatorHeight="2dp"
-            app:tabRippleColor="@color/transparent">
-            <com.google.android.material.tabs.TabItem android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="Day"/>
-            <com.google.android.material.tabs.TabItem android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="Week"/>
-            <com.google.android.material.tabs.TabItem android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="Month"/>
+            app:tabRippleColor="@color/transparent"
+            app:tabTextAppearance="@style/TabTextAppearance">
+            <com.google.android.material.tabs.TabItem android:text="Day"/>
+            <com.google.android.material.tabs.TabItem android:text="Week"/>
+            <com.google.android.material.tabs.TabItem android:text="Month"/>
         </com.google.android.material.tabs.TabLayout>
 
         <!-- Bar chart card -->
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent" android:layout_height="200dp"
-            android:layout_marginHorizontal="24dp" android:layout_marginBottom="20dp"
-            app:cardCornerRadius="20dp" app:cardElevation="0dp"
+            android:layout_width="match_parent" android:layout_height="240dp"
+            android:layout_marginHorizontal="24dp" android:layout_marginBottom="24dp"
+            app:cardCornerRadius="24dp" app:cardElevation="0dp"
             app:cardBackgroundColor="?attr/customCardBackground">
 
             <com.habitflow.views.BarChartView
                 android:id="@+id/bar_chart"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp"/>
+                android:padding="20dp"/>
         </androidx.cardview.widget.CardView>
 
-        <!-- Habit breakdown list -->
+        <!-- Breakdown list -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/label_breakdown"
-            android:textColor="?attr/customTextPrimary" android:textSize="18sp"
-            android:textStyle="bold" android:paddingHorizontal="24dp"
-            android:paddingBottom="12dp"/>
+            android:text="Habit Breakdown"
+            style="@style/AppTitleMedium"
+            android:textColor="?attr/customTextPrimary" android:paddingHorizontal="24dp"
+            android:paddingBottom="16dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_breakdown"
@@ -134,20 +136,27 @@
             android:nestedScrollingEnabled="false"
             android:paddingHorizontal="16dp"/>
 
-        <!-- Activity grid (heatmap) -->
+        <!-- Activity grid -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/label_heatmap"
-            android:textColor="?attr/customTextPrimary" android:textSize="18sp"
-            android:textStyle="bold" android:paddingHorizontal="24dp"
-            android:paddingTop="20dp" android:paddingBottom="12dp"/>
+            android:text="Activity Heatmap"
+            style="@style/AppTitleMedium"
+            android:textColor="?attr/customTextPrimary" android:paddingHorizontal="24dp"
+            android:paddingTop="24dp" android:paddingBottom="16dp"/>
 
-        <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:paddingHorizontal="24dp" android:scrollbars="none">
-            <com.habitflow.views.HeatmapView
-                android:id="@+id/heatmap"
-                android:layout_width="wrap_content"
-                android:layout_height="80dp"/>
-        </HorizontalScrollView>
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            app:cardCornerRadius="24dp" app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/customCardBackground">
+
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:padding="16dp" android:scrollbars="none">
+                <com.habitflow.views.HeatmapView
+                    android:id="@+id/heatmap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="100dp"/>
+            </HorizontalScrollView>
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

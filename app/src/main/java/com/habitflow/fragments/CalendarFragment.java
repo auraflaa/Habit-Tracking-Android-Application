@@ -116,7 +116,10 @@ public class CalendarFragment extends Fragment {
 
         Calendar cal = (Calendar) currentCal.clone();
         cal.set(Calendar.DAY_OF_MONTH, 1);
-        int firstDow = cal.get(Calendar.DAY_OF_WEEK) - 1; 
+        
+        // Sunday is 1, Monday is 2... so firstDow is 0 for Sunday, 1 for Monday, etc.
+        // This matches our S M T W T F S headers in XML.
+        int firstDow = cal.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY; 
         int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
         Calendar today = Calendar.getInstance();
@@ -125,12 +128,13 @@ public class CalendarFragment extends Fragment {
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
 
+        // Use weights for width distribution to ensure 7 columns always fit perfectly.
+        // We calculate height based on the theoretical width to keep cells proportional.
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int horizontalPadding = dpToPx(16);
-        int cellWidth  = (screenWidth - horizontalPadding) / 7;
-        int cellHeight = (int)(cellWidth * 0.85f);
+        int horizontalOffset = dpToPx(80); // Card margin (24*2) + Padding (16*2)
+        int cellHeight = (int) (((screenWidth - horizontalOffset) / 7f) * 0.9f);
 
-        for (int i = 0; i < firstDow; i++) addBlankCell(cellWidth, cellHeight);
+        for (int i = 0; i < firstDow; i++) addBlankCell(cellHeight);
 
         for (int day = 1; day <= daysInMonth; day++) {
             final int d = day;
@@ -153,12 +157,15 @@ public class CalendarFragment extends Fragment {
             cell.setGravity(Gravity.CENTER);
             cell.setTextSize(14f);
 
-            GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
-            lp.width  = cellWidth;
+            GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+                    GridLayout.spec(GridLayout.UNDEFINED),
+                    GridLayout.spec(GridLayout.UNDEFINED, 1f)
+            );
+            lp.width = 0;
             lp.height = cellHeight;
             
             int marginV = dpToPx(1);
-            int marginH = isPast ? 0 : dpToPx(2);
+            int marginH = dpToPx(1); 
             lp.setMargins(marginH, marginV, marginH, marginV);
             cell.setLayoutParams(lp);
 
@@ -197,11 +204,16 @@ public class CalendarFragment extends Fragment {
         }
     }
 
-    private void addBlankCell(int w, int h) {
+    private void addBlankCell(int h) {
         View blank = new View(requireContext());
-        GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
-        lp.width = w; lp.height = h;
-        lp.setMargins(dpToPx(2), dpToPx(1), dpToPx(2), dpToPx(1));
+        GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+                GridLayout.spec(GridLayout.UNDEFINED),
+                GridLayout.spec(GridLayout.UNDEFINED, 1f)
+        );
+        lp.width = 0;
+        lp.height = h;
+        int marginH = dpToPx(1);
+        lp.setMargins(marginH, dpToPx(1), marginH, dpToPx(1));
         blank.setLayoutParams(lp);
         gridCalendar.addView(blank);
     }
@@ -222,7 +234,6 @@ public class CalendarFragment extends Fragment {
         dayHabits.clear();
         List<Habit> all = HabitStore.get(requireContext()).getHabits();
 
-        // Filter habits that were completed on THIS specific day in history
         for (Habit h : all) {
             if (h.completedDates.contains(dateKey)) {
                 dayHabits.add(h);

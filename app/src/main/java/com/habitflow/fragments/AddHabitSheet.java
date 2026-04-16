@@ -91,16 +91,25 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     }
 
     private void setupTimePicker() {
-        tvReminderTime.setOnClickListener(v -> {
-            String[] parts = selectedTime.split(":");
-            int h = Integer.parseInt(parts[0]);
-            int m = Integer.parseInt(parts[1]);
+        // Updated trigger: Tap on the whole row or the time text changes the reminder
+        View row = getView() != null ? getView().findViewById(R.id.row_reminder_time) : null;
+        if (row != null) {
+            row.setOnClickListener(v -> showTimePicker());
+        }
+        tvReminderTime.setOnClickListener(v -> showTimePicker());
+    }
+    
+    private void showTimePicker() {
+        String[] parts = selectedTime.split(":");
+        int h = Integer.parseInt(parts[0]);
+        int m = Integer.parseInt(parts[1]);
 
-            new TimePickerDialog(getContext(), (view, hourOfDay, minute) -> {
-                selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
-                tvReminderTime.setText(selectedTime);
-            }, h, m, true).show();
-        });
+        new TimePickerDialog(getContext(), (view, hourOfDay, minute) -> {
+            selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+            tvReminderTime.setText(selectedTime);
+            // Auto-enable notification if time is picked
+            switchNotify.setChecked(true);
+        }, h, m, true).show();
     }
 
     private void setupEmojiPicker() {

@@ -19,9 +19,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class BarChartView extends View {
+    public enum Period { DAY, WEEK, MONTH }
+    
     private Paint barPaint;
     private Paint textPaint;
+    private Paint gridPaint;
     private List<Habit> habits = new ArrayList<>();
+    private Period currentPeriod = Period.WEEK;
     private int accentColor = Color.parseColor("#728AED");
 
     public BarChartView(Context context) {
@@ -41,13 +45,22 @@ public class BarChartView extends View {
 
         textPaint = new Paint();
         textPaint.setAntiAlias(true);
-        textPaint.setColor(Color.GRAY);
+        textPaint.setColor(Color.parseColor("#8A8880"));
         textPaint.setTextSize(spToPx(10));
         textPaint.setTextAlign(Paint.Align.CENTER);
+
+        gridPaint = new Paint();
+        gridPaint.setColor(Color.parseColor("#1A8A8880"));
+        gridPaint.setStrokeWidth(dpToPx(1));
     }
 
     public void setData(List<Habit> habits) {
-        this.habits = habits;
+        this.habits = (habits != null) ? new ArrayList<>(habits) : new ArrayList<>();
+        invalidate();
+    }
+
+    public void setPeriod(Period period) {
+        this.currentPeriod = period;
         invalidate();
     }
 
@@ -61,54 +74,114 @@ public class BarChartView extends View {
 
         int width = getWidth();
         int height = getHeight();
-        float paddingBottom = dpToPx(24);
-        float chartHeight = height - paddingBottom;
-        
-        int count = Math.min(habits.size(), 7); 
-        float barWidth = width / (float) (count * 2);
-        float spacing = (width - (count * barWidth)) / (count + 1);
+        float paddingBottom = dpToPx(30);
+        float paddingTop = dpToPx(20);
+        float paddingLeft = dpToPx(10);
+        float paddingRight = dpToPx(10);
+        float chartHeight = height - paddingBottom - paddingTop;
+        float chartWidth = width - paddingLeft - paddingRight;
 
-        // For real stats, we'll check completions over the last 7 days
-        List<String> last7Days = getLast7Days();
+        int numBars;
+        switch (currentPeriod) {
+            case DAY:
+                numBars = 3; // Morning, Afternoon, Evening
+                break;
+            case MONTH:
+                numBars = 30;
+                break;
+            case WEEK:
+            default:
+                numBars = 7;
+                break;
+        }
 
-        for (int i = 0; i < count; i++) {
-            Habit h = habits.get(i);
-            
-            // Calculate real completion ratio for the last 7 days
-            int completions = 0;
-            for (String date : last7Days) {
-                if (h.completedDates.contains(date)) completions++;
-            }
-            float completionRatio = (float) completions / 7f;
-            if (completionRatio < 0.1f) completionRatio = 0.1f; 
+        float barWidth = chartWidth / (numBars + (numBars + 1) * 0.4f);
+        float spacing = barWidth * 0.4f;
+        float startX = paddingLeft + (chartWidth - (numBars * barWidth + (numBars - 1) * spacing)) / 2f;
 
-            float left = spacing + i * (barWidth + spacing);
-            float top = chartHeight - (completionRatio * (chartHeight - dpToPx(20)));
+        List<String> dates = getDatesForPeriod(numBars);
+        SimpleDateFormat dayFormat = new SimpleDateFormat("E", Locale.getDefault());
+
+        for (int i = 0; i < numBars; i++) {
+            float completionPct = calculateCompletionForPeriod(dates.get(i), i);
+            float displayRatio = Math.max(completionPct, 0.05f);
+
+            float left = startX + i * (barWidth + spacing);
+            float top = (height - paddingBottom) - (displayRatio * chartHeight);
             float right = left + barWidth;
-            float bottom = chartHeight;
+            float bottom = height - paddingBottom;
 
-            try {
-                barPaint.setColor(h.colorHex != null ? Color.parseColor(h.colorHex) : accentColor);
-            } catch (Exception e) {
-                barPaint.setColor(accentColor);
+            barPaint.setColor(accentColor);
+            if (completionPct >= 0.99f) {
+                barPaint.setColor(Color.parseColor("#7AD326")); // Full completion green
+            } else if (completionPct < 0.1f) {
+                barPaint.setAlpha(40);
+            } else {
+                barPaint.setAlpha(255);
             }
             
             RectF rect = new RectF(left, top, right, bottom);
             canvas.drawRoundRect(rect, dpToPx(6), dpToPx(6), barPaint);
+            barPaint.setAlpha(255);
 
-            canvas.drawText(h.emoji != null ? h.emoji : "•", left + (barWidth / 2), height - dpToPx(6), textPaint);
+            // X-Axis Labels
+            if (currentPeriod == Period.WEEK) {
+                String label = dates.get(i).substring(8); // dd
+                canvas.drawText(label, left + barWidth / 2, height - dpToPx(18), textPaint);
+                
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.DAY_OF_YEAR, -(numBars - 1 - i));
+                String dow = dayFormat.format(cal.getTime()).substring(0, 1);
+                canvas.drawText(dow, left + barWidth / 2, height - dpToPx(6), textPaint);
+            } else if (currentPeriod == Period.DAY) {
+                String[] labels = {"Morning", "Afternoon", "Evening"};
+                canvas.drawText(labels[i], left + barWidth / 2, height - dpToPx(10), textPaint);
+            } else if (currentPeriod == Period.MONTH) {
+                if (i % 5 == 0 || i == numBars - 1) {
+                    String label = dates.get(i).substring(8);
+                    canvas.drawText(label, left + barWidth / 2, height - dpToPx(10), textPaint);
+                }
+            }
         }
     }
 
-    private List<String> getLast7Days() {
+    private List<String> getDatesForPeriod(int numDays) {
         List<String> dates = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        for (int i = 0; i < 7; i++) {
+        for (int i = numDays - 1; i >= 0; i--) {
             Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, -i);
+            if (currentPeriod != Period.DAY) {
+                cal.add(Calendar.DAY_OF_YEAR, -i);
+            }
             dates.add(sdf.format(cal.getTime()));
         }
         return dates;
+    }
+
+    private float calculateCompletionForPeriod(String dateKey, int index) {
+        if (habits.isEmpty()) return 0;
+        
+        if (currentPeriod == Period.DAY) {
+            String[] segments = {Habit.SEG_MORNING, Habit.SEG_AFTERNOON, Habit.SEG_EVENING};
+            String segment = segments[index];
+            int totalInSeg = 0;
+            int doneInSeg = 0;
+            for (Habit h : habits) {
+                if (segment.equals(h.segment)) {
+                    totalInSeg++;
+                    if (h.completedToday) doneInSeg++;
+                }
+            }
+            return totalInSeg > 0 ? (float) doneInSeg / totalInSeg : 0;
+        } else {
+            int completedCount = 0;
+            for (Habit h : habits) {
+                if (h.completedDates.contains(dateKey)) {
+                    completedCount++;
+                }
+            }
+            return (float) completedCount / habits.size();
+        }
     }
 
     private void drawPlaceholder(Canvas canvas) {

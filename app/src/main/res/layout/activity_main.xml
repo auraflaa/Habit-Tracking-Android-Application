@@ -10,8 +10,7 @@
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="80dp"/>
+        android:layout_height="match_parent"/>
 
     <!-- Bottom Bar with Notch -->
     <com.google.android.material.bottomappbar.BottomAppBar
@@ -21,10 +20,10 @@
         android:layout_gravity="bottom"
         android:backgroundTint="?attr/customNavBackground"
         app:fabAlignmentMode="center"
-        app:fabCradleMargin="10dp"
-        app:fabCradleRoundedCornerRadius="20dp"
+        app:fabCradleMargin="12dp"
+        app:fabCradleRoundedCornerRadius="24dp"
         app:fabCradleVerticalOffset="8dp"
-        app:elevation="8dp">
+        app:elevation="12dp">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav"
@@ -36,8 +35,8 @@
             app:itemIconTint="@drawable/nav_item_selector"
             app:itemTextColor="@drawable/nav_item_selector"
             app:itemActiveIndicatorStyle="@style/NavIndicator"
-            app:labelVisibilityMode="labeled"
-            app:itemIconSize="22dp"/>
+            app:labelVisibilityMode="unlabeled"
+            app:itemIconSize="24dp"/>
 
     </com.google.android.material.bottomappbar.BottomAppBar>
 
@@ -47,12 +46,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add"
-        android:tint="@color/white"
+        app:tint="@color/white"
         android:contentDescription="@string/content_description_add_habit"
         app:layout_anchor="@id/bottom_bar"
-        app:backgroundTint="@color/brand_blue"
+        app:backgroundTint="@color/primary_blue"
         app:fabSize="normal"
-        app:elevation="12dp"
+        app:elevation="8dp"
         app:shapeAppearanceOverlay="@style/FabShape"
         app:borderWidth="0dp"/>
 

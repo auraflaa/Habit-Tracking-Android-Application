@@ -18,17 +18,16 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="24dp"
-            android:paddingTop="56dp"
-            android:paddingBottom="16dp">
+            android:paddingTop="32dp"
+            android:paddingBottom="24dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Notes"
-                android:textColor="?attr/customTextPrimary"
-                android:textSize="28sp"
-                android:textStyle="bold"/>
+                style="@style/AppTitleLarge"
+                android:textColor="?attr/customTextPrimary"/>
 
             <ImageButton
                 android:id="@+id/btn_add_note"
@@ -36,7 +35,7 @@
                 android:layout_height="40dp"
                 android:background="@drawable/bg_icon_btn"
                 android:src="@drawable/ic_add"
-                android:tint="@color/brand_blue"
+                app:tint="@color/primary_blue"
                 android:contentDescription="Add Note"/>
         </LinearLayout>
 
@@ -44,10 +43,11 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_notes"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:clipToPadding="false"
             android:paddingHorizontal="16dp"
-            android:paddingBottom="24dp"/>
+            android:paddingBottom="100dp"/>
 
         <!-- Empty State -->
         <LinearLayout
@@ -56,7 +56,8 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:paddingBottom="100dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -66,17 +67,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="No notes yet"
+                style="@style/AppTitleMedium"
                 android:textColor="?attr/customTextPrimary"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp"/>
+                android:layout_marginTop="20dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tap + to write something down"
+                android:text="Capture your thoughts here"
                 android:textColor="?attr/customTextSecondary"
                 android:textSize="14sp"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="8dp"
+                android:alpha="0.7"/>
         </LinearLayout>
     </LinearLayout>
 

@@ -48,9 +48,8 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
         holder.tvCategory.setText(h.category);
         holder.tvStreak.setText("🔥 " + h.currentStreak);
 
-        // Accent color
+        // Accent color (optional circle behind emoji)
         int color = Color.parseColor(h.colorHex != null ? h.colorHex : "#728AED");
-        holder.viewAccent.setBackgroundColor(color);
         
         // Priority dot
         GradientDrawable priorityBg = new GradientDrawable();
@@ -65,15 +64,25 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
             holder.btnCheck.setBackgroundResource(R.drawable.bg_check_done);
             holder.ivCheckIcon.setVisibility(View.VISIBLE);
             holder.tvName.setAlpha(0.5f);
+            holder.tvName.setPaintFlags(holder.tvName.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             holder.btnCheck.setBackgroundResource(R.drawable.bg_check_empty);
             holder.ivCheckIcon.setVisibility(View.GONE);
             holder.tvName.setAlpha(1.0f);
+            holder.tvName.setPaintFlags(holder.tvName.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
         }
 
         holder.btnCheck.setOnClickListener(v -> {
-            if (listener != null) listener.onCheck(h, position);
-            notifyItemChanged(position);
+            if (listener != null) {
+                // Perform toggle without notifyDataSetChanged to keep it smooth
+                h.completedToday = !h.completedToday;
+                listener.onCheck(h, position);
+                notifyItemChanged(position);
+            }
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+             if (listener != null) listener.onLongPress(h, position);
         });
 
         holder.itemView.setOnLongClickListener(v -> {
