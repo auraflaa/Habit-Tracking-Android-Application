@@ -8,13 +8,15 @@ import com.google.gson.reflect.TypeToken;
 import com.habitflow.model.Habit;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
  * Local Storage implementation using SharedPreferences and Gson.
- * This can be easily swapped for a Room database or a Remote API later.
  */
 public class HabitStore {
 
@@ -36,8 +38,6 @@ public class HabitStore {
         return instance;
     }
 
-    // ── Persistence ──────────────────────────────────────────────────────────
-
     private void save(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String json = gson.toJson(habits);
@@ -52,13 +52,28 @@ public class HabitStore {
             habits = gson.fromJson(json, type);
             if (habits == null) habits = new ArrayList<>();
         }
+        syncTodayStatus();
     }
 
-    // ── CRUD ─────────────────────────────────────────────────────────────────
+    /** Ensures completedToday flag is accurate based on current system date. */
+    public void syncTodayStatus() {
+        String todayStr = getTodayStr();
+        for (Habit h : habits) {
+            h.completedToday = h.completedDates.contains(todayStr);
+        }
+    }
 
-    public List<Habit> getHabits() { return habits; }
+    private String getTodayStr() {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Calendar.getInstance().getTime());
+    }
+
+    public List<Habit> getHabits() { 
+        syncTodayStatus();
+        return habits; 
+    }
 
     public List<Habit> getBySegment(String segment) {
+        syncTodayStatus();
         List<Habit> result = new ArrayList<>();
         for (Habit h : habits) {
             if (segment.equals(h.segment)) result.add(h);
@@ -93,26 +108,45 @@ public class HabitStore {
         return null;
     }
 
-    /** Toggle completedToday flag and update streak. */
+    /** Toggle completion for today. */
     public void toggleComplete(Context context, String id) {
+        toggleCompleteForDate(context, id, getTodayStr());
+    }
+
+    /** Toggle completion for a specific date (yyyy-MM-dd). */
+    public void toggleCompleteForDate(Context context, String id, String dateStr) {
         Habit h = findById(id);
         if (h == null) return;
-        h.completedToday = !h.completedToday;
-        if (h.completedToday) {
+        
+        String todayStr = getTodayStr();
+        
+        if (h.completedDates.contains(dateStr)) {
+            h.completedDates.remove(dateStr);
+            if (dateStr.equals(todayStr)) h.completedToday = false;
+            h.currentStreak = Math.max(0, h.currentStreak - 1);
+            h.totalCompletions = Math.max(0, h.totalCompletions - 1);
+        } else {
+            h.completedDates.add(dateStr);
+            if (dateStr.equals(todayStr)) h.completedToday = true;
             h.currentStreak++;
             h.totalCompletions++;
             if (h.currentStreak > h.bestStreak) h.bestStreak = h.currentStreak;
-        } else {
-            h.currentStreak = Math.max(0, h.currentStreak - 1);
-            h.totalCompletions = Math.max(0, h.totalCompletions - 1);
         }
         save(context);
     }
 
-    /** Count how many habits are completed today. */
     public int completedTodayCount() {
+        syncTodayStatus();
         int c = 0;
         for (Habit h : habits) if (h.completedToday) c++;
+        return c;
+    }
+
+    public int getCompletedCountForDate(String dateStr) {
+        int c = 0;
+        for (Habit h : habits) {
+            if (h.completedDates.contains(dateStr)) c++;
+        }
         return c;
     }
 }

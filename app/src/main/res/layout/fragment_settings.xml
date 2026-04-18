@@ -14,7 +14,7 @@
             android:text="@string/settings_title"
             android:textColor="?attr/customTextPrimary" android:textSize="28sp"
             android:textStyle="bold" android:paddingHorizontal="24dp"
-            android:paddingTop="56dp" android:paddingBottom="24dp"/>
+            android:paddingTop="32dp" android:paddingBottom="24dp"/>
 
         <!-- Theme section -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
             android:paddingHorizontal="24dp" android:layout_marginBottom="12dp"/>
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical" android:background="?attr/customCardBackground"
+            android:orientation="vertical" android:background="@drawable/bg_settings_card"
             android:layout_marginHorizontal="20dp" android:paddingHorizontal="16dp">
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="64dp"
@@ -79,7 +79,7 @@
             android:layout_marginBottom="12dp"/>
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="vertical" android:background="?attr/customCardBackground"
+            android:orientation="vertical" android:background="@drawable/bg_settings_card"
             android:layout_marginHorizontal="20dp" android:paddingHorizontal="16dp">
 
             <LinearLayout android:id="@+id/row_rate"
@@ -115,7 +115,7 @@
             android:layout_width="match_parent" android:layout_height="60dp"
             android:orientation="horizontal" android:gravity="center"
             android:layout_marginHorizontal="20dp" android:layout_marginTop="32dp"
-            android:background="?attr/customCardBackground"
+            android:background="@drawable/bg_settings_card"
             android:clickable="true" android:focusable="true">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="Sign Out"

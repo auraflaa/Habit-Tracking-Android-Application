@@ -17,14 +17,19 @@ import com.google.android.material.tabs.TabLayout;
 import com.habitflow.R;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.Habit;
+import com.habitflow.views.BarChartView;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class ProgressFragment extends Fragment {
 
     private TextView    tvBestStreak, tvTotal, tvCurrentStreak;
     private RecyclerView rvBreakdown;
     private TabLayout   tabScope;
+    private BarChartView barChart;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -42,9 +47,9 @@ public class ProgressFragment extends Fragment {
         tvCurrentStreak = view.findViewById(R.id.tv_current_streak);
         rvBreakdown     = view.findViewById(R.id.rv_breakdown);
         tabScope        = view.findViewById(R.id.tab_scope);
+        barChart        = view.findViewById(R.id.bar_chart);
 
-        loadStats();
-        setupBreakdown();
+        refreshData();
         setupTabs();
     }
 
@@ -59,9 +64,12 @@ public class ProgressFragment extends Fragment {
         }
     }
 
-    private void refreshData() {
-        loadStats();
-        setupBreakdown();
+    public void refreshData() {
+        if (isAdded()) {
+            loadStats();
+            setupBreakdown();
+            updateChart();
+        }
     }
 
     private void loadStats() {
@@ -77,6 +85,28 @@ public class ProgressFragment extends Fragment {
         tvTotal.setText(String.valueOf(total));
     }
 
+    private void updateChart() {
+        int daysToLoad = 7;
+        int selectedTab = tabScope.getSelectedTabPosition();
+        if (selectedTab == 1) daysToLoad = 7;   // Week
+        else if (selectedTab == 2) daysToLoad = 30; // Month
+        else daysToLoad = 7; // Default to Week for "Day" tab too (or you can customize it)
+
+        int[] data = new int[daysToLoad];
+        HabitStore store = HabitStore.get(requireContext());
+        
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -(daysToLoad - 1));
+
+        for (int i = 0; i < daysToLoad; i++) {
+            String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(cal.getTime());
+            data[i] = store.getCompletedCountForDate(dateStr);
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        
+        barChart.setData(data);
+    }
+
     private void setupBreakdown() {
         List<Habit> habits = HabitStore.get(requireContext()).getHabits();
         BreakdownAdapter adapter = new BreakdownAdapter(habits);
@@ -87,7 +117,9 @@ public class ProgressFragment extends Fragment {
 
     private void setupTabs() {
         tabScope.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override public void onTabSelected(TabLayout.Tab tab) {}
+            @Override public void onTabSelected(TabLayout.Tab tab) {
+                updateChart();
+            }
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });

@@ -23,14 +23,14 @@
             android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/add_habit_title"
-            android:textColor="@color/text_primary" android:textSize="22sp"
+            android:textColor="?attr/customTextPrimary" android:textSize="22sp"
             android:textStyle="bold"/>
 
         <ImageButton android:id="@+id/btn_close"
             android:layout_width="36dp" android:layout_height="36dp"
             android:background="@drawable/bg_icon_btn"
             android:src="@drawable/ic_close"
-            android:tint="@color/text_secondary"
+            android:tint="?attr/customTextSecondary"
             android:contentDescription="Close"/>
     </LinearLayout>
 
@@ -52,7 +52,7 @@
                     android:id="@+id/et_name"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:inputType="textCapSentences"
-                    android:textColor="@color/text_primary"/>
+                    android:textColor="?attr/customTextPrimary"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Description -->
@@ -66,13 +66,13 @@
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:inputType="textCapSentences|textMultiLine"
                     android:minLines="2" android:maxLines="3"
-                    android:textColor="@color/text_primary"/>
+                    android:textColor="?attr/customTextPrimary"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Emoji picker -->
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="@string/label_icon"
-                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textColor="?attr/customTextSecondary" android:textSize="12sp"
                 android:textStyle="bold" android:letterSpacing="0.06"
                 android:layout_marginBottom="10dp"/>
 
@@ -87,7 +87,7 @@
             <!-- Category -->
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="@string/label_category"
-                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textColor="?attr/customTextSecondary" android:textSize="12sp"
                 android:textStyle="bold" android:letterSpacing="0.06"
                 android:layout_marginBottom="10dp"/>
 
@@ -120,7 +120,7 @@
             <!-- Priority -->
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="@string/label_priority"
-                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textColor="?attr/customTextSecondary" android:textSize="12sp"
                 android:textStyle="bold" android:letterSpacing="0.06"
                 android:layout_marginBottom="10dp"/>
 
@@ -144,7 +144,7 @@
             <!-- Time of Day -->
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="@string/label_time_of_day"
-                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textColor="?attr/customTextSecondary" android:textSize="12sp"
                 android:textStyle="bold" android:letterSpacing="0.06"
                 android:layout_marginBottom="10dp"/>
 
@@ -166,11 +166,13 @@
             </com.google.android.material.chip.ChipGroup>
 
             <!-- Reminder row -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/ll_reminder_click"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="horizontal" android:gravity="center_vertical"
-                android:background="@drawable/bg_card"
+                android:background="?attr/customCardBackground"
                 android:paddingHorizontal="16dp" android:paddingVertical="14dp"
-                android:layout_marginBottom="20dp">
+                android:layout_marginBottom="20dp"
+                android:clickable="true" android:focusable="true">
 
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="⏰" android:textSize="20sp" android:layout_marginEnd="12dp"/>
@@ -179,12 +181,12 @@
                     android:layout_height="wrap_content" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="@string/label_reminder"
-                        android:textColor="@color/text_primary" android:textSize="14sp"
+                        android:textColor="?attr/customTextPrimary" android:textSize="14sp"
                         android:textStyle="bold"/>
                     <TextView android:id="@+id/tv_reminder_time"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="@string/no_reminder"
-                        android:textColor="@color/text_secondary" android:textSize="12sp"/>
+                        android:textColor="?attr/customTextSecondary" android:textSize="12sp"/>
                 </LinearLayout>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -195,7 +197,7 @@
             <!-- Color picker -->
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="@string/label_color"
-                android:textColor="@color/text_secondary" android:textSize="12sp"
+                android:textColor="?attr/customTextSecondary" android:textSize="12sp"
                 android:textStyle="bold" android:letterSpacing="0.06"
                 android:layout_marginBottom="10dp"/>
 

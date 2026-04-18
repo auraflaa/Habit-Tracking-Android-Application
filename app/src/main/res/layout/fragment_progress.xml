@@ -15,7 +15,7 @@
             android:text="@string/progress_title"
             android:textColor="?attr/customTextPrimary" android:textSize="28sp"
             android:textStyle="bold" android:paddingHorizontal="24dp"
-            android:paddingTop="56dp" android:paddingBottom="20dp"/>
+            android:paddingTop="32dp" android:paddingBottom="20dp"/>
 
         <!-- Stats row -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -86,13 +86,13 @@
         <!-- Scope tabs (Day / Week / Month) -->
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_scope"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="42dp"
-            android:layout_gravity="center_horizontal"
             android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="16dp"
             android:background="?attr/customCardBackground"
             app:tabGravity="fill"
+            app:tabMode="fixed"
             app:tabSelectedTextColor="?attr/customTextPrimary"
             app:tabTextColor="?attr/customTextSecondary"
             app:tabIndicatorColor="@color/brand_blue"
@@ -142,11 +142,19 @@
             android:paddingTop="20dp" android:paddingBottom="12dp"/>
 
         <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:paddingHorizontal="24dp" android:scrollbars="none">
-            <com.habitflow.views.HeatmapView
-                android:id="@+id/heatmap"
+            android:scrollbars="none" android:fillViewport="true">
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="80dp"/>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                android:layout_gravity="center_horizontal"
+                android:paddingHorizontal="24dp">
+                <com.habitflow.views.HeatmapView
+                    android:id="@+id/heatmap"
+                    android:layout_width="wrap_content"
+                    android:layout_height="80dp"/>
+            </LinearLayout>
         </HorizontalScrollView>
 
     </LinearLayout>

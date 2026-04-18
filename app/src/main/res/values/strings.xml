@@ -36,6 +36,8 @@
     <string name="quote_author_format">— %1$s</string>
     <string name="rest_day_toast">Rest day marked! Enjoy your break 🌿</string>
 
+    <string name="username_format">%1$s 👋</string>
+
     <!-- Add/Edit Habit -->
     <string name="add_habit_title">New Habit</string>
     <string name="edit_habit_title">Edit Habit</string>
@@ -64,6 +66,10 @@
     <string name="label_breakdown">Habit Breakdown</string>
     <string name="label_heatmap">Activity Heatmap</string>
 
+    <string name="item_streak_format">🔥 %1$d streak</string>
+    <string name="item_total_format">✅ %1$d total</string>
+    <string name="percentage_format">%1$d%%</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
 
@@ -80,6 +86,8 @@
     <string name="link_register">New here? Create an account</string>
     <string name="link_login">Already have an account? Sign In</string>
     <string name="skip">Continue without account</string>
+    <string name="content_description_logo">App Logo</string>
+    <string name="label_or">or</string>
 
     <!-- Quotes -->
     <string-array name="quotes">

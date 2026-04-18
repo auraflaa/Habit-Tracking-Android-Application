@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="12dp"
+    android:paddingHorizontal="4dp">
+
+    <TextView
+        android:id="@+id/tv_habit_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Habit Name"
+        android:textColor="?attr/customTextPrimary"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/tv_reminder_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="08:00"
+        android:textColor="@color/brand_blue"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:background="?attr/customCardBackground"
+        android:layout_marginEnd="12dp"/>
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_habit_notify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

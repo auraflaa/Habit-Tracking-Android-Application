@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.habitflow.R;
+import com.habitflow.activities.MainActivity;
 import com.habitflow.adapters.HabitAdapter;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.Habit;
@@ -28,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class CalendarFragment extends Fragment {
 
@@ -63,7 +64,9 @@ public class CalendarFragment extends Fragment {
 
         setupDayRecycler();
         setupNavButtons(view);
-        renderCalendar();
+        
+        // Use post to ensure view is measured before rendering
+        gridCalendar.post(this::renderCalendar);
         showDayHabits(selectedDay);
     }
 
@@ -87,7 +90,29 @@ public class CalendarFragment extends Fragment {
     }
 
     private void setupDayRecycler() {
-        dayAdapter = new HabitAdapter(dayHabits, null);
+        dayAdapter = new HabitAdapter(dayHabits, new HabitAdapter.OnHabitClick() {
+            @Override
+            public void onCheck(Habit habit, int position) {
+                if (selectedDay == -1) return;
+
+                Calendar target = (Calendar) currentCal.clone();
+                target.set(Calendar.DAY_OF_MONTH, selectedDay);
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(target.getTime());
+
+                HabitStore.get(requireContext()).toggleCompleteForDate(requireContext(), habit.id, dateStr);
+                
+                refreshData();
+                
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).notifyDataChanged();
+                }
+            }
+
+            @Override
+            public void onLongPress(Habit habit, int position) {
+                // Optional: Open edit sheet
+            }
+        });
         rvDayHabits.setLayoutManager(new LinearLayoutManager(getContext()));
         rvDayHabits.setAdapter(dayAdapter);
     }
@@ -108,7 +133,14 @@ public class CalendarFragment extends Fragment {
         });
     }
 
+    private int getThemeColor(int attr) {
+        TypedValue typedValue = new TypedValue();
+        requireContext().getTheme().resolveAttribute(attr, typedValue, true);
+        return typedValue.data;
+    }
+
     private void renderCalendar() {
+        if (!isAdded()) return;
         gridCalendar.removeAllViews();
 
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
@@ -121,7 +153,16 @@ public class CalendarFragment extends Fragment {
 
         Calendar today = Calendar.getInstance();
 
-        int cellWidth  = getResources().getDisplayMetrics().widthPixels / 7;
+        // Colors from theme
+        int colorPrimary = Color.parseColor("#728AED");
+        int colorTextPrimary = getThemeColor(R.attr.customTextPrimary);
+        int colorTextSecondary = getThemeColor(R.attr.customTextSecondary);
+        int colorEmptyCell = getThemeColor(R.attr.customCardBackground);
+
+        // Calculate cell width based on actual grid width minus horizontal padding
+        int totalPadding = gridCalendar.getPaddingLeft() + gridCalendar.getPaddingRight();
+        int availableWidth = gridCalendar.getWidth() > 0 ? gridCalendar.getWidth() : getResources().getDisplayMetrics().widthPixels;
+        int cellWidth  = (availableWidth - totalPadding) / 7;
         int cellHeight = (int)(cellWidth * 1.05f);
 
         for (int i = 0; i < firstDow; i++) addBlankCell(cellWidth, cellHeight);
@@ -135,7 +176,7 @@ public class CalendarFragment extends Fragment {
 
             boolean isSelected = (d == selectedDay);
 
-            float completionPct = fakeCompletion(day);
+            float completionPct = getCompletionForDay(day);
 
             TextView cell = new TextView(requireContext());
             cell.setText(String.valueOf(day));
@@ -151,18 +192,23 @@ public class CalendarFragment extends Fragment {
             bg.setShape(GradientDrawable.OVAL);
 
             if (isToday) {
-                bg.setColor(Color.parseColor("#728AED"));
+                bg.setColor(colorPrimary);
                 cell.setTextColor(Color.WHITE);
                 cell.setTypeface(null, android.graphics.Typeface.BOLD);
             } else if (isSelected) {
                 bg.setColor(Color.TRANSPARENT);
-                bg.setStroke(dpToPx(2), Color.parseColor("#728AED"));
-                cell.setTextColor(Color.parseColor("#728AED"));
+                bg.setStroke(dpToPx(2), colorPrimary);
+                cell.setTextColor(colorPrimary);
             } else {
-                bg.setColor(heatmapColor(completionPct));
-                cell.setTextColor(completionPct > 0.5f
-                    ? Color.parseColor("#EEEAE0")
-                    : Color.parseColor("#8A8880"));
+                int cellBgColor = completionPct < 0.01f ? colorEmptyCell : heatmapColor(completionPct);
+                bg.setColor(cellBgColor);
+                // Contrast logic: If background is dark (heatmap), use White text. 
+                // Otherwise use the standard secondary text color.
+                if (completionPct < 0.01f) {
+                    cell.setTextColor(colorTextSecondary);
+                } else {
+                    cell.setTextColor(Color.WHITE);
+                }
             }
 
             cell.setBackground(bg);
@@ -188,8 +234,10 @@ public class CalendarFragment extends Fragment {
 
     @SuppressLint("NotifyDataSetChanged")
     private void showDayHabits(int day) {
+        if (!isAdded()) return;
         Calendar target = (Calendar) currentCal.clone();
         target.set(Calendar.DAY_OF_MONTH, day);
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(target.getTime());
 
         SimpleDateFormat fmt = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
         Calendar today = Calendar.getInstance();
@@ -199,21 +247,40 @@ public class CalendarFragment extends Fragment {
         tvSelectedDate.setText(isToday ? "Today" : fmt.format(target.getTime()));
 
         dayHabits.clear();
-        dayHabits.addAll(HabitStore.get(requireContext()).getHabits());
+        for (Habit h : HabitStore.get(requireContext()).getHabits()) {
+            Habit display = new Habit();
+            display.id = h.id;
+            display.name = h.name;
+            display.emoji = h.emoji;
+            display.colorHex = h.colorHex;
+            display.category = h.category;
+            display.priority = h.priority;
+            display.currentStreak = h.currentStreak;
+            display.completedToday = h.completedDates.contains(dateStr);
+            dayHabits.add(display);
+        }
         dayAdapter.notifyDataSetChanged();
 
-        float pct = fakeCompletion(day);
+        float pct = getCompletionForDay(day);
         int pctInt = Math.round(pct * 100);
         tvSelectedRate.setText(getString(R.string.completion_percentage, pctInt));
     }
 
-    private float fakeCompletion(int day) {
-        Random rng = new Random(day * 31L + currentCal.get(Calendar.MONTH) * 7);
-        return rng.nextFloat();
+    private float getCompletionForDay(int day) {
+        Calendar cal = (Calendar) currentCal.clone();
+        cal.set(Calendar.DAY_OF_MONTH, day);
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(cal.getTime());
+        
+        HabitStore store = HabitStore.get(requireContext());
+        List<Habit> allHabits = store.getHabits();
+        if (allHabits.isEmpty()) return 0f;
+        
+        int completedCount = store.getCompletedCountForDate(dateStr);
+        return (float) completedCount / allHabits.size();
     }
 
     private int heatmapColor(float pct) {
-        if (pct < 0.01f) return Color.parseColor("#21212E");
+        // These are brand colors, they can remain consistent or be slightly adjusted
         if (pct < 0.35f) return Color.parseColor("#2A3A1A");
         if (pct < 0.65f) return Color.parseColor("#4A6A2A");
         return Color.parseColor("#7AD326");

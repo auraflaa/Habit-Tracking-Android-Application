@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         tv_error    = findViewById(R.id.tv_error);
         til_name    = findViewById(R.id.til_name);
         til_email   = findViewById(R.id.til_email);
-        til_password= findViewById(R.id.til_password);
+        til_password = findViewById(R.id.til_password);
         et_name     = findViewById(R.id.et_name);
         et_email    = findViewById(R.id.et_email);
         et_password = findViewById(R.id.et_password);
@@ -61,6 +61,11 @@ public class LoginActivity extends AppCompatActivity {
     private void toggleMode() {
         isLoginMode = !isLoginMode;
         tv_error.setVisibility(View.GONE);
+        
+        // Clear errors
+        til_name.setError(null);
+        til_email.setError(null);
+        til_password.setError(null);
 
         if (isLoginMode) {
             tv_title.setText(R.string.login_title);
@@ -80,30 +85,57 @@ public class LoginActivity extends AppCompatActivity {
     private void handlePrimaryAction() {
         String email    = et_email.getText() != null ? et_email.getText().toString().trim() : "";
         String password = et_password.getText() != null ? et_password.getText().toString() : "";
-        String name     = et_name.getText() != null ? et_name.getText().toString().trim() : "User";
+        String name     = et_name.getText() != null ? et_name.getText().toString().trim() : "";
+
+        boolean hasError = false;
 
         if (TextUtils.isEmpty(email)) {
             til_email.setError("Email required");
-            return;
+            hasError = true;
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            til_email.setError("Enter a valid email");
+            hasError = true;
+        } else {
+            til_email.setError(null);
         }
-        til_email.setError(null);
 
-        if (!isLoginMode && TextUtils.isEmpty(name)) {
-            til_name.setError("Name required");
-            return;
+        if (TextUtils.isEmpty(password)) {
+            til_password.setError("Password required");
+            hasError = true;
+        } else if (password.length() < 6) {
+            til_password.setError("Min 6 characters");
+            hasError = true;
+        } else {
+            til_password.setError(null);
         }
-        til_name.setError(null);
+
+        if (!isLoginMode) {
+            if (TextUtils.isEmpty(name)) {
+                til_name.setError("Name required");
+                hasError = true;
+            } else {
+                til_name.setError(null);
+            }
+        }
+
+        if (hasError) return;
 
         progress.setVisibility(View.VISIBLE);
         btn_primary.setEnabled(false);
 
-        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-            goToMain(name);
-        }, 800);
+        String displayName;
+        if (isLoginMode) {
+            String rawPart = email.split("@")[0];
+            String namePart = rawPart.split("\\.")[0];
+            displayName = namePart.substring(0, 1).toUpperCase() + namePart.substring(1).toLowerCase();
+        } else {
+            displayName = name;
+        }
+
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> goToMain(displayName), 800);
     }
 
     private void goToMain(String name) {
-        // SAVE NAME IN SHARED PREFERENCES (For Review Marks)
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         prefs.edit().putString("user_name", name).apply();
 

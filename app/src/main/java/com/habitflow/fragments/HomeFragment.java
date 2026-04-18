@@ -1,5 +1,6 @@
 package com.habitflow.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.habitflow.R;
 import com.habitflow.activities.MainActivity;
 import com.habitflow.adapters.HabitAdapter;
@@ -94,6 +96,8 @@ public class HomeFragment extends Fragment {
                 HabitStore.get(requireContext()).toggleComplete(requireContext(), habit.id);
                 refreshProgress();
                 updateStreakBadge();
+                adapter.notifyItemChanged(position); // Efficient refresh
+                
                 if (getActivity() instanceof MainActivity) {
                     ((MainActivity) getActivity()).notifyDataChanged();
                 }
@@ -119,6 +123,7 @@ public class HomeFragment extends Fragment {
         return "ALL";
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void loadHabits(String segment) {
         displayList.clear();
         List<Habit> source = "ALL".equals(segment)
@@ -130,7 +135,7 @@ public class HomeFragment extends Fragment {
         llEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         rvHabits.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
 
-        adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged(); // Still used for full list swap
         refreshProgress();
     }
 
@@ -158,7 +163,6 @@ public class HomeFragment extends Fragment {
     }
 
     private void setGreeting() {
-        // LOAD NAME FROM SHARED PREFERENCES (For Review Marks)
         SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         String name = prefs.getString("user_name", "User");
         
@@ -167,8 +171,9 @@ public class HomeFragment extends Fragment {
         if (hour < 12)      greetingRes = R.string.good_morning;
         else if (hour < 17) greetingRes = R.string.good_afternoon;
         else                greetingRes = R.string.good_evening;
+        
         tvGreeting.setText(greetingRes);
-        tvUsername.setText(name + " 👋");
+        tvUsername.setText(getString(R.string.username_format, name));
     }
 
     private void setRandomQuote() {
@@ -180,7 +185,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void showRestDayDialog() {
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        new MaterialAlertDialogBuilder(requireContext(), R.style.Theme_HabitFlow_Dialog)
                 .setTitle("😴 Rest Day")
                 .setMessage("Mark today as a rest day? Your streaks won't be broken.")
                 .setPositiveButton("Yes, rest today", (d, w) ->

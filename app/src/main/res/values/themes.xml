@@ -7,17 +7,40 @@
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/primary_green</item>
         <item name="colorTertiary">@color/accent_purple</item>
+
+        <!-- Status Bar Configuration -->
+        <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">?attr/customNavBackground</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation Bar Configuration -->
         <item name="android:navigationBarColor">?attr/customNavBackground</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
         <item name="android:windowBackground">?attr/customWindowBackground</item>
 
         <!-- Default (Dark) attributes -->
         <item name="customWindowBackground">@color/dark_bg_primary</item>
         <item name="customCardBackground">@color/dark_bg_card</item>
+        <item name="customElevatedBackground">@color/dark_bg_elevated</item>
         <item name="customTextPrimary">@color/dark_text_primary</item>
         <item name="customTextSecondary">@color/dark_text_secondary</item>
+        <item name="customTextDim">@color/dark_text_dim</item>
         <item name="customBorderColor">@color/dark_border</item>
         <item name="customNavBackground">@color/dark_nav_bg</item>
+
+        <!-- Material Surface Colors for Dialogs/Menus -->
+        <item name="colorSurface">@color/dark_bg_card</item>
+        <item name="colorOnSurface">@color/dark_text_primary</item>
+        <item name="colorSurfaceVariant">@color/dark_bg_elevated</item>
+        <item name="colorOnSurfaceVariant">@color/dark_text_secondary</item>
+
+        <!-- Input Outline -->
+        <item name="customInputStrokeColor">#FFFFFF</item>
+        <item name="colorOutline">#FFFFFF</item>
+
+        <!-- Dialog Theme Reference -->
+        <item name="materialAlertDialogTheme">@style/Theme.HabitFlow.Dialog</item>
     </style>
 
     <style name="Theme.HabitFlow" parent="Base.Theme.HabitFlow" />
@@ -26,54 +49,110 @@
 
     <style name="Theme.HabitFlow.Light" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary_blue</item>
+
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:statusBarColor">?attr/customNavBackground</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <item name="android:navigationBarColor">?attr/customNavBackground</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
         <item name="customWindowBackground">@color/light_bg_primary</item>
         <item name="customCardBackground">@color/light_bg_card</item>
+        <item name="customElevatedBackground">@color/light_bg_elevated</item>
         <item name="customTextPrimary">@color/light_text_primary</item>
         <item name="customTextSecondary">@color/light_text_secondary</item>
+        <item name="customTextDim">@color/light_text_dim</item>
         <item name="customBorderColor">@color/light_border</item>
         <item name="customNavBackground">@color/light_nav_bg</item>
+
+        <item name="colorSurface">@color/light_bg_card</item>
+        <item name="colorOnSurface">@color/light_text_primary</item>
+        <item name="colorSurfaceVariant">#E0E0E0</item>
+        <item name="colorOnSurfaceVariant">@color/light_text_secondary</item>
+        <item name="colorOutlineVariant">@color/light_border</item>
+
+        <item name="customInputStrokeColor">#1A1A24</item>
+        <item name="colorOutline">#79747E</item>
+
         <item name="android:windowBackground">?attr/customWindowBackground</item>
-        <item name="android:statusBarColor">?attr/customNavBackground</item>
-        <item name="android:navigationBarColor">?attr/customNavBackground</item>
+
+        <item name="materialAlertDialogTheme">@style/Theme.HabitFlow.Dialog</item>
     </style>
 
     <style name="Theme.HabitFlow.Ocean" parent="Base.Theme.HabitFlow">
         <item name="customWindowBackground">@color/ocean_bg_primary</item>
         <item name="customCardBackground">@color/ocean_bg_card</item>
+        <item name="customElevatedBackground">#1A2E4E</item>
         <item name="customTextPrimary">#FFFFFF</item>
         <item name="customTextSecondary">#B0C4DE</item>
+        <item name="customTextDim">#506070</item>
         <item name="customBorderColor">#1A3A5A</item>
         <item name="customNavBackground">@color/ocean_bg_secondary</item>
+
+        <item name="colorSurface">@color/ocean_bg_card</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+        <item name="colorSurfaceVariant">#1A2E4E</item>
+
+        <item name="customInputStrokeColor">#FFFFFF</item>
+        <item name="colorOutline">#FFFFFF</item>
         <item name="colorPrimary">@color/ocean_accent</item>
     </style>
 
     <style name="Theme.HabitFlow.Sunset" parent="Base.Theme.HabitFlow">
         <item name="customWindowBackground">@color/sunset_bg_primary</item>
         <item name="customCardBackground">@color/sunset_bg_card</item>
+        <item name="customElevatedBackground">#351515</item>
         <item name="customTextPrimary">#FFF0E0</item>
         <item name="customTextSecondary">#D2B48C</item>
+        <item name="customTextDim">#604040</item>
         <item name="customBorderColor">#3D1A1A</item>
         <item name="customNavBackground">@color/sunset_bg_secondary</item>
+
+        <item name="colorSurface">@color/sunset_bg_card</item>
+        <item name="colorOnSurface">#FFF0E0</item>
+        <item name="colorSurfaceVariant">#351515</item>
+
+        <item name="customInputStrokeColor">#FFFFFF</item>
+        <item name="colorOutline">#FFFFFF</item>
         <item name="colorPrimary">@color/sunset_accent</item>
     </style>
 
     <style name="Theme.HabitFlow.Forest" parent="Base.Theme.HabitFlow">
         <item name="customWindowBackground">@color/forest_bg_primary</item>
         <item name="customCardBackground">@color/forest_bg_card</item>
+        <item name="customElevatedBackground">#152515</item>
         <item name="customTextPrimary">#E8F5E9</item>
         <item name="customTextSecondary">#A5D6A7</item>
+        <item name="customTextDim">#405040</item>
         <item name="customBorderColor">#1B301B</item>
         <item name="customNavBackground">@color/forest_bg_secondary</item>
+
+        <item name="colorSurface">@color/forest_bg_card</item>
+        <item name="colorOnSurface">#E8F5E9</item>
+        <item name="colorSurfaceVariant">#152515</item>
+
+        <item name="customInputStrokeColor">#FFFFFF</item>
+        <item name="colorOutline">#FFFFFF</item>
         <item name="colorPrimary">@color/forest_accent</item>
     </style>
 
     <style name="Theme.HabitFlow.Amoled" parent="Base.Theme.HabitFlow">
         <item name="customWindowBackground">#000000</item>
         <item name="customCardBackground">#121212</item>
+        <item name="customElevatedBackground">#1A1A1A</item>
         <item name="customTextPrimary">#FFFFFF</item>
         <item name="customTextSecondary">#BBBBBB</item>
+        <item name="customTextDim">#444444</item>
         <item name="customBorderColor">#222222</item>
         <item name="customNavBackground">#000000</item>
+
+        <item name="colorSurface">#121212</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+        <item name="colorSurfaceVariant">#1A1A1A</item>
+
+        <item name="customInputStrokeColor">#FFFFFF</item>
+        <item name="colorOutline">#FFFFFF</item>
     </style>
 
     <style name="Theme.HabitFlow.Splash" parent="Theme.Material3.DayNight.NoActionBar">
@@ -82,25 +161,53 @@
         <item name="android:navigationBarColor">@color/primary_blue</item>
     </style>
 
-    <style name="Theme.HabitFlow.Dialog" parent="Theme.AppCompat.Dialog">
-        <item name="android:windowBackground">@color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowNoTitle">true</item>
+    <style name="Theme.HabitFlow.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">?attr/customCardBackground</item>
+        <item name="colorOnSurface">?attr/customTextPrimary</item>
+        <item name="android:textColorPrimary">?attr/customTextPrimary</item>
+        <item name="android:textColorSecondary">?attr/customTextSecondary</item>
+
+        <!-- Use Material 3 naming for better compatibility -->
+        <item name="materialAlertDialogTitleTextStyle">@style/DialogTitleText</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/DialogBodyText</item>
+
+        <!-- Style for the buttons in the dialog -->
+        <item name="buttonBarPositiveButtonStyle">@style/DialogPositiveButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/DialogNegativeButton</item>
+    </style>
+
+    <style name="DialogTitleText" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">?attr/customTextPrimary</item>
+    </style>
+
+    <style name="DialogBodyText" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textColor">?attr/customTextSecondary</item>
+    </style>
+
+    <style name="DialogPositiveButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">#FF5252</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="DialogNegativeButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">?attr/customTextSecondary</item>
     </style>
 
     <!-- ── WIDGET STYLES ── -->
 
     <style name="PrimaryButton" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/white</item>
-        <item name="cornerRadius">14dp</item>
-        <item name="android:paddingTop">16dp</item>
-        <item name="android:paddingBottom">16dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
     </style>
 
     <style name="SecondaryButton" parent="Widget.Material3.Button.OutlinedButton">
         <item name="strokeColor">@color/primary_blue</item>
         <item name="android:textColor">@color/primary_blue</item>
-        <item name="cornerRadius">14dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
     </style>
 
     <style name="InputField" parent="Widget.Material3.TextInputLayout.OutlinedBox">
@@ -108,6 +215,11 @@
         <item name="boxCornerRadiusTopEnd">14dp</item>
         <item name="boxCornerRadiusBottomStart">14dp</item>
         <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="android:textColorHint">?attr/customTextSecondary</item>
+
+        <item name="boxStrokeColor">@color/input_stroke_selector</item>
+        <item name="boxStrokeWidth">1.5dp</item>
+        <item name="boxStrokeWidthFocused">2.5dp</item>
     </style>
 
     <style name="NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">

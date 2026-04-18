@@ -1,6 +1,8 @@
 package com.habitflow.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Habit implements Serializable {
@@ -34,6 +36,7 @@ public class Habit implements Serializable {
     public int bestStreak = 0;
     public int totalCompletions = 0;
     public boolean completedToday = false;
+    public List<String> completedDates = new ArrayList<>();
 
     public Habit() {
         this.id = UUID.randomUUID().toString(); // Default ID generation

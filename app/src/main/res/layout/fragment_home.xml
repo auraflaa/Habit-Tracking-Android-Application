@@ -6,32 +6,31 @@
     android:layout_height="match_parent"
     android:background="?attr/customWindowBackground">
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="none"
-        android:clipToPadding="false"
-        android:paddingBottom="32dp">
+        android:layout_height="wrap_content"
+        android:background="?attr/customWindowBackground"
+        app:elevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- ── BRANDED TOP BAR ────────────────────────── -->
+            <!-- Branded Header (Normal Sticky) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:paddingHorizontal="24dp"
-                android:paddingTop="48dp"
-                android:paddingBottom="8dp">
+                android:paddingTop="16dp"
+                android:paddingBottom="12dp"
+                android:background="?attr/customWindowBackground">
 
                 <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:src="@drawable/ic_launcher_foreground"
                     android:contentDescription="App Icon"/>
 
@@ -40,21 +39,44 @@
                     android:layout_height="wrap_content"
                     android:text="HabitFlow"
                     android:textColor="?attr/customTextPrimary"
-                    android:textSize="20sp"
+                    android:textSize="22sp"
                     android:textStyle="bold"
                     android:layout_marginStart="10dp"
                     android:letterSpacing="-0.02"/>
             </LinearLayout>
 
-            <!-- ── GREETING & STREAK ──────────────────────── -->
+            <!-- Separation Line (Visible in both modes) -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?attr/customBorderColor"/>
+
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:clipToPadding="false"
+        android:paddingBottom="32dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- ── GREETING & STREAK ── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:paddingHorizontal="24dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
 
                 <LinearLayout
                     android:layout_width="0dp" android:layout_height="wrap_content"
@@ -68,8 +90,9 @@
                     <TextView android:id="@+id/tv_username"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="Alex 👋"
-                        android:textColor="?attr/customTextPrimary" android:textSize="26sp"
-                        android:textStyle="bold" android:letterSpacing="-0.01"/>
+                        android:textColor="?attr/customTextPrimary" android:textSize="28sp"
+                        android:textStyle="bold" android:letterSpacing="-0.01"
+                        android:layout_marginTop="2dp"/>
                 </LinearLayout>
 
                 <!-- Streak badge -->
@@ -93,7 +116,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="24dp">
+                android:paddingHorizontal="24dp"
+                android:paddingBottom="8dp">
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_progress"
                     android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -136,7 +160,7 @@
 
             <!-- ── QUOTE CARD ──────────────────────────────── -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:paddingHorizontal="24dp" android:paddingTop="20dp" android:paddingBottom="16dp">
+                android:paddingHorizontal="24dp" android:paddingTop="12dp" android:paddingBottom="16dp">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:background="@drawable/bg_quote_card" android:padding="20dp"

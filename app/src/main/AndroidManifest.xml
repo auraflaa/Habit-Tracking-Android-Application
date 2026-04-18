@@ -41,6 +41,9 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Notification Receiver -->
+        <receiver android:name=".util.NotificationHelper" android:exported="false" />
+
     </application>
 
 </manifest>

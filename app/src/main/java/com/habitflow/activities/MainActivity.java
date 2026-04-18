@@ -16,6 +16,7 @@ import com.habitflow.fragments.CalendarFragment;
 import com.habitflow.fragments.HomeFragment;
 import com.habitflow.fragments.ProgressFragment;
 import com.habitflow.fragments.SettingsFragment;
+import com.habitflow.util.NotificationHelper;
 import com.habitflow.util.ThemeManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
         ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize Notification Channel
+        NotificationHelper.createNotificationChannel(this);
 
         bottomNav = findViewById(R.id.bottom_nav);
         fab       = findViewById(R.id.fab_add);

@@ -8,9 +8,13 @@
     <color name="accent_pink">#E66A9C</color>
     <color name="accent_teal">#6AE6C9</color>
 
+    <!-- Logo Exact Colors -->
+    <color name="logo_start_green">#22E67B</color>
+    <color name="logo_end_blue">#4D7CFF</color>
+
     <!-- Legacy Alias for Layouts -->
-    <color name="brand_blue">@color/primary_blue</color>
-    <color name="brand_green">@color/primary_green</color>
+    <color name="brand_blue">@color/logo_end_blue</color>
+    <color name="brand_green">@color/logo_start_green</color>
     <color name="brand_fire">#FF6B35</color>
     <color name="bg_primary">@color/dark_bg_primary</color>
     <color name="bg_card">@color/dark_bg_card</color>
