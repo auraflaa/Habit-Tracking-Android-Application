@@ -20,13 +20,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.habitflow.R;
 import com.habitflow.activities.LoginActivity;
+import com.habitflow.adapters.ReminderSettingAdapter;
+import com.habitflow.data.HabitStore;
+import com.habitflow.model.Habit;
+import com.habitflow.util.ReminderManager;
 import com.habitflow.util.ThemeManager;
+
+import java.util.List;
 
 public class SettingsFragment extends Fragment {
 
@@ -65,9 +73,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void setupClickListeners(View view) {
-        view.findViewById(R.id.row_reminders).setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Reminders feature coming soon!", Toast.LENGTH_SHORT).show();
-        });
+        view.findViewById(R.id.row_reminders).setOnClickListener(v -> showRemindersDialog());
 
         view.findViewById(R.id.row_rate).setOnClickListener(v -> {
             String packageName = requireContext().getPackageName();
@@ -87,6 +93,26 @@ public class SettingsFragment extends Fragment {
         });
 
         view.findViewById(R.id.row_logout).setOnClickListener(v -> showLogoutConfirmation());
+    }
+
+    private void showRemindersDialog() {
+        View v = LayoutInflater.from(getContext()).inflate(R.layout.dialog_reminders_list, null);
+        RecyclerView rv = v.findViewById(R.id.rv_reminders_list);
+        
+        List<Habit> habits = HabitStore.get(requireContext()).getHabits();
+        ReminderSettingAdapter adapter = new ReminderSettingAdapter(habits, h -> {
+            HabitStore.get(requireContext()).update(requireContext(), h);
+            ReminderManager.scheduleReminder(requireContext(), h);
+        });
+        
+        rv.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv.setAdapter(adapter);
+
+        new MaterialAlertDialogBuilder(requireContext(), R.style.Theme_HabitFlow_Dialog)
+                .setTitle("Habit Reminders")
+                .setView(v)
+                .setPositiveButton("Done", null)
+                .show();
     }
 
     private void showLogoutConfirmation() {
@@ -118,9 +144,8 @@ public class SettingsFragment extends Fragment {
         };
 
         gridThemes.removeAllViews();
-        // Calculate item width based on 3 columns and parent padding
         int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int gridWidth = screenWidth - dpToPx(40 + 24); // screen margins (20*2) + card padding (12*2)
+        int gridWidth = screenWidth - dpToPx(40 + 24); 
         int itemWidth = gridWidth / 3;
 
         for (String key : themeKeys) {
@@ -140,7 +165,6 @@ public class SettingsFragment extends Fragment {
         lp.width = width;
         container.setLayoutParams(lp);
 
-        // Preview Square (More mature than a circle)
         View preview = new View(getContext());
         int size = dpToPx(48);
         LinearLayout.LayoutParams lpPreview = new LinearLayout.LayoutParams(size, size);
@@ -158,7 +182,6 @@ public class SettingsFragment extends Fragment {
         }
         preview.setBackground(gd);
 
-        // Label
         TextView label = new TextView(getContext());
         label.setText(ThemeManager.labelFor(key));
         label.setTextSize(12);

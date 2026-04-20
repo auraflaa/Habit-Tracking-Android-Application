@@ -43,7 +43,7 @@ public class HabitStore {
 
     // ── Persistence ──────────────────────────────────────────────────────────
 
-    private void save(Context context) {
+    public void save(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         String json = gson.toJson(habits);
         prefs.edit().putString(KEY_HABITS, json).apply();
@@ -55,7 +55,13 @@ public class HabitStore {
         if (json != null) {
             Type type = new TypeToken<ArrayList<Habit>>() {}.getType();
             habits = gson.fromJson(json, type);
-            if (habits == null) habits = new ArrayList<>();
+            if (habits == null) {
+                habits = new ArrayList<>();
+            } else {
+                for (Habit h : habits) {
+                    h.ensureInitialized();
+                }
+            }
         }
     }
 
@@ -100,6 +106,7 @@ public class HabitStore {
     }
 
     public void add(Context context, Habit h) {
+        h.ensureInitialized();
         habits.add(h);
         save(context);
     }
@@ -131,18 +138,19 @@ public class HabitStore {
         if (h == null) return;
         
         String today = getTodayString();
-        h.completedToday = !h.completedToday;
-        
-        if (h.completedToday) {
+        // Toggle the state
+        if (h.completedDates.contains(today)) {
+            h.completedDates.remove(today);
+            h.completedToday = false;
+            h.currentStreak = Math.max(0, h.currentStreak - 1);
+            h.totalCompletions = Math.max(0, h.totalCompletions - 1);
+        } else {
             h.completedDates.add(today);
             h.restDates.remove(today); // Completion overrides rest
+            h.completedToday = true;
             h.currentStreak++;
             h.totalCompletions++;
             if (h.currentStreak > h.bestStreak) h.bestStreak = h.currentStreak;
-        } else {
-            h.completedDates.remove(today);
-            h.currentStreak = Math.max(0, h.currentStreak - 1);
-            h.totalCompletions = Math.max(0, h.totalCompletions - 1);
         }
         save(context);
     }
@@ -150,7 +158,7 @@ public class HabitStore {
     public void markRestDay(Context context) {
         String today = getTodayString();
         for (Habit h : habits) {
-            if (!h.completedToday) {
+            if (!h.completedDates.contains(today)) {
                 h.restDates.add(today);
             }
         }
@@ -158,8 +166,11 @@ public class HabitStore {
     }
 
     public int completedTodayCount() {
+        String today = getTodayString();
         int c = 0;
-        for (Habit h : habits) if (h.completedToday) c++;
+        for (Habit h : habits) {
+            if (h.completedDates.contains(today)) c++;
+        }
         return c;
     }
 
