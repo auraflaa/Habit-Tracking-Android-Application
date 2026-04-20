@@ -4,7 +4,7 @@
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="10dp" />
-            <solid android:color="@color/dark_bg_elevated" />
+            <solid android:color="?attr/customElevatedBackground" />
         </shape>
     </item>
 </ripple>

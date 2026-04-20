@@ -17,7 +17,8 @@ import com.habitflow.R;
 import com.habitflow.util.ThemeManager;
 
 @SuppressLint("CustomSplashScreen")
-public class SplashActivity extends AppCompatActivity {
+public class
+SplashActivity extends AppCompatActivity {
 
     private static final long SPLASH_DURATION = 2200L;
 
