@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.habitflow.data.db.HabitDao;
 import com.habitflow.model.Habit;
 
 import java.lang.reflect.Type;
@@ -17,20 +18,23 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Local Storage implementation using SharedPreferences and Gson.
+ * Local Storage implementation using SQLite (via HabitDao) with migration from SharedPreferences.
  */
 public class HabitStore {
 
     private static final String PREF_NAME = "habit_flow_prefs";
     private static final String KEY_HABITS = "habits_data";
     private static final String KEY_LAST_DATE = "last_reset_date";
+    private static final String KEY_MIGRATED_TO_DB = "migrated_to_db";
 
     private static HabitStore instance;
-    private List<Habit> habits = new ArrayList<>();
-    private final Gson gson = new Gson();
+    private final HabitDao dao;
+    private List<Habit> cachedHabits = new ArrayList<>();
 
     private HabitStore(Context context) {
-        load(context);
+        this.dao = new HabitDao(context);
+        migrateIfNeeded(context);
+        refreshCache();
         checkNewDay(context);
     }
 
@@ -41,30 +45,37 @@ public class HabitStore {
         return instance;
     }
 
-    // ── Persistence ──────────────────────────────────────────────────────────
-
-    public void save(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String json = gson.toJson(habits);
-        prefs.edit().putString(KEY_HABITS, json).apply();
-    }
-
-    private void load(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_HABITS, null);
-        if (json != null) {
-            Type type = new TypeToken<ArrayList<Habit>>() {}.getType();
-            habits = gson.fromJson(json, type);
-            if (habits == null) {
-                habits = new ArrayList<>();
-            } else {
-                for (Habit h : habits) {
-                    h.ensureInitialized();
-                }
-            }
-        }
+    private void refreshCache() {
+        cachedHabits = dao.getAllHabits();
         syncTodayStatus();
     }
+
+    // ── Migration ──────────────────────────────────────────────────────────
+
+    private void migrateIfNeeded(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        if (prefs.getBoolean(KEY_MIGRATED_TO_DB, false)) return;
+
+        String json = prefs.getString(KEY_HABITS, null);
+        if (json != null) {
+            try {
+                Gson gson = new Gson();
+                Type type = new TypeToken<ArrayList<Habit>>() {}.getType();
+                List<Habit> oldHabits = gson.fromJson(json, type);
+                if (oldHabits != null) {
+                    for (Habit h : oldHabits) {
+                        h.ensureInitialized();
+                        dao.insert(h);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        prefs.edit().putBoolean(KEY_MIGRATED_TO_DB, true).apply();
+    }
+
+    // ── Day Management ───────────────────────────────────────────────────────
 
     private void checkNewDay(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -72,35 +83,33 @@ public class HabitStore {
         String todayStr = getTodayString();
 
         if (!todayStr.equals(lastDateStr)) {
-            // Check if we skipped yesterday (to reset streaks)
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DAY_OF_YEAR, -1);
             String yesterdayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
 
-            for (Habit h : habits) {
-                // Streaks only apply to Habits, not Tasks
+            boolean changed = false;
+            for (Habit h : cachedHabits) {
                 if (Habit.TYPE_HABIT.equals(h.type)) {
-                    // If yesterday was NOT completed AND NOT a rest day, streak resets
                     boolean finishedYesterday = h.completedDates.contains(yesterdayStr);
                     boolean wasRestDay = h.restDates.contains(yesterdayStr);
 
                     if (!finishedYesterday && !wasRestDay) {
                         h.currentStreak = 0;
+                        changed = true;
                     }
                 }
-
                 h.completedToday = false;
+                if (changed) dao.update(h);
             }
             
-            save(context);
+            if (changed) refreshCache();
             prefs.edit().putString(KEY_LAST_DATE, todayStr).apply();
         }
     }
 
-    /** Ensures completedToday flag is accurate based on current system date. */
     public void syncTodayStatus() {
         String todayStr = getTodayString();
-        for (Habit h : habits) {
+        for (Habit h : cachedHabits) {
             h.completedToday = h.completedDates.contains(todayStr);
         }
     }
@@ -109,53 +118,41 @@ public class HabitStore {
 
     public List<Habit> getHabits() { 
         syncTodayStatus();
-        return habits; 
+        return cachedHabits; 
     }
 
     public void add(Context context, Habit h) {
         h.ensureInitialized();
-        habits.add(h);
-        save(context);
+        dao.insert(h);
+        refreshCache();
     }
 
     public void update(Context context, Habit updated) {
-        for (int i = 0; i < habits.size(); i++) {
-            if (Objects.equals(habits.get(i).id, updated.id)) {
-                habits.set(i, updated);
-                save(context);
-                return;
-            }
-        }
+        dao.update(updated);
+        refreshCache();
     }
 
     public void delete(Context context, String id) {
-        habits.removeIf(h -> Objects.equals(h.id, id));
-        save(context);
+        dao.delete(id);
+        refreshCache();
     }
 
     public Habit findById(String id) {
-        for (Habit h : habits) {
+        for (Habit h : cachedHabits) {
             if (Objects.equals(h.id, id)) return h;
         }
         return null;
     }
 
     public void toggleComplete(Context context, String id) {
-        Habit h = findById(id);
-        if (h == null) return;
-        
-        String todayStr = getTodayString();
-        // Use the unified logic
-        toggleCompleteForDate(context, id, todayStr);
+        toggleCompleteForDate(context, id, getTodayString());
     }
 
-    /** Toggle completion for a specific date (yyyy-MM-dd). */
     public void toggleCompleteForDate(Context context, String id, String dateStr) {
         Habit h = findById(id);
         if (h == null) return;
         
         String todayStr = getTodayString();
-        // Toggle the state
         if (h.completedDates.contains(dateStr)) {
             h.completedDates.remove(dateStr);
             if (dateStr.equals(todayStr)) h.completedToday = false;
@@ -165,7 +162,7 @@ public class HabitStore {
             h.totalCompletions = Math.max(0, h.totalCompletions - 1);
         } else {
             h.completedDates.add(dateStr);
-            h.restDates.remove(dateStr); // Completion overrides rest
+            h.restDates.remove(dateStr); 
             if (dateStr.equals(todayStr)) h.completedToday = true;
             if (Habit.TYPE_HABIT.equals(h.type)) {
                 h.currentStreak++;
@@ -173,23 +170,24 @@ public class HabitStore {
             }
             h.totalCompletions++;
         }
-        save(context);
+        dao.update(h);
+        refreshCache();
     }
 
     public void markRestDay(Context context) {
         String today = getTodayString();
-        for (Habit h : habits) {
+        for (Habit h : cachedHabits) {
             if (!h.completedDates.contains(today)) {
                 h.restDates.add(today);
+                dao.update(h);
             }
         }
-        save(context);
+        refreshCache();
     }
 
     public int completedTodayCount() {
-        syncTodayStatus();
         int c = 0;
-        for (Habit h : habits) {
+        for (Habit h : cachedHabits) {
             if (h.completedToday) c++;
         }
         return c;
@@ -197,7 +195,7 @@ public class HabitStore {
 
     public int getCompletedCountForDate(String dateStr) {
         int c = 0;
-        for (Habit h : habits) {
+        for (Habit h : cachedHabits) {
             if (h.completedDates.contains(dateStr)) c++;
         }
         return c;
