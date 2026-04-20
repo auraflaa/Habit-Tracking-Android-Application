@@ -80,7 +80,7 @@ public class HabitDao {
 
     private void insertChecklistItem(SQLiteDatabase db, String habitId, ChecklistItem item) {
         ContentValues values = new ContentValues();
-        values.insert(HabitDbHelper.COLUMN_CHECKLIST_ID, item.id);
+        values.put(HabitDbHelper.COLUMN_CHECKLIST_ID, item.id);
         values.put(HabitDbHelper.COLUMN_HABIT_ID, habitId);
         values.put(HabitDbHelper.COLUMN_CHECKLIST_TITLE, item.title);
         values.put(HabitDbHelper.COLUMN_CHECKLIST_COMPLETED, item.isCompleted ? 1 : 0);
