@@ -13,6 +13,7 @@
     <color name="logo_end_blue">#4D7CFF</color>
 
     <!-- Legacy Alias for Layouts -->
+    <color name="brand_primary">@color/primary_blue</color>
     <color name="brand_blue">@color/logo_end_blue</color>
     <color name="brand_green">@color/logo_start_green</color>
     <color name="brand_fire">#FF6B35</color>

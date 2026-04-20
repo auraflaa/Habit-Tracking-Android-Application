@@ -90,12 +90,10 @@ public class BarChartView extends View {
 
         int numBars;
         switch (currentPeriod) {
-            case DAY:
-                numBars = 3; // Morning, Afternoon, Evening
-                break;
             case MONTH:
                 numBars = 30;
                 break;
+            case DAY:
             case WEEK:
             default:
                 numBars = 7;
@@ -140,9 +138,6 @@ public class BarChartView extends View {
                 cal.add(Calendar.DAY_OF_YEAR, -(numBars - 1 - i));
                 String dow = dayFormat.format(cal.getTime()).substring(0, 1);
                 canvas.drawText(dow, left + barWidth / 2, height - dpToPx(6), textPaint);
-            } else if (currentPeriod == Period.DAY) {
-                String[] labels = {"Morning", "Afternoon", "Evening"};
-                canvas.drawText(labels[i], left + barWidth / 2, height - dpToPx(10), textPaint);
             } else if (currentPeriod == Period.MONTH) {
                 if (i % 5 == 0 || i == numBars - 1) {
                     String label = dates.get(i).substring(8);
@@ -168,27 +163,13 @@ public class BarChartView extends View {
     private float calculateCompletionForPeriod(String dateKey, int index) {
         if (habits.isEmpty()) return 0;
         
-        if (currentPeriod == Period.DAY) {
-            String[] segments = {Habit.SEG_MORNING, Habit.SEG_AFTERNOON, Habit.SEG_EVENING};
-            String segment = segments[index];
-            int totalInSeg = 0;
-            int doneInSeg = 0;
-            for (Habit h : habits) {
-                if (segment.equals(h.segment)) {
-                    totalInSeg++;
-                    if (h.completedToday) doneInSeg++;
-                }
+        int completedCount = 0;
+        for (Habit h : habits) {
+            if (h.completedDates.contains(dateKey)) {
+                completedCount++;
             }
-            return totalInSeg > 0 ? (float) doneInSeg / totalInSeg : 0;
-        } else {
-            int completedCount = 0;
-            for (Habit h : habits) {
-                if (h.completedDates.contains(dateKey)) {
-                    completedCount++;
-                }
-            }
-            return (float) completedCount / habits.size();
         }
+        return (float) completedCount / habits.size();
     }
 
     private void drawPlaceholder(Canvas canvas) {

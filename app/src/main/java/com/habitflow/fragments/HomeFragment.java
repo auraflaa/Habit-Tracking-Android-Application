@@ -1,9 +1,11 @@
 package com.habitflow.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -14,8 +16,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.chip.ChipGroup;
 import com.habitflow.R;
@@ -40,7 +44,6 @@ public class HomeFragment extends Fragment {
     private TextView        tvGreeting, tvUsername, tvStreak;
     private TextView        tvQuote, tvQuoteAuthor;
     private LinearLayout    llEmpty;
-    private ChipGroup       chipGroupSegments;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -55,9 +58,10 @@ public class HomeFragment extends Fragment {
 
         bindViews(view);
         setupRecyclerView();
-        setupSegmentChips();
+        setupSwipeAction();
         setGreeting();
         setDailyQuote();
+        setupQuoteSwipe(view);
         refreshData();
     }
 
@@ -68,7 +72,7 @@ public class HomeFragment extends Fragment {
 
     public void refreshData() {
         if (isAdded()) {
-            loadHabits(getActiveSegment());
+            loadHabits();
             updateStreakBadge();
         }
     }
@@ -84,7 +88,6 @@ public class HomeFragment extends Fragment {
         tvQuote          = v.findViewById(R.id.tv_quote);
         tvQuoteAuthor    = v.findViewById(R.id.tv_quote_author);
         llEmpty          = v.findViewById(R.id.ll_empty);
-        chipGroupSegments= v.findViewById(R.id.chip_group_segments);
 
         v.findViewById(R.id.btn_rest_day).setOnClickListener(vv -> showRestDayDialog());
     }
@@ -93,8 +96,7 @@ public class HomeFragment extends Fragment {
         adapter = new HabitAdapter(displayList, new HabitAdapter.OnHabitClick() {
             @Override public void onCheck(Habit habit, int position) {
                 HabitStore.get(requireContext()).toggleComplete(requireContext(), habit.id);
-                refreshProgress();
-                updateStreakBadge();
+                loadHabits(); // Immediately re-sort and refresh
                 if (getActivity() instanceof MainActivity) {
                     ((MainActivity) getActivity()).notifyDataChanged();
                 }
@@ -104,7 +106,6 @@ public class HomeFragment extends Fragment {
             }
             @Override public void onSubtaskToggle(Habit habit, ChecklistItem item, int position) {
                 HabitStore.get(requireContext()).update(requireContext(), habit);
-                // No need to refresh progress unless we decide subtasks contribute to overall completion
             }
         });
         rvHabits.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -112,23 +113,32 @@ public class HomeFragment extends Fragment {
         rvHabits.setItemAnimator(null);
     }
 
-    private void setupSegmentChips() {
-        chipGroupSegments.setOnCheckedStateChangeListener((group, checkedIds) -> loadHabits(getActiveSegment()));
-    }
-
-    private String getActiveSegment() {
-        int id = chipGroupSegments.getCheckedChipId();
-        if (id == R.id.chip_morning)   return Habit.SEG_MORNING;
-        if (id == R.id.chip_afternoon) return Habit.SEG_AFTERNOON;
-        if (id == R.id.chip_evening)   return Habit.SEG_EVENING;
-        return "ALL";
-    }
-
-    private void loadHabits(String segment) {
+    private void loadHabits() {
         displayList.clear();
-        List<Habit> source = "ALL".equals(segment)
-                ? HabitStore.get(requireContext()).getHabits()
-                : HabitStore.get(requireContext()).getBySegment(segment);
+        List<Habit> source = HabitStore.get(requireContext()).getHabits();
+        
+        // Sorting Logic: Completed at bottom, then Priority, then Deadline
+        source.sort((h1, h2) -> {
+            // 1. Completion Status (Completed at bottom)
+            if (h1.completedToday != h2.completedToday) {
+                return h1.completedToday ? 1 : -1;
+            }
+            
+            // 2. Priority (High > Medium > Low)
+            int p1 = getPriorityValue(h1.priority);
+            int p2 = getPriorityValue(h2.priority);
+            if (p1 != p2) return p2 - p1; // Descending (3, 2, 1)
+
+            // 3. Deadline (Earliest first)
+            if (h1.deadline != h2.deadline) {
+                if (h1.deadline == 0) return 1;
+                if (h2.deadline == 0) return -1;
+                return Long.compare(h1.deadline, h2.deadline);
+            }
+
+            return h1.name.compareToIgnoreCase(h2.name);
+        });
+
         displayList.addAll(source);
 
         boolean isEmpty = displayList.isEmpty();
@@ -139,13 +149,36 @@ public class HomeFragment extends Fragment {
         refreshProgress();
     }
 
-    private void refreshProgress() {
-        List<Habit> all   = HabitStore.get(requireContext()).getHabits();
-        int total         = all.size();
-        int done          = HabitStore.get(requireContext()).completedTodayCount();
-        int pct           = total > 0 ? (done * 100 / total) : 0;
+    private int getPriorityValue(String priority) {
+        if (Habit.PRIORITY_HIGH.equalsIgnoreCase(priority)) return 3;
+        if (Habit.PRIORITY_MEDIUM.equalsIgnoreCase(priority)) return 2;
+        return 1;
+    }
 
-        tvProgressCount.setText(getString(R.string.habits_complete, done, total));
+    private void refreshProgress() {
+        List<Habit> all = HabitStore.get(requireContext()).getHabits();
+        if (all.isEmpty()) {
+            pbToday.setProgress(0);
+            tvProgressCount.setText("0/0 habits complete");
+            return;
+        }
+
+        float totalWeight = 0;
+        float completedWeight = 0;
+        int completedCount = 0;
+
+        for (Habit h : all) {
+            float weight = getPriorityValue(h.priority);
+            totalWeight += weight;
+            if (h.completedToday) {
+                completedWeight += weight;
+                completedCount++;
+            }
+        }
+
+        int pct = Math.round((completedWeight / totalWeight) * 100);
+
+        tvProgressCount.setText(getString(R.string.habits_complete, completedCount, all.size()));
         pbToday.setProgress(pct);
 
         if (pct == 0)        tvProgressLabel.setText(R.string.progress_start);
@@ -185,20 +218,138 @@ public class HomeFragment extends Fragment {
 
         // Seeded random based on date
         Random seededRandom = new Random(dayOfYear + year * 365L);
-        String entry = raw[seededRandom.nextInt(raw.length)];
+        showQuote(raw[seededRandom.nextInt(raw.length)]);
+    }
 
+    private void setupSwipeAction() {
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) return;
+                
+                Habit habit = displayList.get(position);
+
+                if (direction == ItemTouchHelper.LEFT) {
+                    // Swipe left to delete
+                    HabitStore.get(requireContext()).delete(requireContext(), habit.id);
+                    Toast.makeText(getContext(), "Habit deleted", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Swipe right to toggle completion
+                    HabitStore.get(requireContext()).toggleComplete(requireContext(), habit.id);
+                }
+                
+                loadHabits(); // Re-sort and refresh
+                
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).notifyDataChanged();
+                }
+            }
+
+            @Override
+            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+                super.onSelectedChanged(viewHolder, actionState);
+                // Disable ViewPager2 swiping when we start swiping an item
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    if (getActivity() instanceof MainActivity) {
+                        ViewPager2 vp = getActivity().findViewById(R.id.view_pager);
+                        if (vp != null) vp.setUserInputEnabled(false);
+                    }
+                } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
+                    // Re-enable it
+                    if (getActivity() instanceof MainActivity) {
+                        ViewPager2 vp = getActivity().findViewById(R.id.view_pager);
+                        if (vp != null) vp.setUserInputEnabled(true);
+                    }
+                }
+            }
+        };
+        new ItemTouchHelper(callback).attachToRecyclerView(rvHabits);
+    }
+
+    private void showNewRandomQuote() {
+        String[] raw = getResources().getStringArray(R.array.quotes);
+        showQuote(raw[new Random().nextInt(raw.length)]);
+    }
+
+    private void showQuote(String entry) {
         String[] parts = entry.split("\\|");
         tvQuote.setText(getString(R.string.quote_format, parts[0]));
         tvQuoteAuthor.setText(parts.length > 1 ? getString(R.string.quote_author_format, parts[1]) : "");
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void setupQuoteSwipe(View v) {
+        View quoteCard = v.findViewById(R.id.quote_card_container);
+        if (quoteCard == null) return;
+
+        quoteCard.setOnTouchListener(new View.OnTouchListener() {
+            private float startY;
+            private boolean isSwiping = false;
+
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startY = event.getRawY();
+                        isSwiping = false;
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        float currentY = event.getRawY();
+                        float deltaY = currentY - startY;
+                        
+                        // If user moved vertically enough, start swiping and tell parent not to scroll
+                        if (Math.abs(deltaY) > 30 && !isSwiping) {
+                            isSwiping = true;
+                            view.getParent().requestDisallowInterceptTouchEvent(true);
+                        }
+                        
+                        if (isSwiping) {
+                            view.setTranslationY(deltaY * 0.3f); // Resistance effect
+                        }
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        if (isSwiping) {
+                            float endY = event.getRawY();
+                            float totalDeltaY = endY - startY;
+
+                            if (Math.abs(totalDeltaY) > 150) {
+                                // Successful swipe
+                                showNewRandomQuote();
+                            }
+                            
+                            // Animate back to original position
+                            view.animate()
+                                .translationY(0)
+                                .setDuration(200)
+                                .start();
+                        }
+                        isSwiping = false;
+                        view.getParent().requestDisallowInterceptTouchEvent(false);
+                        return true;
+                }
+                return false;
+            }
+        });
     }
 
     private void showRestDayDialog() {
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("😴 Rest Day")
                 .setMessage("Mark today as a rest day? Your streaks won't be broken.")
-                .setPositiveButton("Yes, rest today", (d, w) ->
-                        Toast.makeText(getContext(), R.string.rest_day_toast,
-                                Toast.LENGTH_SHORT).show())
+                .setPositiveButton("Yes, rest today", (d, w) -> {
+                    HabitStore.get(requireContext()).markRestDay(requireContext());
+                    loadHabits();
+                    Toast.makeText(getContext(), R.string.rest_day_toast, Toast.LENGTH_SHORT).show();
+                })
                 .setNegativeButton("Cancel", null)
                 .show();
     }

@@ -37,10 +37,10 @@
                 android:id="@+id/grid_themes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
+                android:padding="8dp"
                 app:columnCount="3"
                 app:alignmentMode="alignMargins"
-                app:useDefaultMargins="true"/>
+                app:useDefaultMargins="false"/>
         </androidx.cardview.widget.CardView>
 
         <!-- Preferences Section -->

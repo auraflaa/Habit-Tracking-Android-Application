@@ -37,8 +37,8 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
 
     private EditText etName, etDesc;
     private TextView tvSheetTitle, tvReminderTime;
-    private ChipGroup chipsCategory, chipsPriority, chipsSegment;
-    private LinearLayout llEmojis, llColors, llChecklistContainer;
+    private ChipGroup chipsCategory, chipsPriority, chipsType, chipsFrequency, chipsDays;
+    private LinearLayout llEmojis, llColors, llChecklistContainer, llFrequencyContainer, llCustomDays;
     private SwitchMaterial switchNotify;
     private String selectedEmoji = "🏃";
     private String selectedColor = "#FF5252";
@@ -89,12 +89,33 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         etDesc = v.findViewById(R.id.et_desc);
         chipsCategory = v.findViewById(R.id.chips_category);
         chipsPriority = v.findViewById(R.id.chips_priority);
-        chipsSegment = v.findViewById(R.id.chips_segment);
+        chipsType = v.findViewById(R.id.chips_type);
+        chipsFrequency = v.findViewById(R.id.chips_frequency);
+        llFrequencyContainer = v.findViewById(R.id.ll_frequency_container);
+        llCustomDays = v.findViewById(R.id.ll_custom_days);
+        chipsDays = v.findViewById(R.id.chips_days);
         llEmojis = v.findViewById(R.id.ll_emojis);
         llColors = v.findViewById(R.id.ll_colors);
         llChecklistContainer = v.findViewById(R.id.ll_checklist_container);
         switchNotify = v.findViewById(R.id.switch_reminder);
         tvReminderTime = v.findViewById(R.id.tv_reminder_time);
+
+        setupTypeToggle();
+    }
+
+    private void setupTypeToggle() {
+        chipsType.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            boolean isHabit = checkedIds.contains(R.id.chip_type_habit);
+            llFrequencyContainer.setVisibility(isHabit ? View.VISIBLE : View.GONE);
+            tvSheetTitle.setText(isHabit ? R.string.add_habit_title : R.string.add_task_title);
+            if (!isHabit) llCustomDays.setVisibility(View.GONE);
+            else if (chipsFrequency.getCheckedChipId() == R.id.chip_freq_custom) llCustomDays.setVisibility(View.VISIBLE);
+        });
+
+        chipsFrequency.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            boolean isCustom = checkedIds.contains(R.id.chip_freq_custom);
+            llCustomDays.setVisibility(isCustom ? View.VISIBLE : View.GONE);
+        });
     }
 
     private void setupTimePicker() {
@@ -223,7 +244,23 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
 
         setChipSelected(chipsCategory, habitToEdit.category);
         setChipSelected(chipsPriority, habitToEdit.priority);
-        setChipSelected(chipsSegment, habitToEdit.segment);
+        setChipSelected(chipsType, habitToEdit.type);
+        setChipSelected(chipsFrequency, habitToEdit.frequency);
+
+        if (habitToEdit.frequency != null && habitToEdit.frequency.startsWith("Custom:")) {
+            llCustomDays.setVisibility(View.VISIBLE);
+            String[] days = habitToEdit.frequency.replace("Custom:", "").split(",");
+            for (String day : days) {
+                for (int i = 0; i < chipsDays.getChildCount(); i++) {
+                    Chip c = (Chip) chipsDays.getChildAt(i);
+                    if (c.getText().toString().equalsIgnoreCase(day)) {
+                        c.setChecked(true);
+                    }
+                }
+            }
+        }
+
+        llFrequencyContainer.setVisibility(Habit.TYPE_HABIT.equals(habitToEdit.type) ? View.VISIBLE : View.GONE);
 
         // Load checklist
         if (habitToEdit.checklist != null) {
@@ -238,11 +275,19 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     }
 
     private void setChipSelected(ChipGroup group, String text) {
+        if (text == null || text.isEmpty()) return;
         for (int i = 0; i < group.getChildCount(); i++) {
             Chip chip = (Chip) group.getChildAt(i);
-            if (chip.getText().toString().contains(text)) {
+            if (chip.getText().toString().equalsIgnoreCase(text)) {
                 chip.setChecked(true);
                 return;
+            }
+        }
+        // If no match found and it's frequency, it might be custom
+        if (group.getId() == R.id.chips_frequency) {
+            View customChip = group.findViewById(R.id.chip_freq_custom);
+            if (customChip instanceof Chip) {
+                ((Chip) customChip).setChecked(true);
             }
         }
     }
@@ -257,11 +302,25 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         Habit h = (habitToEdit != null) ? habitToEdit : new Habit();
         h.name = name;
         h.description = etDesc.getText().toString().trim();
+        h.type = getSelectedChipText(chipsType);
+        
+        String freq = getSelectedChipText(chipsFrequency);
+        if ("Custom".equalsIgnoreCase(freq)) {
+            List<Integer> ids = chipsDays.getCheckedChipIds();
+            StringBuilder sb = new StringBuilder("Custom:");
+            for (int id : ids) {
+                Chip c = chipsDays.findViewById(id);
+                sb.append(c.getText()).append(",");
+            }
+            h.frequency = sb.toString();
+        } else {
+            h.frequency = freq;
+        }
+
         h.emoji = selectedEmoji;
         h.colorHex = selectedColor;
         h.category = getSelectedChipText(chipsCategory);
         h.priority = getSelectedChipText(chipsPriority);
-        h.segment = getSelectedChipText(chipsSegment);
         h.notifyEnabled = switchNotify.isChecked();
         h.notifyTime = selectedTime;
 

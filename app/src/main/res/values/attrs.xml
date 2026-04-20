@@ -9,4 +9,5 @@
     <attr name="customBorderColor" format="color" />
     <attr name="customNavBackground" format="color" />
     <attr name="customInputStrokeColor" format="color" />
+    <attr name="colorPrimary" format="color" />
 </resources>

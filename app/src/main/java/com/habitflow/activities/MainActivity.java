@@ -12,6 +12,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -29,13 +31,13 @@ public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_CODE = 101;
 
     private BottomNavigationView bottomNav;
+    private ViewPager2 viewPager;
     private FloatingActionButton fab;
 
     private HomeFragment     homeFragment;
     private CalendarFragment calendarFragment;
     private ProgressFragment progressFragment;
     private SettingsFragment settingsFragment;
-    private Fragment         activeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +49,10 @@ public class MainActivity extends AppCompatActivity {
         NotificationHelper.createNotificationChannel(this);
 
         bottomNav = findViewById(R.id.bottom_nav);
+        viewPager = findViewById(R.id.view_pager);
         fab       = findViewById(R.id.fab_add);
 
-        initFragments(savedInstanceState);
+        initFragments();
         setupBottomNav();
         setupFab();
         checkNotificationPermission();
@@ -75,47 +78,40 @@ public class MainActivity extends AppCompatActivity {
 
     // ── Fragment management ───────────────────────────────────────────────────
 
-    private void initFragments(Bundle saved) {
-        FragmentManager fm = getSupportFragmentManager();
-        
-        if (saved != null) {
-            homeFragment     = (HomeFragment) fm.findFragmentByTag("home");
-            calendarFragment = (CalendarFragment) fm.findFragmentByTag("calendar");
-            progressFragment = (ProgressFragment) fm.findFragmentByTag("progress");
-            settingsFragment = (SettingsFragment) fm.findFragmentByTag("settings");
-
-            if (homeFragment != null && !homeFragment.isHidden()) activeFragment = homeFragment;
-            else if (calendarFragment != null && !calendarFragment.isHidden()) activeFragment = calendarFragment;
-            else if (progressFragment != null && !progressFragment.isHidden()) activeFragment = progressFragment;
-            else if (settingsFragment != null && !settingsFragment.isHidden()) activeFragment = settingsFragment;
-            
-            if (activeFragment == null) activeFragment = homeFragment;
-            return;
-        }
-
+    private void initFragments() {
         homeFragment     = new HomeFragment();
         calendarFragment = new CalendarFragment();
         progressFragment = new ProgressFragment();
         settingsFragment = new SettingsFragment();
 
-        fm.beginTransaction()
-                .add(R.id.fragment_container, homeFragment,     "home")
-                .add(R.id.fragment_container, calendarFragment, "calendar").hide(calendarFragment)
-                .add(R.id.fragment_container, progressFragment, "progress").hide(progressFragment)
-                .add(R.id.fragment_container, settingsFragment, "settings").hide(settingsFragment)
-                .commit();
+        viewPager.setAdapter(new FragmentStateAdapter(this) {
+            @NonNull @Override
+            public Fragment createFragment(int position) {
+                switch (position) {
+                    case 0: return homeFragment;
+                    case 1: return calendarFragment;
+                    case 2: return progressFragment;
+                    case 3: return settingsFragment;
+                    default: return homeFragment;
+                }
+            }
+            @Override public int getItemCount() { return 4; }
+        });
 
-        activeFragment = homeFragment;
-    }
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0: bottomNav.setSelectedItemId(R.id.nav_today); break;
+                    case 1: bottomNav.setSelectedItemId(R.id.nav_calendar); break;
+                    case 2: bottomNav.setSelectedItemId(R.id.nav_progress); break;
+                    case 3: bottomNav.setSelectedItemId(R.id.nav_settings); break;
+                }
+            }
+        });
 
-    private void showFragment(Fragment target) {
-        if (target == null || target == activeFragment) return;
-        getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-                .hide(activeFragment)
-                .show(target)
-                .commit();
-        activeFragment = target;
+        // Disable swiping for some fragments if needed, but the user requested left/right slide
+        viewPager.setOffscreenPageLimit(3);
     }
 
     // ── Bottom nav ────────────────────────────────────────────────────────────
@@ -124,13 +120,13 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_today) {
-                showFragment(homeFragment);
+                viewPager.setCurrentItem(0);
             } else if (id == R.id.nav_calendar) {
-                showFragment(calendarFragment);
+                viewPager.setCurrentItem(1);
             } else if (id == R.id.nav_progress) {
-                showFragment(progressFragment);
+                viewPager.setCurrentItem(2);
             } else if (id == R.id.nav_settings) {
-                showFragment(settingsFragment);
+                viewPager.setCurrentItem(3);
             }
             return true;
         });

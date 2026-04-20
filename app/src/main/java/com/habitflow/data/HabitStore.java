@@ -78,12 +78,15 @@ public class HabitStore {
             String yesterdayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
 
             for (Habit h : habits) {
-                // If yesterday was NOT completed AND NOT a rest day, streak resets
-                boolean finishedYesterday = h.completedDates.contains(yesterdayStr);
-                boolean wasRestDay = h.restDates.contains(yesterdayStr);
+                // Streaks only apply to Habits, not Tasks
+                if (Habit.TYPE_HABIT.equals(h.type)) {
+                    // If yesterday was NOT completed AND NOT a rest day, streak resets
+                    boolean finishedYesterday = h.completedDates.contains(yesterdayStr);
+                    boolean wasRestDay = h.restDates.contains(yesterdayStr);
 
-                if (!finishedYesterday && !wasRestDay) {
-                    h.currentStreak = 0;
+                    if (!finishedYesterday && !wasRestDay) {
+                        h.currentStreak = 0;
+                    }
                 }
 
                 h.completedToday = false;
@@ -107,15 +110,6 @@ public class HabitStore {
     public List<Habit> getHabits() { 
         syncTodayStatus();
         return habits; 
-    }
-
-    public List<Habit> getBySegment(String segment) {
-        syncTodayStatus();
-        List<Habit> result = new ArrayList<>();
-        for (Habit h : habits) {
-            if (segment.equals(h.segment)) result.add(h);
-        }
-        return result;
     }
 
     public void add(Context context, Habit h) {
@@ -165,15 +159,19 @@ public class HabitStore {
         if (h.completedDates.contains(dateStr)) {
             h.completedDates.remove(dateStr);
             if (dateStr.equals(todayStr)) h.completedToday = false;
-            h.currentStreak = Math.max(0, h.currentStreak - 1);
+            if (Habit.TYPE_HABIT.equals(h.type)) {
+                h.currentStreak = Math.max(0, h.currentStreak - 1);
+            }
             h.totalCompletions = Math.max(0, h.totalCompletions - 1);
         } else {
             h.completedDates.add(dateStr);
             h.restDates.remove(dateStr); // Completion overrides rest
             if (dateStr.equals(todayStr)) h.completedToday = true;
-            h.currentStreak++;
+            if (Habit.TYPE_HABIT.equals(h.type)) {
+                h.currentStreak++;
+                if (h.currentStreak > h.bestStreak) h.bestStreak = h.currentStreak;
+            }
             h.totalCompletions++;
-            if (h.currentStreak > h.bestStreak) h.bestStreak = h.currentStreak;
         }
         save(context);
     }

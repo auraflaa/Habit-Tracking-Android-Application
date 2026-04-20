@@ -64,20 +64,25 @@ public class HeatmapView extends View {
         int size = dpToPx(12);
         int spacing = dpToPx(4);
         
-        // Get theme-aware empty color
+        // Theme-aware colors
+        int colorPrimary = 0x728AED;
         int colorEmpty = 0x1A1A24;
+        
         android.util.TypedValue typedValue = new android.util.TypedValue();
+        if (getContext().getTheme().resolveAttribute(com.habitflow.R.attr.colorPrimary, typedValue, true)) {
+            colorPrimary = typedValue.data;
+        }
         if (getContext().getTheme().resolveAttribute(com.habitflow.R.attr.customElevatedBackground, typedValue, true)) {
             colorEmpty = typedValue.data;
         }
 
-        // Material Green levels
+        // Generate lighter levels based on brand color
         int[] levels = {
-            colorEmpty,                  // Empty
-            Color.parseColor("#1A4D1A"), // Low
-            Color.parseColor("#2D7D2D"), // Medium-Low
-            Color.parseColor("#43B043"), // Medium-High
-            Color.parseColor("#7AD326")  // High (Completed all)
+            colorEmpty,                                      // Empty
+            adjustAlpha(colorPrimary, 0.2f),                // Low
+            adjustAlpha(colorPrimary, 0.4f),                // Medium-Low
+            adjustAlpha(colorPrimary, 0.7f),                // Medium-High
+            colorPrimary                                     // High (Completed all)
         };
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -97,12 +102,17 @@ public class HeatmapView extends View {
                 
                 int level = 0;
                 if (habits != null && !habits.isEmpty()) {
-                    int completed = 0;
+                    float totalWeight = 0;
+                    float completedWeight = 0;
                     for (Habit h : habits) {
-                        if (h.completedDates.contains(dateKey)) completed++;
+                        float weight = getWeight(h.priority);
+                        totalWeight += weight;
+                        if (h.completedDates.contains(dateKey)) {
+                            completedWeight += weight;
+                        }
                     }
                     
-                    float pct = (float) completed / habits.size();
+                    float pct = completedWeight / totalWeight;
                     if (pct > 0.99f) level = 4;
                     else if (pct > 0.66f) level = 3;
                     else if (pct > 0.33f) level = 2;
@@ -122,6 +132,21 @@ public class HeatmapView extends View {
                 cal.add(Calendar.DAY_OF_YEAR, 1);
             }
         }
+    }
+
+    private int adjustAlpha(int color, float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        if (alpha == 0 && factor > 0) alpha = Math.round(255 * factor);
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
+    }
+
+    private float getWeight(String priority) {
+        if (Habit.PRIORITY_HIGH.equalsIgnoreCase(priority)) return 3.0f;
+        if (Habit.PRIORITY_MEDIUM.equalsIgnoreCase(priority)) return 2.0f;
+        return 1.0f;
     }
 
     private int dpToPx(int dp) {

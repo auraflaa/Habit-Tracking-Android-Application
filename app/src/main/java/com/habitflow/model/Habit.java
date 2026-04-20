@@ -19,20 +19,25 @@ public class Habit implements Serializable {
     public static final String PRIORITY_MEDIUM = "Medium";
     public static final String PRIORITY_LOW = "Low";
 
-    public static final String SEG_MORNING = "Morning";
-    public static final String SEG_AFTERNOON = "Afternoon";
-    public static final String SEG_EVENING = "Evening";
+    public static final String TYPE_HABIT = "Habit";
+    public static final String TYPE_TASK = "Task";
+
+    public static final String FREQ_DAILY = "Daily";
+    public static final String FREQ_WEEKLY = "Weekly";
+    public static final String FREQ_MONTHLY = "Monthly";
 
     public String id;
     public String name;
+    public String type = TYPE_HABIT; // Default to habit
+    public String frequency = FREQ_DAILY; // Default to daily
     public String description = "";
     public String emoji;
     public String colorHex;
     public String category;
     public String priority;
-    public String segment;
     public boolean notifyEnabled;
     public String notifyTime = "";
+    public long deadline = 0; // Timestamp for deadline, 0 if none
     
     public int currentStreak = 0;
     public int bestStreak = 0;
@@ -50,13 +55,12 @@ public class Habit implements Serializable {
         this.id = UUID.randomUUID().toString();
     }
 
-    public Habit(String id, String name, String emoji, String category, String priority, String segment, String colorHex) {
+    public Habit(String id, String name, String emoji, String category, String priority, String colorHex) {
         this.id = id;
         this.name = name;
         this.emoji = emoji;
         this.category = category;
         this.priority = priority;
-        this.segment = segment;
         this.colorHex = colorHex;
     }
 

@@ -35,9 +35,20 @@
     <string name="quote_format">\"%1$s\"</string>
     <string name="quote_author_format">— %1$s</string>
     <string name="rest_day_toast">Rest day marked! Enjoy your break 🌿</string>
+    <string name="rest_day_suffix"> (Rest Day 😴)</string>
 
     <!-- Add/Edit Habit -->
     <string name="add_habit_title">New Habit</string>
+    <string name="add_task_title">New Task</string>
+    <string name="label_goal_type">Goal Type</string>
+    <string name="label_frequency">Frequency</string>
+    <string name="type_habit">Habit</string>
+    <string name="type_task">Task</string>
+    <string name="freq_daily">Daily</string>
+    <string name="freq_weekly">Weekly</string>
+    <string name="freq_custom">Custom</string>
+    <string name="habit_summary_format">%1$s • %2$s</string>
+    <string name="task_summary_format">%1$s • Task</string>
     <string name="edit_habit_title">Edit Habit</string>
     <string name="hint_habit_name">What habit do you want to build?</string>
     <string name="hint_habit_desc">Why does this matter to you? (optional)</string>
@@ -136,4 +147,12 @@
     <string name="chip_evening">Evening</string>
     <string name="error_enter_name">Please enter a name</string>
     <string name="error_fill_fields">Please fill all required fields</string>
+    <string name="label_select_days">Select Days</string>
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+    <string name="day_sun">Sun</string>
 </resources>

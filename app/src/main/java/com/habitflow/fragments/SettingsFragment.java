@@ -144,13 +144,15 @@ public class SettingsFragment extends Fragment {
         };
 
         gridThemes.removeAllViews();
-        int screenWidth = getResources().getDisplayMetrics().widthPixels;
-        int gridWidth = screenWidth - dpToPx(40 + 24); 
-        int itemWidth = gridWidth / 3;
+        // Calculate item width based on grid column count
+        gridThemes.post(() -> {
+            int gridWidth = gridThemes.getWidth() - gridThemes.getPaddingLeft() - gridThemes.getPaddingRight();
+            int itemWidth = gridWidth / 3;
 
-        for (String key : themeKeys) {
-            gridThemes.addView(createThemeItem(key, itemWidth));
-        }
+            for (String key : themeKeys) {
+                gridThemes.addView(createThemeItem(key, itemWidth));
+            }
+        });
     }
 
     private View createThemeItem(String key, int width) {
@@ -178,14 +180,27 @@ public class SettingsFragment extends Fragment {
         if (isSelected) {
             gd.setStroke(dpToPx(3), Color.parseColor(ThemeManager.accentColorFor(key)));
         } else {
-            gd.setStroke(dpToPx(1), Color.parseColor("#338A8880"));
+            // Use a theme-aware border color for unselected items
+            int borderColor = 0x338A8880;
+            android.util.TypedValue typedValue = new android.util.TypedValue();
+            if (getContext().getTheme().resolveAttribute(R.attr.customBorderColor, typedValue, true)) {
+                borderColor = typedValue.data;
+            }
+            gd.setStroke(dpToPx(1), borderColor);
         }
         preview.setBackground(gd);
 
         TextView label = new TextView(getContext());
         label.setText(ThemeManager.labelFor(key));
         label.setTextSize(12);
-        label.setTextColor(isSelected ? Color.parseColor(ThemeManager.accentColorFor(key)) : Color.parseColor("#8A8880"));
+        
+        int textSecondary = 0xFF8A8880;
+        android.util.TypedValue typedValue = new android.util.TypedValue();
+        if (getContext().getTheme().resolveAttribute(R.attr.customTextSecondary, typedValue, true)) {
+            textSecondary = typedValue.data;
+        }
+
+        label.setTextColor(isSelected ? Color.parseColor(ThemeManager.accentColorFor(key)) : textSecondary);
         if (isSelected) label.setTypeface(null, Typeface.BOLD);
         label.setGravity(Gravity.CENTER);
 

@@ -49,12 +49,57 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
         
         holder.tvName.setText(h.name);
         holder.tvEmoji.setText(h.emoji);
-        holder.tvCategory.setText(h.category);
-        holder.tvStreak.setText("🔥 " + h.currentStreak);
-
-        // Accent color (optional circle behind emoji)
-        int color = Color.parseColor(h.colorHex != null ? h.colorHex : "#728AED");
         
+        if (Habit.TYPE_HABIT.equals(h.type)) {
+            holder.tvCategory.setText(holder.itemView.getContext().getString(R.string.habit_summary_format, h.category, h.frequency));
+            holder.tvStreak.setVisibility(View.VISIBLE);
+            holder.tvStreak.setText("🔥 " + h.currentStreak);
+        } else {
+            holder.tvCategory.setText(holder.itemView.getContext().getString(R.string.task_summary_format, h.category));
+            holder.tvStreak.setVisibility(View.GONE);
+        }
+
+        // Deadline
+        if (h.deadline > 0) {
+            holder.tvDeadline.setVisibility(View.VISIBLE);
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMM d", java.util.Locale.getDefault());
+            holder.tvDeadline.setText("📅 " + sdf.format(new java.util.Date(h.deadline)));
+            
+            // Highlight if overdue
+            if (h.deadline < System.currentTimeMillis() && !h.completedToday) {
+                holder.tvDeadline.setTextColor(Color.parseColor("#FF5252"));
+            } else {
+                holder.tvDeadline.setTextColor(Color.parseColor("#8A8880"));
+            }
+        } else {
+            holder.tvDeadline.setVisibility(View.GONE);
+        }
+
+        // Completion state
+        String todayStr = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(new java.util.Date());
+        boolean isRestDay = h.restDates != null && h.restDates.contains(todayStr);
+
+        if (h.completedToday) {
+            holder.btnCheck.setBackgroundResource(R.drawable.bg_check_done);
+            holder.ivCheckIcon.setVisibility(View.VISIBLE);
+            holder.itemView.setAlpha(0.5f); // Make whole box translucent
+            holder.tvName.setPaintFlags(holder.tvName.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+        } else if (isRestDay) {
+            holder.btnCheck.setBackgroundResource(R.drawable.bg_check_empty);
+            holder.ivCheckIcon.setVisibility(View.GONE);
+            holder.itemView.setAlpha(0.3f); // Even more translucent for rest day
+            holder.tvName.setText(h.name + holder.itemView.getContext().getString(R.string.rest_day_suffix));
+            holder.btnCheck.setEnabled(false);
+            holder.btnCheck.setAlpha(0.5f);
+        } else {
+            holder.btnCheck.setBackgroundResource(R.drawable.bg_check_empty);
+            holder.ivCheckIcon.setVisibility(View.GONE);
+            holder.itemView.setAlpha(1.0f);
+            holder.tvName.setPaintFlags(holder.tvName.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.btnCheck.setEnabled(true);
+            holder.btnCheck.setAlpha(1.0f);
+        }
+
         // Priority dot
         GradientDrawable priorityBg = new GradientDrawable();
         priorityBg.setShape(GradientDrawable.OVAL);
@@ -62,19 +107,6 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
         else if (Habit.PRIORITY_LOW.equals(h.priority)) priorityBg.setColor(Color.parseColor("#7AD326"));
         else priorityBg.setColor(Color.parseColor("#FFD600"));
         holder.viewPriority.setBackground(priorityBg);
-
-        // Completion state
-        if (h.completedToday) {
-            holder.btnCheck.setBackgroundResource(R.drawable.bg_check_done);
-            holder.ivCheckIcon.setVisibility(View.VISIBLE);
-            holder.tvName.setAlpha(0.5f);
-            holder.tvName.setPaintFlags(holder.tvName.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
-        } else {
-            holder.btnCheck.setBackgroundResource(R.drawable.bg_check_empty);
-            holder.ivCheckIcon.setVisibility(View.GONE);
-            holder.tvName.setAlpha(1.0f);
-            holder.tvName.setPaintFlags(holder.tvName.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
-        }
 
         holder.btnCheck.setOnClickListener(v -> {
             if (listener != null) {
@@ -142,7 +174,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
     }
 
     static class HabitVH extends RecyclerView.ViewHolder {
-        TextView tvName, tvEmoji, tvCategory, tvStreak;
+        TextView tvName, tvEmoji, tvCategory, tvStreak, tvDeadline;
         View viewAccent, viewPriority;
         FrameLayout btnCheck;
         ImageView ivCheckIcon;
@@ -154,6 +186,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
             tvEmoji = v.findViewById(R.id.tv_emoji);
             tvCategory = v.findViewById(R.id.tv_category);
             tvStreak = v.findViewById(R.id.tv_streak);
+            tvDeadline = v.findViewById(R.id.tv_deadline);
             viewAccent = v.findViewById(R.id.view_accent);
             viewPriority = v.findViewById(R.id.view_priority);
             btnCheck = v.findViewById(R.id.btn_check);
