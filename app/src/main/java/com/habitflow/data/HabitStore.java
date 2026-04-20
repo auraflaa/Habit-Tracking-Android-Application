@@ -80,12 +80,18 @@ public class HabitStore {
             for (Habit h : habits) {
                 // Streaks only apply to Habits, not Tasks
                 if (Habit.TYPE_HABIT.equals(h.type)) {
-                    // If yesterday was NOT completed AND NOT a rest day, streak resets
-                    boolean finishedYesterday = h.completedDates.contains(yesterdayStr);
-                    boolean wasRestDay = h.restDates.contains(yesterdayStr);
+                    // Check if the habit was supposed to run yesterday
+                    Calendar yesterdayCal = Calendar.getInstance();
+                    yesterdayCal.add(Calendar.DAY_OF_YEAR, -1);
+                    boolean shouldHaveRunYesterday = isHabitScheduledForDate(h, yesterdayCal);
 
-                    if (!finishedYesterday && !wasRestDay) {
-                        h.currentStreak = 0;
+                    if (shouldHaveRunYesterday) {
+                        boolean finishedYesterday = h.completedDates.contains(yesterdayStr);
+                        boolean wasRestDay = h.restDates.contains(yesterdayStr);
+
+                        if (!finishedYesterday && !wasRestDay) {
+                            h.currentStreak = 0;
+                        }
                     }
                 }
 
@@ -109,7 +115,51 @@ public class HabitStore {
 
     public List<Habit> getHabits() { 
         syncTodayStatus();
-        return habits; 
+        return filterHabitsForToday(habits); 
+    }
+
+    /** Filters habits based on their frequency settings for the current day. */
+    private List<Habit> filterHabitsForToday(List<Habit> source) {
+        List<Habit> filtered = new ArrayList<>();
+        Calendar cal = Calendar.getInstance();
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        String dayName = getDayName(dayOfWeek);
+
+        for (Habit h : source) {
+            // Tasks always show up until completed (or stay if they have no deadline)
+            if (Habit.TYPE_TASK.equals(h.type)) {
+                filtered.add(h);
+                continue;
+            }
+
+            // Frequency filtering for Habits
+            if (Habit.FREQ_DAILY.equalsIgnoreCase(h.frequency)) {
+                filtered.add(h);
+            } else if (h.frequency != null && h.frequency.startsWith("Custom:")) {
+                String selectedDays = h.frequency.substring(7).toLowerCase();
+                if (selectedDays.contains(dayName.toLowerCase())) {
+                    filtered.add(h);
+                }
+            } else {
+                // For Weekly/Monthly, we show them every day for now as per simple MVP,
+                // or we could add specific logic here.
+                filtered.add(h);
+            }
+        }
+        return filtered;
+    }
+
+    private String getDayName(int dayOfWeek) {
+        switch (dayOfWeek) {
+            case Calendar.MONDAY: return "Mon";
+            case Calendar.TUESDAY: return "Tue";
+            case Calendar.WEDNESDAY: return "Wed";
+            case Calendar.THURSDAY: return "Thu";
+            case Calendar.FRIDAY: return "Fri";
+            case Calendar.SATURDAY: return "Sat";
+            case Calendar.SUNDAY: return "Sun";
+            default: return "";
+        }
     }
 
     public void add(Context context, Habit h) {
@@ -201,6 +251,18 @@ public class HabitStore {
             if (h.completedDates.contains(dateStr)) c++;
         }
         return c;
+    }
+
+    private boolean isHabitScheduledForDate(Habit h, Calendar cal) {
+        if (Habit.TYPE_TASK.equals(h.type)) return true;
+        if (Habit.FREQ_DAILY.equalsIgnoreCase(h.frequency)) return true;
+        
+        if (h.frequency != null && h.frequency.startsWith("Custom:")) {
+            String dayName = getDayName(cal.get(Calendar.DAY_OF_WEEK)).toLowerCase();
+            return h.frequency.substring(7).toLowerCase().contains(dayName);
+        }
+        
+        return true; // Default for Weekly/Monthly
     }
 
     private String getTodayString() {

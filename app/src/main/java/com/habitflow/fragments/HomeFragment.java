@@ -252,6 +252,51 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
+            public void onChildDraw(@NonNull android.graphics.Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+
+                View itemView = viewHolder.itemView;
+                int itemHeight = itemView.getBottom() - itemView.getTop();
+                android.graphics.Paint p = new android.graphics.Paint();
+
+                if (dX > 0) { // Swiping Right (Complete)
+                    p.setColor(android.graphics.Color.parseColor("#4CAF50")); // Green
+                    android.graphics.RectF background = new android.graphics.RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
+                    c.drawRect(background, p);
+
+                    // Draw Tick Icon
+                    android.graphics.drawable.Drawable icon = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.ic_check);
+                    if (icon != null) {
+                        int iconMargin = (itemHeight - icon.getIntrinsicHeight()) / 2;
+                        int iconTop = itemView.getTop() + (itemHeight - icon.getIntrinsicHeight()) / 2;
+                        int iconBottom = iconTop + icon.getIntrinsicHeight();
+                        int iconLeft = itemView.getLeft() + iconMargin;
+                        int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
+                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                        icon.setTint(android.graphics.Color.WHITE);
+                        icon.draw(c);
+                    }
+                } else if (dX < 0) { // Swiping Left (Delete)
+                    p.setColor(android.graphics.Color.parseColor("#F44336")); // Red
+                    android.graphics.RectF background = new android.graphics.RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
+                    c.drawRect(background, p);
+
+                    // Draw Delete Icon (Close as fallback if delete is missing)
+                    android.graphics.drawable.Drawable icon = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.ic_close);
+                    if (icon != null) {
+                        int iconMargin = (itemHeight - icon.getIntrinsicHeight()) / 2;
+                        int iconTop = itemView.getTop() + (itemHeight - icon.getIntrinsicHeight()) / 2;
+                        int iconBottom = iconTop + icon.getIntrinsicHeight();
+                        int iconLeft = itemView.getRight() - iconMargin - icon.getIntrinsicWidth();
+                        int iconRight = itemView.getRight() - iconMargin;
+                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                        icon.setTint(android.graphics.Color.WHITE);
+                        icon.draw(c);
+                    }
+                }
+            }
+
+            @Override
             public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
                 super.onSelectedChanged(viewHolder, actionState);
                 // Disable ViewPager2 swiping when we start swiping an item

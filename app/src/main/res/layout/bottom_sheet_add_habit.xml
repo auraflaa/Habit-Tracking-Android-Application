@@ -121,13 +121,13 @@
                     android:layout_width="match_parent" android:layout_height="wrap_content"
                     app:singleSelection="false"
                     app:chipSpacingHorizontal="4dp">
-                    <com.google.android.material.chip.Chip style="@style/FilterChip" android:text="Mon" android:id="@+id/day_mon" android:checkable="true"/>
-                    <com.google.android.material.chip.Chip style="@style/FilterChip" android:text="Tue" android:id="@+id/day_tue" android:checkable="true"/>
-                    <com.google.android.material.chip.Chip style="@style/FilterChip" android:text="Wed" android:id="@+id/day_wed" android:checkable="true"/>
-                    <com.google.android.material.chip.Chip style="@style/FilterChip" android:text="Thu" android:id="@+id/day_thu" android:checkable="true"/>
-                    <com.google.android.material.chip.Chip style="@style/FilterChip" android:text="Fri" android:id="@+id/day_fri" android:checkable="true"/>
-                    <com.google.android.material.chip.Chip style="@style/FilterChip" android:text="Sat" android:id="@+id/day_sat" android:checkable="true"/>
-                    <com.google.android.material.chip.Chip style="@style/FilterChip" android:text="Sun" android:id="@+id/day_sun" android:checkable="true"/>
+                    <com.google.android.material.chip.Chip style="@style/FilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mon" android:id="@+id/day_mon" android:checkable="true"/>
+                <com.google.android.material.chip.Chip style="@style/FilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tue" android:id="@+id/day_tue" android:checkable="true"/>
+                <com.google.android.material.chip.Chip style="@style/FilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wed" android:id="@+id/day_wed" android:checkable="true"/>
+                <com.google.android.material.chip.Chip style="@style/FilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Thu" android:id="@+id/day_thu" android:checkable="true"/>
+                <com.google.android.material.chip.Chip style="@style/FilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fri" android:id="@+id/day_fri" android:checkable="true"/>
+                <com.google.android.material.chip.Chip style="@style/FilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sat" android:id="@+id/day_sat" android:checkable="true"/>
+                <com.google.android.material.chip.Chip style="@style/FilterChip" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sun" android:id="@+id/day_sun" android:checkable="true"/>
                 </com.google.android.material.chip.ChipGroup>
             </LinearLayout>
 
