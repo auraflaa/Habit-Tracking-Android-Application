@@ -288,13 +288,10 @@ public class HomeFragment extends Fragment {
         final View quoteCard = v.findViewById(R.id.quote_card_container);
         if (quoteCard == null) return;
 
-        // Ensure the card can receive touch events
-        quoteCard.setClickable(true);
-        quoteCard.setFocusable(true);
-
         quoteCard.setOnTouchListener(new View.OnTouchListener() {
             private float startX, startY;
             private boolean isDragging = false;
+            private boolean isHorizontalLocked = false;
             private int touchSlop = -1;
 
             @Override
@@ -308,68 +305,72 @@ public class HomeFragment extends Fragment {
                         startX = event.getRawX();
                         startY = event.getRawY();
                         isDragging = false;
-                        // Tell all parents (NestedScrollView and ViewPager2) to stay out of this
-                        view.getParent().requestDisallowInterceptTouchEvent(true);
+                        isHorizontalLocked = false;
                         return true;
 
                     case MotionEvent.ACTION_MOVE:
+                        if (isHorizontalLocked) return false;
+
                         float dx = event.getRawX() - startX;
                         float dy = event.getRawY() - startY;
 
-                        if (!isDragging && (Math.abs(dx) > touchSlop || Math.abs(dy) > touchSlop)) {
-                            isDragging = true;
+                        if (!isDragging) {
+                            // Check for horizontal movement to let ViewPager2 take over
+                            if (Math.abs(dx) > touchSlop && Math.abs(dx) > Math.abs(dy)) {
+                                isHorizontalLocked = true;
+                                return false;
+                            }
+                            // Check for vertical movement to start sliding the quote card
+                            // Use a smaller threshold than touchSlop to be more responsive
+                            if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) {
+                                isDragging = true;
+                                view.getParent().requestDisallowInterceptTouchEvent(true);
+                            }
                         }
 
                         if (isDragging) {
-                            // Support both horizontal and vertical sliding for better UX
-                            view.setTranslationX(dx * 0.4f);
-                            view.setTranslationY(dy * 0.4f);
-                            view.setAlpha(Math.max(0.6f, 1.0f - (float)Math.sqrt(dx*dx + dy*dy) / 1000f));
+                            // Translate the card 1:1 with finger movement for a natural feel
+                            view.setTranslationY(dy);
+                            view.setAlpha(Math.max(0.5f, 1.0f - Math.abs(dy) / 1000f));
                         }
                         return true;
 
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
                         if (isDragging) {
-                            float totalDx = event.getRawX() - startX;
                             float totalDy = event.getRawY() - startY;
-                            float totalDist = (float) Math.sqrt(totalDx * totalDx + totalDy * totalDy);
-
-                            if (totalDist > 150) {
-                                // Successful slide: Animate out, change quote, animate in
+                            if (Math.abs(totalDy) > 200) {
+                                // Animate away and refresh
+                                float targetY = totalDy > 0 ? 1000 : -1000;
                                 view.animate()
-                                    .translationX(totalDx * 2)
-                                    .translationY(totalDy * 2)
+                                    .translationY(targetY)
                                     .alpha(0)
-                                    .setDuration(200)
+                                    .setDuration(250)
                                     .withEndAction(() -> {
                                         showNewRandomQuote();
-                                        view.setTranslationX(0);
                                         view.setTranslationY(0);
                                         view.setAlpha(0);
-                                        view.animate().alpha(1).setDuration(300).start();
+                                        view.animate().alpha(1).setDuration(250).start();
                                     })
                                     .start();
                             } else {
-                                // Not far enough, snap back
+                                // Snap back if swipe wasn't far enough
                                 view.animate()
-                                    .translationX(0)
                                     .translationY(0)
                                     .alpha(1)
                                     .setDuration(200)
                                     .setInterpolator(new android.view.animation.OvershootInterpolator())
                                     .start();
                             }
-                        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                            // Simple tap: just change the quote with a small scale effect
+                        } else if (event.getAction() == MotionEvent.ACTION_UP && !isHorizontalLocked) {
+                            // Tap to refresh quote
+                            showNewRandomQuote();
                             view.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100)
-                                .withEndAction(() -> {
-                                    showNewRandomQuote();
-                                    view.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
-                                }).start();
+                                .withEndAction(() -> view.animate().scaleX(1.0f).scaleY(1.0f).setDuration(100).start())
+                                .start();
                         }
-                        
                         isDragging = false;
+                        isHorizontalLocked = false;
                         view.getParent().requestDisallowInterceptTouchEvent(false);
                         return true;
                 }
