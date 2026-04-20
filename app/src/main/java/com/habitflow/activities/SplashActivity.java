@@ -53,7 +53,10 @@ SplashActivity extends AppCompatActivity {
     }
 
     private void navigateNext() {
-        Intent intent = new Intent(this, LoginActivity.class);
+        android.content.SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        boolean isLoggedIn = prefs.contains("user_name");
+
+        Intent intent = new Intent(this, isLoggedIn ? MainActivity.class : LoginActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
