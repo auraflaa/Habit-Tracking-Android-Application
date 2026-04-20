@@ -285,54 +285,91 @@ public class HomeFragment extends Fragment {
 
     @SuppressLint("ClickableViewAccessibility")
     private void setupQuoteSwipe(View v) {
-        View quoteCard = v.findViewById(R.id.quote_card_container);
+        final View quoteCard = v.findViewById(R.id.quote_card_container);
         if (quoteCard == null) return;
 
+        // Ensure the card can receive touch events
+        quoteCard.setClickable(true);
+        quoteCard.setFocusable(true);
+
         quoteCard.setOnTouchListener(new View.OnTouchListener() {
-            private float startY;
-            private boolean isSwiping = false;
+            private float startX, startY;
+            private boolean isDragging = false;
+            private int touchSlop = -1;
 
             @Override
             public boolean onTouch(View view, MotionEvent event) {
+                if (touchSlop < 0) {
+                    touchSlop = android.view.ViewConfiguration.get(view.getContext()).getScaledTouchSlop();
+                }
+
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
+                        startX = event.getRawX();
                         startY = event.getRawY();
-                        isSwiping = false;
+                        isDragging = false;
+                        // Tell all parents (NestedScrollView and ViewPager2) to stay out of this
+                        view.getParent().requestDisallowInterceptTouchEvent(true);
                         return true;
 
                     case MotionEvent.ACTION_MOVE:
-                        float currentY = event.getRawY();
-                        float deltaY = currentY - startY;
-                        
-                        // If user moved vertically enough, start swiping and tell parent not to scroll
-                        if (Math.abs(deltaY) > 30 && !isSwiping) {
-                            isSwiping = true;
-                            view.getParent().requestDisallowInterceptTouchEvent(true);
+                        float dx = event.getRawX() - startX;
+                        float dy = event.getRawY() - startY;
+
+                        if (!isDragging && (Math.abs(dx) > touchSlop || Math.abs(dy) > touchSlop)) {
+                            isDragging = true;
                         }
-                        
-                        if (isSwiping) {
-                            view.setTranslationY(deltaY * 0.3f); // Resistance effect
+
+                        if (isDragging) {
+                            // Support both horizontal and vertical sliding for better UX
+                            view.setTranslationX(dx * 0.4f);
+                            view.setTranslationY(dy * 0.4f);
+                            view.setAlpha(Math.max(0.6f, 1.0f - (float)Math.sqrt(dx*dx + dy*dy) / 1000f));
                         }
                         return true;
 
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_CANCEL:
-                        if (isSwiping) {
-                            float endY = event.getRawY();
-                            float totalDeltaY = endY - startY;
+                        if (isDragging) {
+                            float totalDx = event.getRawX() - startX;
+                            float totalDy = event.getRawY() - startY;
+                            float totalDist = (float) Math.sqrt(totalDx * totalDx + totalDy * totalDy);
 
-                            if (Math.abs(totalDeltaY) > 150) {
-                                // Successful swipe
-                                showNewRandomQuote();
+                            if (totalDist > 150) {
+                                // Successful slide: Animate out, change quote, animate in
+                                view.animate()
+                                    .translationX(totalDx * 2)
+                                    .translationY(totalDy * 2)
+                                    .alpha(0)
+                                    .setDuration(200)
+                                    .withEndAction(() -> {
+                                        showNewRandomQuote();
+                                        view.setTranslationX(0);
+                                        view.setTranslationY(0);
+                                        view.setAlpha(0);
+                                        view.animate().alpha(1).setDuration(300).start();
+                                    })
+                                    .start();
+                            } else {
+                                // Not far enough, snap back
+                                view.animate()
+                                    .translationX(0)
+                                    .translationY(0)
+                                    .alpha(1)
+                                    .setDuration(200)
+                                    .setInterpolator(new android.view.animation.OvershootInterpolator())
+                                    .start();
                             }
-                            
-                            // Animate back to original position
-                            view.animate()
-                                .translationY(0)
-                                .setDuration(200)
-                                .start();
+                        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                            // Simple tap: just change the quote with a small scale effect
+                            view.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100)
+                                .withEndAction(() -> {
+                                    showNewRandomQuote();
+                                    view.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+                                }).start();
                         }
-                        isSwiping = false;
+                        
+                        isDragging = false;
                         view.getParent().requestDisallowInterceptTouchEvent(false);
                         return true;
                 }
