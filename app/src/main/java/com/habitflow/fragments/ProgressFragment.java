@@ -18,6 +18,7 @@ import com.habitflow.R;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.Habit;
 import com.habitflow.views.BarChartView;
+import com.habitflow.views.HeatmapView;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class ProgressFragment extends Fragment {
     private RecyclerView rvBreakdown;
     private TabLayout   tabScope;
     private BarChartView barChart;
+    private HeatmapView heatmapView;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -45,6 +47,7 @@ public class ProgressFragment extends Fragment {
         rvBreakdown     = view.findViewById(R.id.rv_breakdown);
         tabScope        = view.findViewById(R.id.tab_scope);
         barChart        = view.findViewById(R.id.bar_chart);
+        heatmapView     = view.findViewById(R.id.heatmap_view);
 
         refreshData();
         setupTabs();
@@ -67,6 +70,9 @@ public class ProgressFragment extends Fragment {
         setupBreakdown(habits);
         if (barChart != null) {
             barChart.setData(habits);
+        }
+        if (heatmapView != null) {
+            heatmapView.setData(habits);
         }
     }
 

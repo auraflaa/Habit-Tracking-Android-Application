@@ -14,8 +14,10 @@
         <!-- Default (Dark) attributes -->
         <item name="customWindowBackground">@color/dark_bg_primary</item>
         <item name="customCardBackground">@color/dark_bg_card</item>
+        <item name="customElevatedBackground">@color/dark_bg_elevated</item>
         <item name="customTextPrimary">@color/dark_text_primary</item>
         <item name="customTextSecondary">@color/dark_text_secondary</item>
+        <item name="customTextDim">@color/dark_text_dim</item>
         <item name="customBorderColor">@color/dark_border</item>
         <item name="customNavBackground">@color/dark_nav_bg</item>
 
@@ -31,8 +33,10 @@
         <item name="colorPrimary">@color/primary_blue</item>
         <item name="customWindowBackground">@color/light_bg_primary</item>
         <item name="customCardBackground">@color/light_bg_card</item>
+        <item name="customElevatedBackground">@color/light_bg_elevated</item>
         <item name="customTextPrimary">@color/light_text_primary</item>
         <item name="customTextSecondary">@color/light_text_secondary</item>
+        <item name="customTextDim">@color/light_text_dim</item>
         <item name="customBorderColor">@color/light_border</item>
         <item name="customNavBackground">@color/light_nav_bg</item>
         <item name="android:windowBackground">?attr/customWindowBackground</item>

@@ -45,12 +45,19 @@ public class BarChartView extends View {
 
         textPaint = new Paint();
         textPaint.setAntiAlias(true);
-        textPaint.setColor(Color.parseColor("#8A8880"));
         textPaint.setTextSize(spToPx(10));
         textPaint.setTextAlign(Paint.Align.CENTER);
 
+        // Get theme colors
+        int colorTextSecondary = Color.parseColor("#8A8880");
+        TypedValue typedValue = new TypedValue();
+        if (getContext().getTheme().resolveAttribute(com.habitflow.R.attr.customTextSecondary, typedValue, true)) {
+            colorTextSecondary = typedValue.data;
+        }
+        textPaint.setColor(colorTextSecondary);
+
         gridPaint = new Paint();
-        gridPaint.setColor(Color.parseColor("#1A8A8880"));
+        gridPaint.setColor((colorTextSecondary & 0x00FFFFFF) | 0x1A000000);
         gridPaint.setStrokeWidth(dpToPx(1));
     }
 

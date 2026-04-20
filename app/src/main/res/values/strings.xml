@@ -55,6 +55,11 @@
     <!-- Calendar -->
     <string name="calendar_title">Calendar</string>
     <string name="completion_percentage">%1$d%% completion</string>
+    <string name="today">Today</string>
+    <string name="label_less">Less</string>
+    <string name="label_more">More</string>
+    <string name="prev_month">Previous month</string>
+    <string name="next_month">Next month</string>
 
     <!-- Progress -->
     <string name="progress_title">Progress</string>
@@ -80,6 +85,7 @@
     <string name="link_register">New here? Create an account</string>
     <string name="link_login">Already have an account? Sign In</string>
     <string name="skip">Continue without account</string>
+    <string name="subtask_hint">Subtask name</string>
 
     <!-- Quotes -->
     <string-array name="quotes">
@@ -108,4 +114,26 @@
         <item>The key to success is to focus on goals, not obstacles.|Unknown</item>
         <item>Dream it. Believe it. Build it.|Unknown</item>
     </string-array>
+    <string name="label_appearance">Appearance</string>
+    <string name="label_preferences">Preferences</string>
+    <string name="label_push_notifications">Push Notifications</string>
+    <string name="label_daily_reminders">Daily Reminders</string>
+    <string name="label_rate_app">Rate App</string>
+    <string name="label_share_friends">Share with Friends</string>
+    <string name="btn_sign_out">Sign Out</string>
+    <string name="version_format">Version %1$s</string>
+    <string name="email_verification_sent">Verification email sent to %1$s</string>
+    <string name="error_email_required">Email required</string>
+    <string name="error_invalid_email">Invalid email address</string>
+    <string name="error_password_required">Password required</string>
+    <string name="error_password_length">Min 6 characters required</string>
+    <string name="error_name_required">Name required</string>
+    <string name="label_progress">Today\'s Progress</string>
+    <string name="label_your_habits">Your Habits</string>
+    <string name="chip_all">All</string>
+    <string name="chip_morning">Morning</string>
+    <string name="chip_afternoon">Afternoon</string>
+    <string name="chip_evening">Evening</string>
+    <string name="error_enter_name">Please enter a name</string>
+    <string name="error_fill_fields">Please fill all required fields</string>
 </resources>

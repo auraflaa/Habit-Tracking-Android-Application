@@ -22,6 +22,7 @@ import com.habitflow.R;
 import com.habitflow.activities.MainActivity;
 import com.habitflow.adapters.HabitAdapter;
 import com.habitflow.data.HabitStore;
+import com.habitflow.model.ChecklistItem;
 import com.habitflow.model.Habit;
 
 import java.util.ArrayList;
@@ -101,6 +102,10 @@ public class HomeFragment extends Fragment {
             @Override public void onLongPress(Habit habit, int position) {
                 openEditSheet(habit);
             }
+            @Override public void onSubtaskToggle(Habit habit, ChecklistItem item, int position) {
+                HabitStore.get(requireContext()).update(requireContext(), habit);
+                // No need to refresh progress unless we decide subtasks contribute to overall completion
+            }
         });
         rvHabits.setLayoutManager(new LinearLayoutManager(getContext()));
         rvHabits.setAdapter(adapter);
@@ -158,10 +163,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void setGreeting() {
-        SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        SharedPreferences prefs = requireContext().getSharedPreferences("user_prefs", android.content.Context.MODE_PRIVATE);
         String name = prefs.getString("user_name", "User");
         
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
         int greetingRes;
         if (hour < 12)      greetingRes = R.string.good_morning;
         else if (hour < 17) greetingRes = R.string.good_afternoon;

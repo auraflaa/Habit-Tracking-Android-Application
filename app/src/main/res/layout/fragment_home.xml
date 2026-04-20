@@ -98,7 +98,7 @@
                         <TextView android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="Today's Progress"
+                            android:text="@string/label_progress"
                             android:textColor="?attr/customTextSecondary"
                             android:textSize="12sp"
                             android:textStyle="bold"
@@ -175,14 +175,14 @@
                 <TextView android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:text="Your Habits"
+                    android:text="@string/label_your_habits"
                     style="@style/AppTitleMedium"
                     android:textColor="?attr/customTextPrimary"/>
 
                 <TextView android:id="@+id/btn_rest_day"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Rest Day"
+                    android:text="@string/label_rest_day"
                     android:textColor="@color/primary_blue"
                     android:textSize="12sp"
                     android:textStyle="bold"
@@ -213,23 +213,23 @@
                         style="@style/FilterChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="All"
+                        android:text="@string/chip_all"
                         android:checked="true"/>
                     <com.google.android.material.chip.Chip android:id="@+id/chip_morning"
                         style="@style/FilterChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Morning"/>
+                        android:text="@string/chip_morning"/>
                     <com.google.android.material.chip.Chip android:id="@+id/chip_afternoon"
                         style="@style/FilterChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Afternoon"/>
+                        android:text="@string/chip_afternoon"/>
                     <com.google.android.material.chip.Chip android:id="@+id/chip_evening"
                         style="@style/FilterChip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Evening"/>
+                        android:text="@string/chip_evening"/>
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
@@ -257,13 +257,13 @@
                     android:textSize="64sp"/>
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No habits yet"
+                    android:text="@string/empty_title"
                     style="@style/AppTitleMedium"
                     android:textColor="?attr/customTextPrimary"
                     android:layout_marginTop="20dp"/>
                 <TextView android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Start your journey by adding one!"
+                    android:text="@string/empty_subtitle"
                     android:textColor="?attr/customTextSecondary"
                     android:textSize="14sp"
                     android:layout_marginTop="8dp"/>

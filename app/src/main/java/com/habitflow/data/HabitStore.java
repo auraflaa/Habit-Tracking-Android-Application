@@ -63,6 +63,7 @@ public class HabitStore {
                 }
             }
         }
+        syncTodayStatus();
     }
 
     private void checkNewDay(Context context) {
@@ -93,11 +94,23 @@ public class HabitStore {
         }
     }
 
+    /** Ensures completedToday flag is accurate based on current system date. */
+    public void syncTodayStatus() {
+        String todayStr = getTodayString();
+        for (Habit h : habits) {
+            h.completedToday = h.completedDates.contains(todayStr);
+        }
+    }
+
     // ── CRUD ─────────────────────────────────────────────────────────────────
 
-    public List<Habit> getHabits() { return habits; }
+    public List<Habit> getHabits() { 
+        syncTodayStatus();
+        return habits; 
+    }
 
     public List<Habit> getBySegment(String segment) {
+        syncTodayStatus();
         List<Habit> result = new ArrayList<>();
         for (Habit h : habits) {
             if (segment.equals(h.segment)) result.add(h);
@@ -137,17 +150,27 @@ public class HabitStore {
         Habit h = findById(id);
         if (h == null) return;
         
-        String today = getTodayString();
+        String todayStr = getTodayString();
+        // Use the unified logic
+        toggleCompleteForDate(context, id, todayStr);
+    }
+
+    /** Toggle completion for a specific date (yyyy-MM-dd). */
+    public void toggleCompleteForDate(Context context, String id, String dateStr) {
+        Habit h = findById(id);
+        if (h == null) return;
+        
+        String todayStr = getTodayString();
         // Toggle the state
-        if (h.completedDates.contains(today)) {
-            h.completedDates.remove(today);
-            h.completedToday = false;
+        if (h.completedDates.contains(dateStr)) {
+            h.completedDates.remove(dateStr);
+            if (dateStr.equals(todayStr)) h.completedToday = false;
             h.currentStreak = Math.max(0, h.currentStreak - 1);
             h.totalCompletions = Math.max(0, h.totalCompletions - 1);
         } else {
-            h.completedDates.add(today);
-            h.restDates.remove(today); // Completion overrides rest
-            h.completedToday = true;
+            h.completedDates.add(dateStr);
+            h.restDates.remove(dateStr); // Completion overrides rest
+            if (dateStr.equals(todayStr)) h.completedToday = true;
             h.currentStreak++;
             h.totalCompletions++;
             if (h.currentStreak > h.bestStreak) h.bestStreak = h.currentStreak;
@@ -166,10 +189,18 @@ public class HabitStore {
     }
 
     public int completedTodayCount() {
-        String today = getTodayString();
+        syncTodayStatus();
         int c = 0;
         for (Habit h : habits) {
-            if (h.completedDates.contains(today)) c++;
+            if (h.completedToday) c++;
+        }
+        return c;
+    }
+
+    public int getCompletedCountForDate(String dateStr) {
+        int c = 0;
+        for (Habit h : habits) {
+            if (h.completedDates.contains(dateStr)) c++;
         }
         return c;
     }

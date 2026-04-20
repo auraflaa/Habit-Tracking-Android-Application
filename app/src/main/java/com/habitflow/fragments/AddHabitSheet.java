@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,9 +22,12 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.habitflow.R;
 import com.habitflow.data.HabitStore;
+import com.habitflow.model.ChecklistItem;
 import com.habitflow.model.Habit;
 import com.habitflow.util.ReminderManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class AddHabitSheet extends BottomSheetDialogFragment {
@@ -34,11 +38,12 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     private EditText etName, etDesc;
     private TextView tvSheetTitle, tvReminderTime;
     private ChipGroup chipsCategory, chipsPriority, chipsSegment;
-    private LinearLayout llEmojis, llColors;
+    private LinearLayout llEmojis, llColors, llChecklistContainer;
     private SwitchMaterial switchNotify;
     private String selectedEmoji = "🏃";
     private String selectedColor = "#FF5252";
     private String selectedTime = "08:00";
+    private final List<ChecklistItem> tempChecklist = new ArrayList<>();
 
     private final String[] emojis = {"🏃", "📚", "🧘", "🥗", "⚡", "🤝", "💧", "✍️", "🍎", "🚲", "💻", "🎸", "💊", "🚭", "💵", "🧹", "🛌", "🚶", "🏊", "🧠"};
     private final String[] colors = {"#FF5252", "#FFD600", "#00BCD4", "#7AD326", "#728AED", "#9C6AE6", "#FF9800", "#E91E63", "#4CAF50", "#2196F3"};
@@ -67,6 +72,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         setupEmojiPicker();
         setupColorPicker();
         setupTimePicker();
+        setupChecklist();
 
         if (habitToEdit != null) {
             setupEditMode(view);
@@ -86,6 +92,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         chipsSegment = v.findViewById(R.id.chips_segment);
         llEmojis = v.findViewById(R.id.ll_emojis);
         llColors = v.findViewById(R.id.ll_colors);
+        llChecklistContainer = v.findViewById(R.id.ll_checklist_container);
         switchNotify = v.findViewById(R.id.switch_reminder);
         tvReminderTime = v.findViewById(R.id.tv_reminder_time);
     }
@@ -176,6 +183,31 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         }
     }
 
+    private void setupChecklist() {
+        getView().findViewById(R.id.btn_add_checklist_item).setOnClickListener(v -> {
+            ChecklistItem item = new ChecklistItem("");
+            tempChecklist.add(item);
+            addChecklistItemView(item);
+        });
+    }
+
+    private void addChecklistItemView(ChecklistItem item) {
+        View v = LayoutInflater.from(getContext()).inflate(R.layout.item_checklist, llChecklistContainer, false);
+        EditText etTitle = v.findViewById(R.id.et_checklist_title);
+        CheckBox checkBox = v.findViewById(R.id.checkbox);
+        View btnRemove = v.findViewById(R.id.btn_remove);
+
+        etTitle.setText(item.title);
+        checkBox.setChecked(item.isCompleted);
+
+        btnRemove.setOnClickListener(view -> {
+            tempChecklist.remove(item);
+            llChecklistContainer.removeView(v);
+        });
+
+        llChecklistContainer.addView(v);
+    }
+
     private void setupEditMode(View view) {
         tvSheetTitle.setText("Edit Habit");
         etName.setText(habitToEdit.name);
@@ -193,6 +225,15 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         setChipSelected(chipsPriority, habitToEdit.priority);
         setChipSelected(chipsSegment, habitToEdit.segment);
 
+        // Load checklist
+        if (habitToEdit.checklist != null) {
+            tempChecklist.clear();
+            tempChecklist.addAll(habitToEdit.checklist);
+            for (ChecklistItem item : tempChecklist) {
+                addChecklistItemView(item);
+            }
+        }
+
         view.findViewById(R.id.btn_delete).setVisibility(View.VISIBLE);
     }
 
@@ -209,7 +250,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     private void saveHabit() {
         String name = etName.getText().toString().trim();
         if (name.isEmpty()) {
-            Toast.makeText(getContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.error_enter_name, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -223,6 +264,17 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         h.segment = getSelectedChipText(chipsSegment);
         h.notifyEnabled = switchNotify.isChecked();
         h.notifyTime = selectedTime;
+
+        // Sync checklist back to habit
+        h.checklist.clear();
+        for (int i = 0; i < llChecklistContainer.getChildCount(); i++) {
+            View v = llChecklistContainer.getChildAt(i);
+            EditText et = v.findViewById(R.id.et_checklist_title);
+            CheckBox cb = v.findViewById(R.id.checkbox);
+            ChecklistItem item = new ChecklistItem(et.getText().toString());
+            item.isCompleted = cb.isChecked();
+            h.checklist.add(item);
+        }
 
         if (habitToEdit != null) {
             HabitStore.get(requireContext()).update(requireContext(), h);

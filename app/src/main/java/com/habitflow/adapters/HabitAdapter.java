@@ -9,10 +9,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import android.widget.LinearLayout;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.habitflow.R;
+import com.habitflow.model.ChecklistItem;
 import com.habitflow.model.Habit;
 
 import java.util.List;
@@ -22,6 +25,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
     public interface OnHabitClick {
         void onCheck(Habit habit, int position);
         void onLongPress(Habit habit, int position);
+        void onSubtaskToggle(Habit habit, ChecklistItem item, int position);
     }
 
     private final List<Habit> habits;
@@ -74,10 +78,12 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
 
         holder.btnCheck.setOnClickListener(v -> {
             if (listener != null) {
-                // Perform toggle without notifyDataSetChanged to keep it smooth
+                // Perform toggle locally for immediate UI response
                 h.completedToday = !h.completedToday;
-                listener.onCheck(h, position);
                 notifyItemChanged(position);
+                
+                // Then notify listener to persist change
+                listener.onCheck(h, position);
             }
         });
 
@@ -89,6 +95,45 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
             if (listener != null) listener.onLongPress(h, position);
             return true;
         });
+
+        // Setup Checklist
+        if (h.checklist != null && !h.checklist.isEmpty()) {
+            holder.llChecklistContainer.setVisibility(View.VISIBLE);
+            holder.llChecklistContainer.removeAllViews();
+            
+            for (ChecklistItem item : h.checklist) {
+                View subtaskView = LayoutInflater.from(holder.itemView.getContext())
+                        .inflate(R.layout.item_checklist_main, holder.llChecklistContainer, false);
+                
+                TextView tvTitle = subtaskView.findViewById(R.id.tv_checklist_title);
+                ImageView ivCheck = subtaskView.findViewById(R.id.iv_checklist_check);
+                
+                tvTitle.setText(item.title);
+                if (item.isCompleted) {
+                    ivCheck.setImageResource(R.drawable.bg_check_done); // Reusing drawable as icon for now or use a proper ic_check_circle
+                    ivCheck.setAlpha(1.0f);
+                    tvTitle.setAlpha(0.5f);
+                    tvTitle.setPaintFlags(tvTitle.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+                } else {
+                    ivCheck.setImageResource(R.drawable.bg_check_empty);
+                    ivCheck.setAlpha(0.5f);
+                    tvTitle.setAlpha(1.0f);
+                    tvTitle.setPaintFlags(tvTitle.getPaintFlags() & (~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG));
+                }
+                
+                subtaskView.setOnClickListener(v -> {
+                    if (listener != null) {
+                        item.isCompleted = !item.isCompleted;
+                        listener.onSubtaskToggle(h, item, position);
+                        notifyItemChanged(position);
+                    }
+                });
+                
+                holder.llChecklistContainer.addView(subtaskView);
+            }
+        } else {
+            holder.llChecklistContainer.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -101,6 +146,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
         View viewAccent, viewPriority;
         FrameLayout btnCheck;
         ImageView ivCheckIcon;
+        LinearLayout llChecklistContainer;
 
         HabitVH(@NonNull View v) {
             super(v);
@@ -112,6 +158,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
             viewPriority = v.findViewById(R.id.view_priority);
             btnCheck = v.findViewById(R.id.btn_check);
             ivCheckIcon = v.findViewById(R.id.iv_check_icon);
+            llChecklistContainer = v.findViewById(R.id.ll_checklist_container);
         }
     }
 }

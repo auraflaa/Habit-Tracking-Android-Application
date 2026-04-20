@@ -1,7 +1,9 @@
 package com.habitflow.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,6 +39,9 @@ public class Habit implements Serializable {
     public int totalCompletions = 0;
     public boolean completedToday = false;
     
+    // Checklist
+    public List<ChecklistItem> checklist = new ArrayList<>();
+
     // Track completion history and rest days
     public Set<String> completedDates = new HashSet<>();
     public Set<String> restDates = new HashSet<>();
@@ -61,5 +66,6 @@ public class Habit implements Serializable {
     public void ensureInitialized() {
         if (completedDates == null) completedDates = new HashSet<>();
         if (restDates == null) restDates = new HashSet<>();
+        if (checklist == null) checklist = new ArrayList<>();
     }
 }

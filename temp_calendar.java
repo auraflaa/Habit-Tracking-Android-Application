@@ -1,8 +1,7 @@
-package com.habitflow.fragments;
+﻿package com.habitflow.fragments;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -24,7 +23,6 @@ import com.habitflow.R;
 import com.habitflow.activities.MainActivity;
 import com.habitflow.adapters.HabitAdapter;
 import com.habitflow.data.HabitStore;
-import com.habitflow.model.ChecklistItem;
 import com.habitflow.model.Habit;
 
 import java.text.SimpleDateFormat;
@@ -114,14 +112,6 @@ public class CalendarFragment extends Fragment {
             public void onLongPress(Habit habit, int position) {
                 // Optional: Open edit sheet
             }
-
-            @Override
-            public void onSubtaskToggle(Habit habit, ChecklistItem item, int position) {
-                Habit realHabit = HabitStore.get(requireContext()).findById(habit.id);
-                if (realHabit != null) {
-                    HabitStore.get(requireContext()).update(requireContext(), realHabit);
-                }
-            }
         });
         rvDayHabits.setLayoutManager(new LinearLayoutManager(getContext()));
         rvDayHabits.setAdapter(dayAdapter);
@@ -158,42 +148,32 @@ public class CalendarFragment extends Fragment {
 
         Calendar cal = (Calendar) currentCal.clone();
         cal.set(Calendar.DAY_OF_MONTH, 1);
-        int firstDow = cal.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY; 
+        int firstDow = cal.get(Calendar.DAY_OF_WEEK) - 1; 
         int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 
         Calendar today = Calendar.getInstance();
-        today.set(Calendar.HOUR_OF_DAY, 0);
-        today.set(Calendar.MINUTE, 0);
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
 
         // Colors from theme
         int colorPrimary = Color.parseColor("#728AED");
         int colorTextPrimary = getThemeColor(R.attr.customTextPrimary);
         int colorTextSecondary = getThemeColor(R.attr.customTextSecondary);
-        int colorTextDim = getThemeColor(R.attr.customTextDim);
-        int colorEmptyCell = getThemeColor(R.attr.customElevatedBackground);
+        int colorEmptyCell = getThemeColor(R.attr.customCardBackground);
 
         // Calculate cell width based on actual grid width minus horizontal padding
         int totalPadding = gridCalendar.getPaddingLeft() + gridCalendar.getPaddingRight();
         int availableWidth = gridCalendar.getWidth() > 0 ? gridCalendar.getWidth() : getResources().getDisplayMetrics().widthPixels;
         int cellWidth  = (availableWidth - totalPadding) / 7;
-        int cellHeight = (int)(cellWidth * 0.9f);
+        int cellHeight = (int)(cellWidth * 1.05f);
 
         for (int i = 0; i < firstDow; i++) addBlankCell(cellWidth, cellHeight);
 
         for (int day = 1; day <= daysInMonth; day++) {
             final int d = day;
-            
-            Calendar cellDate = (Calendar) currentCal.clone();
-            cellDate.set(Calendar.DAY_OF_MONTH, day);
-            cellDate.set(Calendar.HOUR_OF_DAY, 0);
-            cellDate.set(Calendar.MINUTE, 0);
-            cellDate.set(Calendar.SECOND, 0);
-            cellDate.set(Calendar.MILLISECOND, 0);
 
-            boolean isToday = cellDate.equals(today);
-            boolean isPast = cellDate.before(today);
+            boolean isToday = (today.get(Calendar.YEAR)  == currentCal.get(Calendar.YEAR) &&
+                               today.get(Calendar.MONTH) == currentCal.get(Calendar.MONTH) &&
+                               today.get(Calendar.DAY_OF_MONTH) == day);
+
             boolean isSelected = (d == selectedDay);
 
             float completionPct = getCompletionForDay(day);
@@ -201,47 +181,39 @@ public class CalendarFragment extends Fragment {
             TextView cell = new TextView(requireContext());
             cell.setText(String.valueOf(day));
             cell.setGravity(Gravity.CENTER);
-            cell.setTextSize(14f);
+            cell.setTextSize(13f);
 
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
             lp.width  = cellWidth;
             lp.height = cellHeight;
-            
-            // Stripe design: minimal horizontal margins for past days
-            int marginV = dpToPx(1); 
-            int marginH = isPast ? dpToPx(1) : dpToPx(3);
-            lp.setMargins(marginH, marginV, marginH, marginV);
             cell.setLayoutParams(lp);
 
             GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.OVAL);
 
-            if (isSelected) {
-                bg.setCornerRadius(dpToPx(12));
+            if (isToday) {
+                bg.setColor(colorPrimary);
+                cell.setTextColor(Color.WHITE);
+                cell.setTypeface(null, android.graphics.Typeface.BOLD);
+            } else if (isSelected) {
                 bg.setColor(Color.TRANSPARENT);
                 bg.setStroke(dpToPx(2), colorPrimary);
                 cell.setTextColor(colorPrimary);
-                cell.setTypeface(null, Typeface.BOLD);
-            } else if (completionPct > 0.01f) {
-                bg.setCornerRadius(isPast ? dpToPx(4) : dpToPx(12));
-                bg.setColor(heatmapColor(completionPct));
-                cell.setTextColor(Color.WHITE);
-                cell.setTypeface(null, Typeface.BOLD);
-            } else if (isToday) {
-                bg.setCornerRadius(dpToPx(12));
-                bg.setColor(colorPrimary);
-                cell.setTextColor(Color.WHITE);
-                cell.setTypeface(null, Typeface.BOLD);
-            } else if (isPast) {
-                bg.setCornerRadius(dpToPx(4));
-                bg.setColor(colorEmptyCell);
-                cell.setTextColor(colorTextDim);
             } else {
-                bg.setCornerRadius(dpToPx(12));
-                bg.setColor(Color.TRANSPARENT);
-                cell.setTextColor(colorTextSecondary);
+                int cellBgColor = completionPct < 0.01f ? colorEmptyCell : heatmapColor(completionPct);
+                bg.setColor(cellBgColor);
+                // Contrast logic: If background is dark (heatmap), use White text. 
+                // Otherwise use the standard secondary text color.
+                if (completionPct < 0.01f) {
+                    cell.setTextColor(colorTextSecondary);
+                } else {
+                    cell.setTextColor(Color.WHITE);
+                }
             }
 
             cell.setBackground(bg);
+            int padding = dpToPx(4);
+            cell.setPadding(padding, padding, padding, padding);
             cell.setOnClickListener(v -> {
                 selectedDay = d;
                 renderCalendar();
@@ -283,10 +255,8 @@ public class CalendarFragment extends Fragment {
             display.colorHex = h.colorHex;
             display.category = h.category;
             display.priority = h.priority;
-            display.segment = h.segment;
             display.currentStreak = h.currentStreak;
             display.completedToday = h.completedDates.contains(dateStr);
-            display.checklist = h.checklist;
             dayHabits.add(display);
         }
         dayAdapter.notifyDataSetChanged();

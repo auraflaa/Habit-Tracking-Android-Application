@@ -64,9 +64,16 @@ public class HeatmapView extends View {
         int size = dpToPx(12);
         int spacing = dpToPx(4);
         
+        // Get theme-aware empty color
+        int colorEmpty = 0x1A1A24;
+        android.util.TypedValue typedValue = new android.util.TypedValue();
+        if (getContext().getTheme().resolveAttribute(com.habitflow.R.attr.customElevatedBackground, typedValue, true)) {
+            colorEmpty = typedValue.data;
+        }
+
         // Material Green levels
         int[] levels = {
-            Color.parseColor("#1A1A24"), // Empty
+            colorEmpty,                  // Empty
             Color.parseColor("#1A4D1A"), // Low
             Color.parseColor("#2D7D2D"), // Medium-Low
             Color.parseColor("#43B043"), // Medium-High

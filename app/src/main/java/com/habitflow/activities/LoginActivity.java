@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -92,24 +93,27 @@ public class LoginActivity extends AppCompatActivity {
         boolean hasError = false;
 
         if (TextUtils.isEmpty(email)) {
-            til_email.setError("Email required");
+            til_email.setError(getString(R.string.error_email_required));
+            hasError = true;
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            til_email.setError(getString(R.string.error_invalid_email));
             hasError = true;
         } else {
             til_email.setError(null);
         }
 
         if (TextUtils.isEmpty(password)) {
-            til_password.setError("Password required");
+            til_password.setError(getString(R.string.error_password_required));
             hasError = true;
         } else if (password.length() < 6) {
-            til_password.setError("Min 6 characters required");
+            til_password.setError(getString(R.string.error_password_length));
             hasError = true;
         } else {
             til_password.setError(null);
         }
 
         if (!isLoginMode && TextUtils.isEmpty(name)) {
-            til_name.setError("Name required");
+            til_name.setError(getString(R.string.error_name_required));
             hasError = true;
         } else {
             til_name.setError(null);
@@ -120,9 +124,15 @@ public class LoginActivity extends AppCompatActivity {
         progress.setVisibility(View.VISIBLE);
         btn_primary.setEnabled(false);
 
+        // Verification logic for registration
+        if (!isLoginMode) {
+            // Simulated verification
+            Toast.makeText(this, getString(R.string.email_verification_sent, email), Toast.LENGTH_LONG).show();
+        }
+
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             goToMain(name);
-        }, 800);
+        }, 1500);
     }
 
     private void goToMain(String name) {
