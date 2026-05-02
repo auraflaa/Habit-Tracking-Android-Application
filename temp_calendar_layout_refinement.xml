@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/customWindowBackground">
+
+    <!-- Header -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingHorizontal="24dp" android:paddingTop="32dp" android:paddingBottom="16dp">
+
+        <TextView android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/calendar_title"
+            android:textColor="?attr/customTextPrimary" android:textSize="28sp"
+            android:textStyle="bold"/>
+
+        <ImageButton android:id="@+id/btn_prev"
+            android:layout_width="36dp" android:layout_height="36dp"
+            android:background="@drawable/bg_icon_btn"
+            android:src="@drawable/ic_chevron_left" android:tint="?attr/customTextSecondary"
+            android:contentDescription="Previous month"/>
+
+        <TextView android:id="@+id/tv_month"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="April 2026"
+            android:textColor="?attr/customTextPrimary" android:textSize="15sp"
+            android:textStyle="bold" android:paddingHorizontal="12dp"/>
+
+        <ImageButton android:id="@+id/btn_next"
+            android:layout_width="36dp" android:layout_height="36dp"
+            android:background="@drawable/bg_icon_btn"
+            android:src="@drawable/ic_chevron_right" android:tint="?attr/customTextSecondary"
+            android:contentDescription="Next month"/>
+    </LinearLayout>
+
+    <!-- Day-of-week headers -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:paddingHorizontal="12dp" android:paddingBottom="8dp">
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="Su" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="Mo" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="Tu" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="We" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="Th" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="Fr" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
+        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:text="Sa" android:textColor="?attr/customTextSecondary" android:textSize="12sp"
+            android:textStyle="bold" android:gravity="center" android:alpha="0.6"/>
+    </LinearLayout>
+
+    <!-- Calendar grid (7├ù6 built programmatically) -->
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/grid_calendar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        app:columnCount="7"
+        app:rowCount="6"/>
+
+    <!-- Divider -->
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="?attr/customBorderColor"
+        android:layout_marginHorizontal="24dp" android:layout_marginVertical="12dp"/>
+
+    <!-- Selected day summary -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingHorizontal="24dp" android:paddingBottom="12dp">
+
+        <LinearLayout android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:orientation="vertical">
+            <TextView android:id="@+id/tv_selected_date"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Today"
+                android:textColor="?attr/customTextPrimary" android:textSize="17sp"
+                android:textStyle="bold"/>
+            <TextView android:id="@+id/tv_selected_rate"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="0% completion"
+                android:textColor="?attr/customTextSecondary" android:textSize="13sp"/>
+        </LinearLayout>
+
+        <!-- Heatmap legend -->
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Less" android:textColor="?attr/customTextSecondary" android:textSize="10sp"
+                android:layout_marginEnd="4dp" android:alpha="0.6"/>
+            <View android:layout_width="10dp" android:layout_height="10dp"
+                android:background="@drawable/bg_heatmap_0" android:layout_marginEnd="2dp"/>
+            <View android:layout_width="10dp" android:layout_height="10dp"
+                android:background="@drawable/bg_heatmap_1" android:layout_marginEnd="2dp"/>
+            <View android:layout_width="10dp" android:layout_height="10dp"
+                android:background="@drawable/bg_heatmap_2" android:layout_marginEnd="2dp"/>
+            <View android:layout_width="10dp" android:layout_height="10dp"
+                android:background="@drawable/bg_heatmap_3" android:layout_marginEnd="4dp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="More" android:textColor="?attr/customTextSecondary" android:textSize="10sp"
+                android:alpha="0.6"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Habits on selected day -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_day_habits"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="16dp"
+        android:clipToPadding="false"/>
+
+</LinearLayout>

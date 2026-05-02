@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Brand Colors -->
+    <color name="primary_blue">#728AED</color>
+    <color name="primary_green">#7AD326</color>
+    <color name="accent_purple">#9C6AE6</color>
+    <color name="accent_orange">#F0944A</color>
+    <color name="accent_pink">#E66A9C</color>
+    <color name="accent_teal">#6AE6C9</color>
+
+    <!-- Logo Exact Colors -->
+    <color name="logo_start_green">#22E67B</color>
+    <color name="logo_end_blue">#4D7CFF</color>
+
+    <!-- Legacy Alias for Layouts -->
+    <color name="brand_primary">@color/primary_blue</color>
+    <color name="brand_blue">@color/logo_end_blue</color>
+    <color name="brand_green">@color/logo_start_green</color>
+    <color name="brand_fire">#FF6B35</color>
+    <color name="bg_primary">@color/dark_bg_primary</color>
+    <color name="bg_card">@color/dark_bg_card</color>
+    <color name="text_primary">@color/dark_text_primary</color>
+    <color name="text_secondary">@color/dark_text_secondary</color>
+    <color name="text_dim">@color/dark_text_dim</color>
+    <color name="border_color">@color/dark_border</color>
+    <color name="nav_bg">@color/dark_nav_bg</color>
+    <color name="error_red">#FF5252</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Habit Category Colors -->
+    <color name="cat_fitness">#FF5252</color>
+    <color name="cat_learning">#FFD600</color>
+    <color name="cat_wellness">#00BCD4</color>
+    <color name="cat_social">#E040FB</color>
+    <color name="cat_productivity">#728AED</color>
+    <color name="cat_nutrition">#7AD326</color>
+
+    <!-- Dark Theme (Default) -->
+    <color name="dark_bg_primary">#0D0D10</color>
+    <color name="dark_bg_secondary">#13131A</color>
+    <color name="dark_bg_card">#1A1A24</color>
+    <color name="dark_bg_elevated">#21212E</color>
+    <color name="dark_text_primary">#EEEAE0</color>
+    <color name="dark_text_secondary">#8A8880</color>
+    <color name="dark_text_dim">#52504C</color>
+    <color name="dark_border">#1F1F2E</color>
+    <color name="dark_nav_bg">#13131A</color>
+
+    <!-- Light Theme -->
+    <color name="light_bg_primary">#F5F5F8</color>
+    <color name="light_bg_secondary">#FFFFFF</color>
+    <color name="light_bg_card">#FFFFFF</color>
+    <color name="light_bg_elevated">#F0F0F5</color>
+    <color name="light_text_primary">#1A1A24</color>
+    <color name="light_text_secondary">#6B6B7B</color>
+    <color name="light_text_dim">#9E9EA8</color>
+    <color name="light_border">#E8E8F0</color>
+    <color name="light_nav_bg">#FFFFFF</color>
+
+    <!-- Ocean Theme -->
+    <color name="ocean_bg_primary">#0A1628</color>
+    <color name="ocean_bg_secondary">#0D1F38</color>
+    <color name="ocean_bg_card">#112444</color>
+    <color name="ocean_accent">#00D4FF</color>
+
+    <!-- Sunset Theme -->
+    <color name="sunset_bg_primary">#1A0A0A</color>
+    <color name="sunset_bg_secondary">#200D0D</color>
+    <color name="sunset_bg_card">#2A1010</color>
+    <color name="sunset_accent">#FF6B35</color>
+
+    <!-- Forest Theme -->
+    <color name="forest_bg_primary">#0A150A</color>
+    <color name="forest_bg_secondary">#0D1A0D</color>
+    <color name="forest_bg_card">#102010</color>
+    <color name="forest_accent">#4CAF50</color>
+
+    <!-- Transparent -->
+    <color name="transparent">#00000000</color>
+    <color name="overlay_dark">#80000000</color>
+    <color name="overlay_light">#40FFFFFF</color>
+
+    <!-- Status -->
+    <color name="streak_fire">#FF6B35</color>
+    <color name="completed_green">#7AD326</color>
+    <color name="rest_yellow">#FFD600</color>
+    <color name="priority_high">#FF5252</color>
+    <color name="priority_medium">#FFB300</color>
+    <color name="priority_low">#7AD326</color>
+</resources>

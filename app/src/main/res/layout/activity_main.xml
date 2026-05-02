@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/customWindowBackground">
+
+    <!-- ViewPager2 for swiping between tabs -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="?attr/actionBarSize"/>
+
+    <!-- Bottom Bar with Notch -->
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:backgroundTint="?attr/customNavBackground"
+        app:fabAlignmentMode="center"
+        app:fabCradleMargin="12dp"
+        app:fabCradleRoundedCornerRadius="24dp"
+        app:fabCradleVerticalOffset="8dp"
+        app:elevation="12dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:elevation="0dp"
+            app:menu="@menu/bottom_nav_menu"
+            app:itemIconTint="@drawable/nav_item_selector"
+            app:itemTextColor="@drawable/nav_item_selector"
+            app:itemActiveIndicatorStyle="@style/NavIndicator"
+            app:labelVisibilityMode="unlabeled"
+            app:itemIconSize="24dp"/>
+
+    </com.google.android.material.bottomappbar.BottomAppBar>
+
+    <!-- FAB – anchored to the BottomAppBar -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add"
+        app:tint="@color/white"
+        android:contentDescription="@string/content_description_add_habit"
+        app:layout_anchor="@id/bottom_bar"
+        app:backgroundTint="@color/primary_blue"
+        app:fabSize="normal"
+        app:elevation="8dp"
+        app:shapeAppearanceOverlay="@style/FabShape"
+        app:borderWidth="0dp"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

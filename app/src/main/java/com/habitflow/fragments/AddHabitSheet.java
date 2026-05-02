@@ -1,0 +1,367 @@
+package com.habitflow.fragments;
+
+import android.app.TimePickerDialog;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.habitflow.R;
+import com.habitflow.data.HabitStore;
+import com.habitflow.model.ChecklistItem;
+import com.habitflow.model.Habit;
+import com.habitflow.util.ReminderManager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+public class AddHabitSheet extends BottomSheetDialogFragment {
+
+    private Habit habitToEdit;
+    private Runnable onSaveListener;
+
+    private EditText etName, etDesc;
+    private TextView tvSheetTitle, tvReminderTime;
+    private ChipGroup chipsCategory, chipsPriority, chipsType, chipsFrequency, chipsDays;
+    private LinearLayout llEmojis, llColors, llChecklistContainer, llFrequencyContainer, llCustomDays;
+    private SwitchMaterial switchNotify;
+    private String selectedEmoji = "🏃";
+    private String selectedColor = "#FF5252";
+    private String selectedTime = "08:00";
+    private final List<ChecklistItem> tempChecklist = new ArrayList<>();
+
+    private final String[] emojis = {"🏃", "📚", "🧘", "🥗", "⚡", "🤝", "💧", "✍️", "🍎", "🚲", "💻", "🎸", "💊", "🚭", "💵", "🧹", "🛌", "🚶", "🏊", "🧠"};
+    private final String[] colors = {"#FF5252", "#FFD600", "#00BCD4", "#7AD326", "#728AED", "#9C6AE6", "#FF9800", "#E91E63", "#4CAF50", "#2196F3"};
+
+    public static AddHabitSheet newInstance(Habit habit) {
+        AddHabitSheet fragment = new AddHabitSheet();
+        fragment.habitToEdit = habit;
+        return fragment;
+    }
+
+    public void setOnSaveListener(Runnable listener) {
+        this.onSaveListener = listener;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.bottom_sheet_add_habit, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        bindViews(view);
+        setupEmojiPicker();
+        setupColorPicker();
+        setupTimePicker();
+        setupChecklist();
+
+        if (habitToEdit != null) {
+            setupEditMode(view);
+        }
+
+        view.findViewById(R.id.btn_close).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.btn_save).setOnClickListener(v -> saveHabit());
+        view.findViewById(R.id.btn_delete).setOnClickListener(v -> deleteHabit());
+    }
+
+    private void bindViews(View v) {
+        tvSheetTitle = v.findViewById(R.id.tv_sheet_title);
+        etName = v.findViewById(R.id.et_name);
+        etDesc = v.findViewById(R.id.et_desc);
+        chipsCategory = v.findViewById(R.id.chips_category);
+        chipsPriority = v.findViewById(R.id.chips_priority);
+        chipsType = v.findViewById(R.id.chips_type);
+        chipsFrequency = v.findViewById(R.id.chips_frequency);
+        llFrequencyContainer = v.findViewById(R.id.ll_frequency_container);
+        llCustomDays = v.findViewById(R.id.ll_custom_days);
+        chipsDays = v.findViewById(R.id.chips_days);
+        llEmojis = v.findViewById(R.id.ll_emojis);
+        llColors = v.findViewById(R.id.ll_colors);
+        llChecklistContainer = v.findViewById(R.id.ll_checklist_container);
+        switchNotify = v.findViewById(R.id.switch_reminder);
+        tvReminderTime = v.findViewById(R.id.tv_reminder_time);
+
+        setupTypeToggle();
+    }
+
+    private void setupTypeToggle() {
+        chipsType.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            boolean isHabit = checkedIds.contains(R.id.chip_type_habit);
+            llFrequencyContainer.setVisibility(isHabit ? View.VISIBLE : View.GONE);
+            tvSheetTitle.setText(isHabit ? R.string.add_habit_title : R.string.add_task_title);
+            if (!isHabit) llCustomDays.setVisibility(View.GONE);
+            else if (chipsFrequency.getCheckedChipId() == R.id.chip_freq_custom) llCustomDays.setVisibility(View.VISIBLE);
+        });
+
+        chipsFrequency.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            boolean isCustom = checkedIds.contains(R.id.chip_freq_custom);
+            llCustomDays.setVisibility(isCustom ? View.VISIBLE : View.GONE);
+        });
+    }
+
+    private void setupTimePicker() {
+        // Updated trigger: Tap on the whole row or the time text changes the reminder
+        View row = getView() != null ? getView().findViewById(R.id.row_reminder_time) : null;
+        if (row != null) {
+            row.setOnClickListener(v -> showTimePicker());
+        }
+        tvReminderTime.setOnClickListener(v -> showTimePicker());
+    }
+    
+    private void showTimePicker() {
+        String[] parts = selectedTime.split(":");
+        int h = Integer.parseInt(parts[0]);
+        int m = Integer.parseInt(parts[1]);
+
+        new TimePickerDialog(getContext(), (view, hourOfDay, minute) -> {
+            selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+            tvReminderTime.setText(selectedTime);
+            // Auto-enable notification if time is picked
+            switchNotify.setChecked(true);
+        }, h, m, true).show();
+    }
+
+    private void setupEmojiPicker() {
+        for (String emoji : emojis) {
+            TextView tv = new TextView(getContext());
+            tv.setText(emoji);
+            tv.setTextSize(24);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.setMargins(0, 0, 16, 0);
+            tv.setLayoutParams(lp);
+            tv.setPadding(12, 12, 12, 12);
+            tv.setOnClickListener(v -> {
+                selectedEmoji = emoji;
+                updateEmojiSelection();
+            });
+            llEmojis.addView(tv);
+        }
+        updateEmojiSelection();
+    }
+
+    private void updateEmojiSelection() {
+        for (int i = 0; i < llEmojis.getChildCount(); i++) {
+            TextView tv = (TextView) llEmojis.getChildAt(i);
+            if (tv.getText().toString().equals(selectedEmoji)) {
+                tv.setBackgroundResource(R.drawable.bg_icon_btn_selected);
+            } else {
+                tv.setBackground(null);
+            }
+        }
+    }
+
+    private void setupColorPicker() {
+        for (String color : colors) {
+            View v = new View(getContext());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(80, 80);
+            lp.setMargins(0, 0, 16, 0);
+            v.setLayoutParams(lp);
+            
+            GradientDrawable gd = new GradientDrawable();
+            gd.setShape(GradientDrawable.OVAL);
+            gd.setColor(Color.parseColor(color));
+            v.setBackground(gd);
+
+            v.setOnClickListener(view -> {
+                selectedColor = color;
+                updateColorSelection();
+            });
+            llColors.addView(v);
+        }
+        updateColorSelection();
+    }
+
+    private void updateColorSelection() {
+        for (int i = 0; i < llColors.getChildCount(); i++) {
+            View v = llColors.getChildAt(i);
+            if (colors[i].equals(selectedColor)) {
+                v.setScaleX(1.2f);
+                v.setScaleY(1.2f);
+            } else {
+                v.setScaleX(1.0f);
+                v.setScaleY(1.0f);
+            }
+        }
+    }
+
+    private void setupChecklist() {
+        getView().findViewById(R.id.btn_add_checklist_item).setOnClickListener(v -> {
+            ChecklistItem item = new ChecklistItem("");
+            tempChecklist.add(item);
+            addChecklistItemView(item);
+        });
+    }
+
+    private void addChecklistItemView(ChecklistItem item) {
+        View v = LayoutInflater.from(getContext()).inflate(R.layout.item_checklist, llChecklistContainer, false);
+        EditText etTitle = v.findViewById(R.id.et_checklist_title);
+        CheckBox checkBox = v.findViewById(R.id.checkbox);
+        View btnRemove = v.findViewById(R.id.btn_remove);
+
+        etTitle.setText(item.title);
+        checkBox.setChecked(item.isCompleted);
+
+        btnRemove.setOnClickListener(view -> {
+            tempChecklist.remove(item);
+            llChecklistContainer.removeView(v);
+        });
+
+        llChecklistContainer.addView(v);
+    }
+
+    private void setupEditMode(View view) {
+        tvSheetTitle.setText("Edit Habit");
+        etName.setText(habitToEdit.name);
+        etDesc.setText(habitToEdit.description);
+        selectedEmoji = habitToEdit.emoji;
+        selectedColor = habitToEdit.colorHex;
+        selectedTime = habitToEdit.notifyTime.isEmpty() ? "08:00" : habitToEdit.notifyTime;
+        tvReminderTime.setText(selectedTime);
+        switchNotify.setChecked(habitToEdit.notifyEnabled);
+        
+        updateEmojiSelection();
+        updateColorSelection();
+
+        setChipSelected(chipsCategory, habitToEdit.category);
+        setChipSelected(chipsPriority, habitToEdit.priority);
+        setChipSelected(chipsType, habitToEdit.type);
+        setChipSelected(chipsFrequency, habitToEdit.frequency);
+
+        if (habitToEdit.frequency != null && habitToEdit.frequency.startsWith("Custom:")) {
+            llCustomDays.setVisibility(View.VISIBLE);
+            String[] days = habitToEdit.frequency.replace("Custom:", "").split(",");
+            for (String day : days) {
+                for (int i = 0; i < chipsDays.getChildCount(); i++) {
+                    Chip c = (Chip) chipsDays.getChildAt(i);
+                    if (c.getText().toString().equalsIgnoreCase(day)) {
+                        c.setChecked(true);
+                    }
+                }
+            }
+        }
+
+        llFrequencyContainer.setVisibility(Habit.TYPE_HABIT.equals(habitToEdit.type) ? View.VISIBLE : View.GONE);
+
+        // Load checklist
+        if (habitToEdit.checklist != null) {
+            tempChecklist.clear();
+            tempChecklist.addAll(habitToEdit.checklist);
+            for (ChecklistItem item : tempChecklist) {
+                addChecklistItemView(item);
+            }
+        }
+
+        view.findViewById(R.id.btn_delete).setVisibility(View.VISIBLE);
+    }
+
+    private void setChipSelected(ChipGroup group, String text) {
+        if (text == null || text.isEmpty()) return;
+        for (int i = 0; i < group.getChildCount(); i++) {
+            Chip chip = (Chip) group.getChildAt(i);
+            if (chip.getText().toString().equalsIgnoreCase(text)) {
+                chip.setChecked(true);
+                return;
+            }
+        }
+        // If no match found and it's frequency, it might be custom
+        if (group.getId() == R.id.chips_frequency) {
+            View customChip = group.findViewById(R.id.chip_freq_custom);
+            if (customChip instanceof Chip) {
+                ((Chip) customChip).setChecked(true);
+            }
+        }
+    }
+
+    private void saveHabit() {
+        String name = etName.getText().toString().trim();
+        if (name.isEmpty()) {
+            Toast.makeText(getContext(), R.string.error_enter_name, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Habit h = (habitToEdit != null) ? habitToEdit : new Habit();
+        h.name = name;
+        h.description = etDesc.getText().toString().trim();
+        h.type = getSelectedChipText(chipsType);
+        
+        String freq = getSelectedChipText(chipsFrequency);
+        if ("Custom".equalsIgnoreCase(freq)) {
+            List<Integer> ids = chipsDays.getCheckedChipIds();
+            StringBuilder sb = new StringBuilder("Custom:");
+            for (int id : ids) {
+                Chip c = chipsDays.findViewById(id);
+                sb.append(c.getText()).append(",");
+            }
+            h.frequency = sb.toString();
+        } else {
+            h.frequency = freq;
+        }
+
+        h.emoji = selectedEmoji;
+        h.colorHex = selectedColor;
+        h.category = getSelectedChipText(chipsCategory);
+        h.priority = getSelectedChipText(chipsPriority);
+        h.notifyEnabled = switchNotify.isChecked();
+        h.notifyTime = selectedTime;
+
+        // Sync checklist back to habit
+        h.checklist.clear();
+        for (int i = 0; i < llChecklistContainer.getChildCount(); i++) {
+            View v = llChecklistContainer.getChildAt(i);
+            EditText et = v.findViewById(R.id.et_checklist_title);
+            CheckBox cb = v.findViewById(R.id.checkbox);
+            ChecklistItem item = new ChecklistItem(et.getText().toString());
+            item.isCompleted = cb.isChecked();
+            h.checklist.add(item);
+        }
+
+        if (habitToEdit != null) {
+            HabitStore.get(requireContext()).update(requireContext(), h);
+        } else {
+            HabitStore.get(requireContext()).add(requireContext(), h);
+        }
+
+        // Handle Reminder scheduling
+        ReminderManager.scheduleReminder(requireContext(), h);
+
+        if (onSaveListener != null) onSaveListener.run();
+        dismiss();
+    }
+
+    private String getSelectedChipText(ChipGroup group) {
+        int id = group.getCheckedChipId();
+        if (id == View.NO_ID) return "";
+        Chip chip = group.findViewById(id);
+        String text = chip.getText().toString();
+        return text.replaceAll("[^a-zA-Z]", "").trim();
+    }
+
+    private void deleteHabit() {
+        if (habitToEdit != null) {
+            ReminderManager.cancelReminder(requireContext(), habitToEdit);
+            HabitStore.get(requireContext()).delete(requireContext(), habitToEdit.id);
+            if (onSaveListener != null) onSaveListener.run();
+            dismiss();
+        }
+    }
+}
