@@ -98,6 +98,9 @@
     <string name="skip">Continue without account</string>
     <string name="or_separator">OR</string>
     <string name="btn_google">Continue with Google</string>
+    <string name="error_login_failed">Could not sign in. Please check your details and try again.</string>
+    <string name="error_register_failed">Could not create your account. Please try again.</string>
+    <string name="error_google_sign_in_failed">Could not connect to Google. Please try again.</string>
     <string name="subtask_hint">Subtask name</string>
 
     <!-- Quotes -->
@@ -133,6 +136,10 @@
     <string name="label_daily_reminders">Daily Reminders</string>
     <string name="label_rate_app">Rate App</string>
     <string name="label_share_friends">Share with Friends</string>
+    <string name="btn_connect_google">Connect Google Account</string>
+    <string name="btn_connecting_google">Connecting...</string>
+    <string name="toast_google_connected">Google account connected. Your local habits are syncing.</string>
+    <string name="error_google_connect_failed">Could not connect to Google. Please try again.</string>
     <string name="btn_sign_out">Sign Out</string>
     <string name="version_format">Version %1$s</string>
     <string name="email_verification_sent">Verification email sent to %1$s</string>

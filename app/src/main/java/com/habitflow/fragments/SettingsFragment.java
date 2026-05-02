@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -23,11 +26,22 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.habitflow.R;
 import com.habitflow.activities.LoginActivity;
+import com.habitflow.activities.MainActivity;
 import com.habitflow.adapters.ReminderSettingAdapter;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.Habit;
@@ -40,8 +54,23 @@ public class SettingsFragment extends Fragment {
 
     private androidx.gridlayout.widget.GridLayout gridThemes;
     private SwitchMaterial switchNotifs;
+    private MaterialButton btnConnectGoogle;
+    private GoogleSignInClient googleSignInClient;
+    private FirebaseAuth firebaseAuth;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
     private static final String PREFS_SETTINGS = "app_settings";
     private static final String KEY_NOTIFS = "notifications_enabled";
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        firebaseAuth = FirebaseAuth.getInstance();
+        setupGoogleSignIn();
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> handleGoogleSignInResult(result.getData())
+        );
+    }
 
     @Nullable
     @Override
@@ -54,10 +83,20 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         gridThemes = view.findViewById(R.id.grid_themes);
         switchNotifs = view.findViewById(R.id.switch_notifs);
+        btnConnectGoogle = view.findViewById(R.id.btn_connect_google);
         
         loadSettings();
         setupThemePicker();
         setupClickListeners(view);
+        updateAccountActions();
+    }
+
+    private void setupGoogleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
     }
 
     private void loadSettings() {
@@ -92,7 +131,75 @@ public class SettingsFragment extends Fragment {
             startActivity(Intent.createChooser(sendIntent, "Share via"));
         });
 
+        btnConnectGoogle.setOnClickListener(v -> connectGuestToGoogle());
         view.findViewById(R.id.row_logout).setOnClickListener(v -> showLogoutConfirmation());
+    }
+
+    private void updateAccountActions() {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        btnConnectGoogle.setVisibility(user == null ? View.VISIBLE : View.GONE);
+    }
+
+    private void connectGuestToGoogle() {
+        setConnectGoogleLoading(true);
+        googleSignInClient.signOut().addOnCompleteListener(requireActivity(), task ->
+                googleSignInLauncher.launch(googleSignInClient.getSignInIntent())
+        );
+    }
+
+    private void handleGoogleSignInResult(Intent data) {
+        try {
+            GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
+            if (account == null || TextUtils.isEmpty(account.getIdToken())) {
+                Toast.makeText(getContext(), R.string.error_google_connect_failed, Toast.LENGTH_SHORT).show();
+                setConnectGoogleLoading(false);
+                return;
+            }
+            firebaseAuthWithGoogle(account.getIdToken());
+        } catch (ApiException e) {
+            if (!isGoogleSignInCancelled(e)) {
+                Toast.makeText(getContext(), R.string.error_google_connect_failed, Toast.LENGTH_SHORT).show();
+            }
+            setConnectGoogleLoading(false);
+        }
+    }
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        firebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener(requireActivity(), task -> {
+                    if (!isAdded()) return;
+
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                    if (!task.isSuccessful() || user == null) {
+                        Toast.makeText(getContext(), R.string.error_google_connect_failed, Toast.LENGTH_SHORT).show();
+                        setConnectGoogleLoading(false);
+                        return;
+                    }
+
+                    HabitStore.reset();
+                    HabitStore store = HabitStore.get(requireContext());
+                    store.migrateGuestDataToUser(user.getUid());
+                    store.syncToCloud();
+                    store.fetchFromCloud(requireContext(), () -> {
+                        if (!isAdded()) return;
+                        setConnectGoogleLoading(false);
+                        updateAccountActions();
+                        if (requireActivity() instanceof MainActivity) {
+                            ((MainActivity) requireActivity()).notifyDataChanged();
+                        }
+                        Toast.makeText(getContext(), R.string.toast_google_connected, Toast.LENGTH_SHORT).show();
+                    });
+                });
+    }
+
+    private void setConnectGoogleLoading(boolean loading) {
+        btnConnectGoogle.setEnabled(!loading);
+        btnConnectGoogle.setText(loading ? R.string.btn_connecting_google : R.string.btn_connect_google);
+    }
+
+    private boolean isGoogleSignInCancelled(ApiException e) {
+        return e.getStatusCode() == GoogleSignInStatusCodes.SIGN_IN_CANCELLED;
     }
 
     private void showRemindersDialog() {

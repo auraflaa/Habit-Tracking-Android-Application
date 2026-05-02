@@ -14,6 +14,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -57,10 +58,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setupGoogleSignIn() {
-        // Use the explicit client ID from google-services.json
-        String clientId = "144149133719-qejmnl6k6vq2jptn8oj58k640lm81pvt.apps.googleusercontent.com";
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(clientId)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -168,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         onAuthSuccess();
                     } else {
-                        showError(task.getException() != null ? task.getException().getMessage() : "Authentication failed.");
+                        showError(getString(R.string.error_login_failed));
                         showLoading(false);
                     }
                 });
@@ -186,7 +185,7 @@ public class LoginActivity extends AppCompatActivity {
                             user.updateProfile(profileUpdates).addOnCompleteListener(t -> onAuthSuccess());
                         }
                     } else {
-                        showError(task.getException() != null ? task.getException().getMessage() : "Registration failed.");
+                        showError(getString(R.string.error_register_failed));
                         showLoading(false);
                     }
                 });
@@ -209,7 +208,9 @@ public class LoginActivity extends AppCompatActivity {
                 GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data).getResult(ApiException.class);
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
-                showError("Google sign in failed: " + e.getMessage());
+                if (!isGoogleSignInCancelled(e)) {
+                    showError(getString(R.string.error_google_sign_in_failed));
+                }
                 showLoading(false);
             }
         }
@@ -222,10 +223,14 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         onAuthSuccess();
                     } else {
-                        showError("Google auth failed.");
+                        showError(getString(R.string.error_google_sign_in_failed));
                         showLoading(false);
                     }
                 });
+    }
+
+    private boolean isGoogleSignInCancelled(ApiException e) {
+        return e.getStatusCode() == GoogleSignInStatusCodes.SIGN_IN_CANCELLED;
     }
 
     private void onAuthSuccess() {
