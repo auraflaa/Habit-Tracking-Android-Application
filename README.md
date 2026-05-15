@@ -4,7 +4,7 @@ Build your best self, one day at a time.
 
 HabitFlow is a modern Android habit tracker designed for consistency and ease of use. It helps you stay on track with your goals through intuitive daily tracking, progress visualization, and seamless cloud synchronization.
 
-## ✨ Features
+## Features
 
 - **Multi-Account Support**: Secure login with Google Sign-In or Email/Password.
 - **Cloud Sync**: Real-time synchronization of habits and progress via **Firebase Realtime Database**.
@@ -14,7 +14,7 @@ HabitFlow is a modern Android habit tracker designed for consistency and ease of
 - **Progress Insights**: Heatmaps and streak tracking to keep you motivated.
 - **Customizable Themes**: Multiple color themes including Dark, Light, Ocean, and AMOLED.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Language**: Java & Kotlin
 - **Local Database**: SQLite
@@ -22,7 +22,7 @@ HabitFlow is a modern Android habit tracker designed for consistency and ease of
 - **Architecture**: Singleton Pattern for Data Management
 - **UI Components**: Material Design 3, ViewPager2, RecyclerView
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 1. **Clone the project** to your local machine.
 2. **Firebase Setup**:
@@ -46,6 +46,6 @@ HabitFlow is a modern Android habit tracker designed for consistency and ease of
      ```
 3. **Build and Run**: Open in Android Studio and deploy to your device.
 
-## 🛡️ Security
+## Security
 
 Sensitive information like `google-services.json` and build artifacts are excluded from version control via `.gitignore`.
