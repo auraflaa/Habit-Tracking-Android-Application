@@ -8,94 +8,121 @@
     android:scrollbars="none">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="vertical" android:paddingBottom="100dp">
+        android:orientation="vertical" android:paddingBottom="24dp">
 
         <!-- Header -->
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/progress_title"
-            style="@style/AppTitleLarge"
-            android:textColor="?attr/customTextPrimary"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:paddingHorizontal="24dp"
             android:paddingTop="32dp"
-            android:paddingBottom="24dp"/>
+            android:paddingBottom="20dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/progress_title"
+                style="@style/AppTitleLarge"
+                android:textColor="?attr/customTextPrimary"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Track your streaks and completion history"
+                android:textColor="?attr/customTextSecondary"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp"
+                android:alpha="0.8"/>
+        </LinearLayout>
 
-        <!-- Stats row (Fixed height and centered content alignment) -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="135dp"
+        <!-- Stats row (Flexible height and beautifully proportioned layout) -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:paddingHorizontal="18dp"
             android:layout_marginBottom="24dp">
 
             <!-- Best Streak -->
             <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_weight="1"
-                android:layout_height="match_parent" android:layout_marginHorizontal="6dp"
+                android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
                 app:cardCornerRadius="24dp" app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/customCardBackground"
                 app:strokeColor="?attr/customBorderColor"
                 app:strokeWidth="1dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                    android:orientation="vertical" android:padding="12dp" android:gravity="center">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="🔥" android:textSize="20sp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
+                    <FrameLayout android:layout_width="40dp" android:layout_height="40dp"
+                        android:background="@drawable/bg_stats_streak">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="🔥" android:textSize="18sp" android:layout_gravity="center"/>
+                    </FrameLayout>
                     <TextView android:id="@+id/tv_best_streak"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/brand_fire" android:textSize="24sp"
-                        android:textStyle="bold" android:layout_marginTop="4dp"/>
+                        android:textColor="@color/brand_fire" android:textSize="22sp"
+                        android:textStyle="bold" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:text="@string/label_best_streak"
                         android:gravity="center"
                         android:lines="2"
-                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"
-                        android:textAllCaps="true" android:letterSpacing="0.05"/>
+                        android:textColor="?attr/customTextSecondary" android:textSize="10sp"
+                        android:textAllCaps="true" android:letterSpacing="0.05"
+                        android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Total Completions -->
             <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_weight="1"
-                android:layout_height="match_parent" android:layout_marginHorizontal="6dp"
+                android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
                 app:cardCornerRadius="24dp" app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/customCardBackground"
                 app:strokeColor="?attr/customBorderColor"
                 app:strokeWidth="1dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                    android:orientation="vertical" android:padding="12dp" android:gravity="center">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="✅" android:textSize="20sp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
+                    <FrameLayout android:layout_width="40dp" android:layout_height="40dp"
+                        android:background="@drawable/bg_stats_total">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="✅" android:textSize="18sp" android:layout_gravity="center"/>
+                    </FrameLayout>
                     <TextView android:id="@+id/tv_total"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/primary_green" android:textSize="24sp"
-                        android:textStyle="bold" android:layout_marginTop="4dp"/>
+                        android:textColor="@color/primary_green" android:textSize="22sp"
+                        android:textStyle="bold" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:text="@string/label_completed"
                         android:gravity="center"
                         android:lines="2"
-                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"
-                        android:textAllCaps="true" android:letterSpacing="0.05"/>
+                        android:textColor="?attr/customTextSecondary" android:textSize="10sp"
+                        android:textAllCaps="true" android:letterSpacing="0.05"
+                        android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Current Streak -->
             <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_weight="1"
-                android:layout_height="match_parent" android:layout_marginHorizontal="6dp"
+                android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
                 app:cardCornerRadius="24dp" app:cardElevation="0dp"
                 app:cardBackgroundColor="?attr/customCardBackground"
                 app:strokeColor="?attr/customBorderColor"
                 app:strokeWidth="1dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                    android:orientation="vertical" android:padding="12dp" android:gravity="center">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="⚡" android:textSize="20sp"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
+                    <FrameLayout android:layout_width="40dp" android:layout_height="40dp"
+                        android:background="@drawable/bg_stats_current">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="⚡" android:textSize="18sp" android:layout_gravity="center"/>
+                    </FrameLayout>
                     <TextView android:id="@+id/tv_current_streak"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="@color/primary_blue" android:textSize="24sp"
-                        android:textStyle="bold" android:layout_marginTop="4dp"/>
+                        android:textColor="@color/primary_blue" android:textSize="22sp"
+                        android:textStyle="bold" android:layout_marginTop="12dp"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:text="@string/label_current"
                         android:gravity="center"
                         android:lines="2"
-                        android:textColor="?attr/customTextSecondary" android:textSize="11sp"
-                        android:textAllCaps="true" android:letterSpacing="0.05"/>
+                        android:textColor="?attr/customTextSecondary" android:textSize="10sp"
+                        android:textAllCaps="true" android:letterSpacing="0.05"
+                        android:layout_marginTop="4dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
@@ -122,17 +149,50 @@
 
         <!-- Bar chart card -->
         <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent" android:layout_height="240dp"
+            android:layout_width="match_parent" android:layout_height="300dp"
             android:layout_marginHorizontal="24dp" android:layout_marginBottom="24dp"
             app:cardCornerRadius="24dp" app:cardElevation="0dp"
             app:cardBackgroundColor="?attr/customCardBackground"
             app:strokeColor="?attr/customBorderColor"
             app:strokeWidth="1dp">
 
-            <com.habitflow.views.BarChartView
-                android:id="@+id/bar_chart"
-                android:layout_width="match_parent" android:layout_height="match_parent"
-                android:padding="20dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="12dp">
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="COMPLETION RATE"
+                        android:textColor="@color/primary_blue"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08"/>
+                    
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Daily consistency index"
+                        android:textColor="?attr/customTextSecondary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp"
+                        android:alpha="0.8"/>
+                </LinearLayout>
+
+                <com.habitflow.views.BarChartView
+                    android:id="@+id/bar_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Breakdown list -->
@@ -140,21 +200,84 @@
             android:text="@string/label_breakdown"
             style="@style/AppTitleMedium"
             android:textColor="?attr/customTextPrimary" android:paddingHorizontal="24dp"
-            android:paddingBottom="16dp"/>
+            android:paddingBottom="12dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_breakdown"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
-            android:paddingHorizontal="16dp"/>
+            android:paddingHorizontal="24dp"
+            android:layout_marginBottom="12dp"/>
 
-        <!-- Activity grid -->
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/label_heatmap"
-            style="@style/AppTitleMedium"
-            android:textColor="?attr/customTextPrimary" android:paddingHorizontal="24dp"
-            android:paddingTop="24dp" android:paddingBottom="16dp"/>
+        <!-- Activity grid header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="16dp">
+            
+            <TextView android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/label_heatmap"
+                style="@style/AppTitleMedium"
+                android:textColor="?attr/customTextPrimary"/>
+                
+            <!-- Heatmap Legend -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Less"
+                    android:textColor="?attr/customTextSecondary"
+                    android:textSize="10sp"
+                    android:layout_marginEnd="6dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_heatmap_legend_square"
+                    android:backgroundTint="?attr/customElevatedBackground"
+                    android:layout_marginEnd="3dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_heatmap_legend_square"
+                    android:backgroundTint="#33728AED"
+                    android:layout_marginEnd="3dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_heatmap_legend_square"
+                    android:backgroundTint="#66728AED"
+                    android:layout_marginEnd="3dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_heatmap_legend_square"
+                    android:backgroundTint="#B3728AED"
+                    android:layout_marginEnd="3dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/bg_heatmap_legend_square"
+                    android:backgroundTint="#728AED"
+                    android:layout_marginEnd="6dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="More"
+                    android:textColor="?attr/customTextSecondary"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+        </LinearLayout>
 
+        <!-- Activity grid card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"

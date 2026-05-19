@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (getIntent().hasExtra("target_tab")) {
+            overridePendingTransition(0, 0);
+        }
         ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -56,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
         setupBottomNav();
         setupFab();
         checkNotificationPermission();
+
+        int targetTab = getIntent().getIntExtra("target_tab", -1);
+        if (targetTab != -1) {
+            viewPager.setCurrentItem(targetTab, false);
+        }
+
+        triggerStartupSync();
     }
 
     private void checkNotificationPermission() {
@@ -150,6 +160,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void restartForTheme() {
-        recreate();
+        android.content.Intent intent = getIntent();
+        intent.putExtra("target_tab", viewPager.getCurrentItem());
+        finish();
+        startActivity(intent);
+        overridePendingTransition(0, 0);
+    }
+
+    private void triggerStartupSync() {
+        com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            com.habitflow.data.HabitStore.get(this).fetchFromCloud(this, () -> {
+                runOnUiThread(this::notifyDataChanged);
+            });
+        }
     }
 }

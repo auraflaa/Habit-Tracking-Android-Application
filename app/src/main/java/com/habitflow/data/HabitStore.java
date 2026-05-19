@@ -202,6 +202,7 @@ public class HabitStore {
     }
 
     public void addOrUpdateLocalOnly(Habit h) {
+        h.ensureInitialized();
         // Ensure the habit has the correct UID assigned
         com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -291,6 +292,28 @@ public class HabitStore {
             }
         }
         refreshCache();
+    }
+
+    public void unmarkRestDay(Context context) {
+        String today = getTodayString();
+        for (Habit h : cachedHabits) {
+            if (h.restDates.contains(today)) {
+                h.restDates.remove(today);
+                dao.update(h);
+                syncManager.uploadHabit(h);
+            }
+        }
+        refreshCache();
+    }
+
+    public boolean isTodayRestDay() {
+        String today = getTodayString();
+        for (Habit h : cachedHabits) {
+            if (h.restDates.contains(today)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int completedTodayCount() {

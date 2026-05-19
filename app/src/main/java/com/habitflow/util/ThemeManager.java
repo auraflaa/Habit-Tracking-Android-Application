@@ -63,12 +63,12 @@ public class ThemeManager {
 
     public static String previewColorFor(String key) {
         switch (key) {
-            case THEME_LIGHT: return "#FFFFFF";
-            case THEME_OCEAN: return "#0A1628";
-            case THEME_SUNSET: return "#1A0A0A";
-            case THEME_FOREST: return "#0A150A";
+            case THEME_LIGHT: return "#F8F9FD";
+            case THEME_OCEAN: return "#0E1B2E";
+            case THEME_SUNSET: return "#1F1515";
+            case THEME_FOREST: return "#121B15";
             case THEME_AMOLED: return "#000000";
-            default: return "#0D0D10";
+            default: return "#12121A";
         }
     }
 

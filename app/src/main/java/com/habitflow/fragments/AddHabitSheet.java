@@ -1,14 +1,13 @@
 package com.habitflow.fragments;
 
 import android.app.TimePickerDialog;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +22,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.habitflow.R;
+import com.habitflow.activities.MainActivity;
 import com.habitflow.data.HabitStore;
 import com.habitflow.model.ChecklistItem;
 import com.habitflow.model.Habit;
@@ -38,17 +38,14 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     private Runnable onSaveListener;
 
     private EditText etName, etDesc;
-    private TextView tvSheetTitle, tvReminderTime;
+    private TextView tvSheetTitle, tvReminderTime, tvSelectedEmoji;
     private ChipGroup chipsCategory, chipsPriority, chipsType, chipsFrequency, chipsDays;
-    private LinearLayout llEmojis, llColors, llChecklistContainer, llFrequencyContainer, llCustomDays;
+    private LinearLayout llChecklistContainer, llFrequencyContainer, llCustomDays;
+    private FrameLayout btnCustomEmoji;
     private SwitchMaterial switchNotify;
     private String selectedEmoji = "🏃";
-    private String selectedColor = "#FF5252";
     private String selectedTime = "08:00";
     private final List<ChecklistItem> tempChecklist = new ArrayList<>();
-
-    private final String[] emojis = {"🏃", "📚", "🧘", "🥗", "⚡", "🤝", "💧", "✍️", "🍎", "🚲", "💻", "🎸", "💊", "🚭", "💵", "🧹", "🛌", "🚶", "🏊", "🧠"};
-    private final String[] colors = {"#FF5252", "#FFD600", "#00BCD4", "#7AD326", "#728AED", "#9C6AE6", "#FF9800", "#E91E63", "#4CAF50", "#2196F3"};
 
     public static AddHabitSheet newInstance(Habit habit) {
         AddHabitSheet fragment = new AddHabitSheet();
@@ -66,13 +63,28 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         return inflater.inflate(R.layout.bottom_sheet_add_habit, container, false);
     }
 
+    @NonNull
+    @Override
+    public android.app.Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        android.app.Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnKeyListener((dialogInterface, keyCode, event) -> {
+            if (keyCode == android.view.KeyEvent.KEYCODE_BACK && event.getAction() == android.view.KeyEvent.ACTION_UP) {
+                handleCloseAttempt();
+                return true;
+            }
+            return false;
+        });
+        return dialog;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         bindViews(view);
         setupEmojiPicker();
-        setupColorPicker();
         setupTimePicker();
         setupChecklist();
 
@@ -80,7 +92,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
             setupEditMode(view);
         }
 
-        view.findViewById(R.id.btn_close).setOnClickListener(v -> dismiss());
+        view.findViewById(R.id.btn_close).setOnClickListener(v -> handleCloseAttempt());
         view.findViewById(R.id.btn_save).setOnClickListener(v -> saveHabit());
         view.findViewById(R.id.btn_delete).setOnClickListener(v -> showDeleteConfirmation());
     }
@@ -96,8 +108,8 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         llFrequencyContainer = v.findViewById(R.id.ll_frequency_container);
         llCustomDays = v.findViewById(R.id.ll_custom_days);
         chipsDays = v.findViewById(R.id.chips_days);
-        llEmojis = v.findViewById(R.id.ll_emojis);
-        llColors = v.findViewById(R.id.ll_colors);
+        btnCustomEmoji = v.findViewById(R.id.btn_custom_emoji);
+        tvSelectedEmoji = v.findViewById(R.id.tv_selected_emoji);
         llChecklistContainer = v.findViewById(R.id.ll_checklist_container);
         switchNotify = v.findViewById(R.id.switch_reminder);
         tvReminderTime = v.findViewById(R.id.tv_reminder_time);
@@ -141,67 +153,109 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     }
 
     private void setupEmojiPicker() {
-        for (String emoji : emojis) {
-            TextView tv = new TextView(getContext());
-            tv.setText(emoji);
-            tv.setTextSize(24);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 0, 16, 0);
-            tv.setLayoutParams(lp);
-            tv.setPadding(12, 12, 12, 12);
-            tv.setOnClickListener(v -> {
-                selectedEmoji = emoji;
-                updateEmojiSelection();
-            });
-            llEmojis.addView(tv);
-        }
-        updateEmojiSelection();
+        btnCustomEmoji.setOnClickListener(v -> showEmojiPickerDialog());
+        tvSelectedEmoji.setText(selectedEmoji);
     }
 
-    private void updateEmojiSelection() {
-        for (int i = 0; i < llEmojis.getChildCount(); i++) {
-            TextView tv = (TextView) llEmojis.getChildAt(i);
-            if (tv.getText().toString().equals(selectedEmoji)) {
-                tv.setBackgroundResource(R.drawable.bg_icon_btn_selected);
-            } else {
-                tv.setBackground(null);
+    private void showEmojiPickerDialog() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_emoji_input, null);
+        com.google.android.material.textfield.TextInputLayout til = dialogView.findViewById(R.id.til_emoji_input);
+        EditText et = dialogView.findViewById(R.id.et_emoji_input);
+        et.setText(selectedEmoji);
+        et.setSelection(selectedEmoji.length());
+
+        // Restrict input in real-time to only allow emoji characters
+        et.setFilters(new android.text.InputFilter[]{new android.text.InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, android.text.Spanned dest, int dstart, int dend) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = start; i < end; ) {
+                    int codePoint = Character.codePointAt(source, i);
+                    int charCount = Character.charCount(codePoint);
+                    // Filter out letters, digits, and printable standard ASCII punctuation/letters/numbers
+                    if (!Character.isLetterOrDigit(codePoint) && (codePoint < 0x20 || codePoint > 0x7E)) {
+                        sb.append(source.subSequence(i, i + charCount));
+                    }
+                    i += charCount;
+                }
+                if (source.length() == sb.length()) {
+                    return null; // Keep original
+                }
+                return sb.toString(); // Return filtered (emoji only)
             }
-        }
-    }
+        }});
 
-    private void setupColorPicker() {
-        for (String color : colors) {
-            View v = new View(getContext());
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(80, 80);
-            lp.setMargins(0, 0, 16, 0);
-            v.setLayoutParams(lp);
-            
-            GradientDrawable gd = new GradientDrawable();
-            gd.setShape(GradientDrawable.OVAL);
-            gd.setColor(Color.parseColor(color));
-            v.setBackground(gd);
+        // Instantly limit input to exactly one visual emoji using BreakIterator
+        et.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                String input = s.toString();
+                if (input.isEmpty()) return;
 
-            v.setOnClickListener(view -> {
-                selectedColor = color;
-                updateColorSelection();
-            });
-            llColors.addView(v);
-        }
-        updateColorSelection();
-    }
-
-    private void updateColorSelection() {
-        for (int i = 0; i < llColors.getChildCount(); i++) {
-            View v = llColors.getChildAt(i);
-            if (colors[i].equals(selectedColor)) {
-                v.setScaleX(1.2f);
-                v.setScaleY(1.2f);
-            } else {
-                v.setScaleX(1.0f);
-                v.setScaleY(1.0f);
+                java.text.BreakIterator boundary = java.text.BreakIterator.getCharacterInstance();
+                boundary.setText(input);
+                int count = 0;
+                int lastEnd = 0;
+                while (boundary.next() != java.text.BreakIterator.DONE) {
+                    count++;
+                    if (count == 1) {
+                        lastEnd = boundary.current();
+                    }
+                }
+                if (count > 1) {
+                    et.removeTextChangedListener(this);
+                    s.replace(0, s.length(), input.substring(0, lastEnd));
+                    et.addTextChangedListener(this);
+                }
             }
+        });
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext(), R.style.Theme_HabitFlow_Dialog)
+                .setView(dialogView)
+                .setPositiveButton("Select", null)
+                .setNegativeButton("Cancel", null)
+                .create();
+
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String input = et.getText().toString().trim();
+            if (isSingleEmoji(input)) {
+                selectedEmoji = input;
+                tvSelectedEmoji.setText(selectedEmoji);
+                dialog.dismiss();
+            } else {
+                til.setError("Please enter exactly one valid emoji");
+            }
+        });
+    }
+
+    private boolean isSingleEmoji(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return false;
         }
+        text = text.trim();
+        
+        for (int i = 0; i < text.length(); ) {
+            int codePoint = text.codePointAt(i);
+            if (Character.isLetterOrDigit(codePoint)) {
+                return false;
+            }
+            if (codePoint >= 0x20 && codePoint <= 0x7E) {
+                return false;
+            }
+            i += Character.charCount(codePoint);
+        }
+
+        java.text.BreakIterator boundary = java.text.BreakIterator.getCharacterInstance();
+        boundary.setText(text);
+        int count = 0;
+        while (boundary.next() != java.text.BreakIterator.DONE) {
+            count++;
+        }
+
+        return count == 1;
     }
 
     private void setupChecklist() {
@@ -237,13 +291,10 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         etName.setText(habitToEdit.name);
         etDesc.setText(habitToEdit.description);
         selectedEmoji = habitToEdit.emoji;
-        selectedColor = habitToEdit.colorHex;
+        tvSelectedEmoji.setText(selectedEmoji);
         selectedTime = habitToEdit.notifyTime.isEmpty() ? "08:00" : habitToEdit.notifyTime;
         tvReminderTime.setText(selectedTime);
         switchNotify.setChecked(habitToEdit.notifyEnabled);
-        
-        updateEmojiSelection();
-        updateColorSelection();
 
         setChipSelected(chipsCategory, habitToEdit.category);
         setChipSelected(chipsPriority, habitToEdit.priority);
@@ -293,6 +344,90 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         }
     }
 
+    private void handleCloseAttempt() {
+        if (hasUnsavedChanges()) {
+            new MaterialAlertDialogBuilder(requireContext(), R.style.Theme_HabitFlow_Dialog)
+                    .setTitle("Discard Changes?")
+                    .setMessage("You have unsaved changes. Are you sure you want to discard them?")
+                    .setPositiveButton("Discard", (dialog, which) -> dismiss())
+                    .setNegativeButton("Keep Editing", null)
+                    .show();
+        } else {
+            dismiss();
+        }
+    }
+
+    private boolean hasUnsavedChanges() {
+        String name = etName.getText().toString().trim();
+        String desc = etDesc.getText().toString().trim();
+        boolean notify = switchNotify.isChecked();
+        
+        if (habitToEdit == null) {
+            if (!name.isEmpty()) return true;
+            if (!desc.isEmpty()) return true;
+            if (!"🏃".equals(selectedEmoji)) return true;
+            if (notify) return true;
+            if (llChecklistContainer.getChildCount() > 0) return true;
+            return false;
+        } else {
+            if (!name.equals(habitToEdit.name)) return true;
+            String originalDesc = habitToEdit.description != null ? habitToEdit.description : "";
+            if (!desc.equals(originalDesc)) return true;
+            if (!selectedEmoji.equals(habitToEdit.emoji)) return true;
+            if (notify != habitToEdit.notifyEnabled) return true;
+            if (notify && !selectedTime.equals(habitToEdit.notifyTime.isEmpty() ? "08:00" : habitToEdit.notifyTime)) return true;
+            
+            // Check category
+            String cat = getSelectedChipText(chipsCategory);
+            String origCat = habitToEdit.category != null ? habitToEdit.category : "";
+            String cleanedHabitCat = origCat.replaceAll("[^a-zA-Z]", "").trim();
+            if (!cat.equalsIgnoreCase(cleanedHabitCat)) return true;
+
+            // Check priority
+            String pri = getSelectedChipText(chipsPriority);
+            String origPri = habitToEdit.priority != null ? habitToEdit.priority : "";
+            if (!pri.equalsIgnoreCase(origPri)) return true;
+
+            // Check type
+            String type = getSelectedChipText(chipsType);
+            String origType = habitToEdit.type != null ? habitToEdit.type : "";
+            if (!type.equalsIgnoreCase(origType)) return true;
+
+            // Check frequency
+            String freq = getSelectedChipText(chipsFrequency);
+            String currentFreq = freq;
+            if ("Custom".equalsIgnoreCase(freq)) {
+                List<Integer> ids = chipsDays.getCheckedChipIds();
+                StringBuilder sb = new StringBuilder("Custom:");
+                for (int id : ids) {
+                    Chip c = chipsDays.findViewById(id);
+                    sb.append(c.getText()).append(",");
+                }
+                currentFreq = sb.toString();
+            }
+            String origFreq = habitToEdit.frequency != null ? habitToEdit.frequency : "";
+            if (!currentFreq.equalsIgnoreCase(origFreq)) return true;
+
+            // Check checklist
+            int currentChecklistCount = llChecklistContainer.getChildCount();
+            int originalChecklistCount = habitToEdit.checklist != null ? habitToEdit.checklist.size() : 0;
+            if (currentChecklistCount != originalChecklistCount) return true;
+            
+            if (habitToEdit.checklist != null) {
+                for (int i = 0; i < currentChecklistCount; i++) {
+                    View v = llChecklistContainer.getChildAt(i);
+                    EditText et = v.findViewById(R.id.et_checklist_title);
+                    CheckBox cb = v.findViewById(R.id.checkbox);
+                    ChecklistItem origItem = habitToEdit.checklist.get(i);
+                    if (!et.getText().toString().equals(origItem.title)) return true;
+                    if (cb.isChecked() != origItem.isCompleted) return true;
+                }
+            }
+            
+            return false;
+        }
+    }
+
     private void saveHabit() {
         String name = etName.getText().toString().trim();
         if (name.isEmpty()) {
@@ -319,7 +454,6 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         }
 
         h.emoji = selectedEmoji;
-        h.colorHex = selectedColor;
         h.category = getSelectedChipText(chipsCategory);
         h.priority = getSelectedChipText(chipsPriority);
         h.notifyEnabled = switchNotify.isChecked();
@@ -361,7 +495,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         int titleRes = Habit.TYPE_TASK.equals(habitToEdit.type) ?
                 R.string.delete_confirm_title_task : R.string.delete_confirm_title_habit;
 
-        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext(), R.style.Theme_HabitFlow_Dialog)
                 .setTitle(getString(titleRes))
                 .setMessage(getString(R.string.delete_confirm_message, habitToEdit.name))
                 .setPositiveButton(R.string.btn_confirm_delete, (d, which) -> deleteHabit())
@@ -369,17 +503,37 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
                 .create();
 
         dialog.show();
-        // Make the delete button red
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
               .setTextColor(getResources().getColor(R.color.error_red, null));
     }
 
     private void deleteHabit() {
         if (habitToEdit != null) {
-            ReminderManager.cancelReminder(requireContext(), habitToEdit);
-            HabitStore.get(requireContext()).delete(requireContext(), habitToEdit.id);
+            final Habit deletedHabit = habitToEdit;
+            ReminderManager.cancelReminder(requireContext(), deletedHabit);
+            HabitStore.get(requireContext()).delete(requireContext(), deletedHabit.id);
             if (onSaveListener != null) onSaveListener.run();
             dismiss();
+
+            if (getActivity() instanceof MainActivity) {
+                View rootView = getActivity().findViewById(android.R.id.content);
+                if (rootView != null) {
+                    com.google.android.material.snackbar.Snackbar.make(
+                        rootView,
+                        "Deleted \"" + deletedHabit.name + "\"",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).setAction("Undo", v -> {
+                        HabitStore.get(rootView.getContext()).add(rootView.getContext(), deletedHabit);
+                        if (deletedHabit.notifyEnabled) {
+                            ReminderManager.scheduleReminder(rootView.getContext(), deletedHabit);
+                        }
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).notifyDataChanged();
+                        }
+                    }).setActionTextColor(rootView.getContext().getResources().getColor(R.color.primary_blue, null))
+                      .show();
+                }
+            }
         }
     }
 }

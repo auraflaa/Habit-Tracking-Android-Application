@@ -99,7 +99,22 @@ public class FirebaseSyncManager {
                 });
     }
 
+    public void deleteUserData(Runnable onComplete) {
+        String uid = getUid();
+        if (uid == null) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        mDatabase.child("users").child(uid)
+                .removeValue()
+                .addOnCompleteListener(task -> {
+                    if (onComplete != null) onComplete.run();
+                });
+    }
+
     public interface SyncCallback {
         void onComplete();
     }
 }
+

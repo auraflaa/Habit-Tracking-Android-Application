@@ -29,10 +29,15 @@ import com.habitflow.data.HabitStore;
 import com.habitflow.model.ChecklistItem;
 import com.habitflow.model.Habit;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
+import android.graphics.Color;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class HomeFragment extends Fragment {
 
@@ -41,9 +46,12 @@ public class HomeFragment extends Fragment {
     private final List<Habit> displayList = new ArrayList<>();
     private ProgressBar     pbToday;
     private TextView        tvProgressCount, tvProgressLabel;
-    private TextView        tvGreeting, tvUsername, tvStreak;
+    private TextView        tvGreeting, tvUsername, tvStreak, btnRestDay;
     private TextView        tvQuote, tvQuoteAuthor;
     private LinearLayout    llEmpty;
+    private String          cachedQuoteText = null;
+    private String          cachedQuoteAuthor = null;
+    private boolean         isPrefetching = false;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -74,6 +82,7 @@ public class HomeFragment extends Fragment {
         if (isAdded()) {
             loadHabits();
             updateStreakBadge();
+            updateRestDayButtonState();
         }
     }
 
@@ -87,9 +96,9 @@ public class HomeFragment extends Fragment {
         tvStreak         = v.findViewById(R.id.tv_streak);
         tvQuote          = v.findViewById(R.id.tv_quote);
         tvQuoteAuthor    = v.findViewById(R.id.tv_quote_author);
+        btnRestDay       = v.findViewById(R.id.btn_rest_day);
+        btnRestDay.setOnClickListener(vv -> showRestDayDialog());
         llEmpty          = v.findViewById(R.id.ll_empty);
-
-        v.findViewById(R.id.btn_rest_day).setOnClickListener(vv -> showRestDayDialog());
     }
 
     private void setupRecyclerView() {
@@ -166,8 +175,15 @@ public class HomeFragment extends Fragment {
         float totalWeight = 0;
         float completedWeight = 0;
         int completedCount = 0;
+        int activeHabitsCount = 0;
+        String todayStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
         for (Habit h : all) {
+            boolean isResting = h.restDates.contains(todayStr);
+            if (isResting && !h.completedToday) {
+                continue;
+            }
+            activeHabitsCount++;
             float weight = getPriorityValue(h.priority);
             totalWeight += weight;
             if (h.completedToday) {
@@ -176,9 +192,16 @@ public class HomeFragment extends Fragment {
             }
         }
 
+        if (totalWeight == 0) {
+            pbToday.setProgress(100);
+            tvProgressCount.setText(getString(R.string.habits_complete, completedCount, 0));
+            tvProgressLabel.setText(R.string.progress_done);
+            return;
+        }
+
         int pct = Math.round((completedWeight / totalWeight) * 100);
 
-        tvProgressCount.setText(getString(R.string.habits_complete, completedCount, all.size()));
+        tvProgressCount.setText(getString(R.string.habits_complete, completedCount, activeHabitsCount));
         pbToday.setProgress(pct);
 
         if (pct == 0)        tvProgressLabel.setText(R.string.progress_start);
@@ -210,15 +233,8 @@ public class HomeFragment extends Fragment {
 
     /** Shows a new quote every day based on the current date. */
     private void setDailyQuote() {
-        String[] raw = getResources().getStringArray(R.array.quotes);
-
-        // Use the day of the year as a seed so the quote only changes once every 24 hours
-        int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
-        int year = Calendar.getInstance().get(Calendar.YEAR);
-
-        // Seeded random based on date
-        Random seededRandom = new Random(dayOfYear + year * 365L);
-        showQuote(raw[seededRandom.nextInt(raw.length)]);
+        showLocalFallbackQuote(false, true);
+        prefetchNextQuote();
     }
 
     private void setupSwipeAction() {
@@ -233,12 +249,29 @@ public class HomeFragment extends Fragment {
                 int position = viewHolder.getBindingAdapterPosition();
                 if (position == RecyclerView.NO_POSITION) return;
                 
-                Habit habit = displayList.get(position);
+                final Habit habit = displayList.get(position);
 
                 if (direction == ItemTouchHelper.LEFT) {
                     // Swipe left to delete
+                    com.habitflow.util.ReminderManager.cancelReminder(requireContext(), habit);
                     HabitStore.get(requireContext()).delete(requireContext(), habit.id);
-                    Toast.makeText(getContext(), "Habit deleted", Toast.LENGTH_SHORT).show();
+                    
+                    View anchor = getView() != null ? getView() : viewHolder.itemView;
+                    com.google.android.material.snackbar.Snackbar.make(
+                        anchor,
+                        "Deleted \"" + habit.name + "\"",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).setAction("Undo", v -> {
+                        HabitStore.get(requireContext()).add(requireContext(), habit);
+                        if (habit.notifyEnabled) {
+                            com.habitflow.util.ReminderManager.scheduleReminder(requireContext(), habit);
+                        }
+                        loadHabits();
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).notifyDataChanged();
+                        }
+                    }).setActionTextColor(getResources().getColor(R.color.primary_blue, null))
+                      .show();
                 } else {
                     // Swipe right to toggle completion
                     HabitStore.get(requireContext()).toggleComplete(requireContext(), habit.id);
@@ -259,22 +292,49 @@ public class HomeFragment extends Fragment {
                 int itemHeight = itemView.getBottom() - itemView.getTop();
                 android.graphics.Paint p = new android.graphics.Paint();
 
-                if (dX > 0) { // Swiping Right (Complete)
-                    p.setColor(android.graphics.Color.parseColor("#4CAF50")); // Green
-                    android.graphics.RectF background = new android.graphics.RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
-                    c.drawRect(background, p);
+                if (dX > 0) { // Swiping Right (Complete/Unmark)
+                    int position = viewHolder.getBindingAdapterPosition();
+                    boolean isCompleted = false;
+                    if (position != RecyclerView.NO_POSITION && position < displayList.size()) {
+                        Habit habit = displayList.get(position);
+                        String todayStr = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(new java.util.Date());
+                        isCompleted = habit.completedDates != null && habit.completedDates.contains(todayStr);
+                    }
 
-                    // Draw Tick Icon
-                    android.graphics.drawable.Drawable icon = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.ic_check);
-                    if (icon != null) {
-                        int iconMargin = (itemHeight - icon.getIntrinsicHeight()) / 2;
-                        int iconTop = itemView.getTop() + (itemHeight - icon.getIntrinsicHeight()) / 2;
-                        int iconBottom = iconTop + icon.getIntrinsicHeight();
-                        int iconLeft = itemView.getLeft() + iconMargin;
-                        int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
-                        icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
-                        icon.setTint(android.graphics.Color.WHITE);
-                        icon.draw(c);
+                    if (isCompleted) {
+                        p.setColor(android.graphics.Color.parseColor("#757575")); // Grey
+                        android.graphics.RectF background = new android.graphics.RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
+                        c.drawRect(background, p);
+
+                        // Draw Unmark Icon (Close)
+                        android.graphics.drawable.Drawable icon = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.ic_close);
+                        if (icon != null) {
+                            int iconMargin = (itemHeight - icon.getIntrinsicHeight()) / 2;
+                            int iconTop = itemView.getTop() + (itemHeight - icon.getIntrinsicHeight()) / 2;
+                            int iconBottom = iconTop + icon.getIntrinsicHeight();
+                            int iconLeft = itemView.getLeft() + iconMargin;
+                            int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
+                            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                            icon.setTint(android.graphics.Color.WHITE);
+                            icon.draw(c);
+                        }
+                    } else {
+                        p.setColor(android.graphics.Color.parseColor("#4CAF50")); // Green
+                        android.graphics.RectF background = new android.graphics.RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
+                        c.drawRect(background, p);
+
+                        // Draw Tick Icon
+                        android.graphics.drawable.Drawable icon = androidx.core.content.ContextCompat.getDrawable(requireContext(), R.drawable.ic_check);
+                        if (icon != null) {
+                            int iconMargin = (itemHeight - icon.getIntrinsicHeight()) / 2;
+                            int iconTop = itemView.getTop() + (itemHeight - icon.getIntrinsicHeight()) / 2;
+                            int iconBottom = iconTop + icon.getIntrinsicHeight();
+                            int iconLeft = itemView.getLeft() + iconMargin;
+                            int iconRight = itemView.getLeft() + iconMargin + icon.getIntrinsicWidth();
+                            icon.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                            icon.setTint(android.graphics.Color.WHITE);
+                            icon.draw(c);
+                        }
                     }
                 } else if (dX < 0) { // Swiping Left (Delete)
                     p.setColor(android.graphics.Color.parseColor("#F44336")); // Red
@@ -318,14 +378,128 @@ public class HomeFragment extends Fragment {
     }
 
     private void showNewRandomQuote() {
-        String[] raw = getResources().getStringArray(R.array.quotes);
-        showQuote(raw[new Random().nextInt(raw.length)]);
+        if (cachedQuoteText != null && cachedQuoteAuthor != null) {
+            final String nextText = cachedQuoteText;
+            final String nextAuthor = cachedQuoteAuthor;
+
+            tvQuote.animate().alpha(0f).setDuration(150).withEndAction(() -> {
+                tvQuote.setText(getString(R.string.quote_format, nextText));
+                tvQuote.animate().alpha(1f).setDuration(250).start();
+            }).start();
+
+            tvQuoteAuthor.animate().alpha(0f).setDuration(150).withEndAction(() -> {
+                tvQuoteAuthor.setText(getString(R.string.quote_author_format, nextAuthor));
+                tvQuoteAuthor.animate().alpha(1f).setDuration(250).start();
+            }).start();
+
+            // Clear cache and trigger prefetch for next swipe
+            cachedQuoteText = null;
+            cachedQuoteAuthor = null;
+            prefetchNextQuote();
+        } else {
+            // Cache not primed yet, load fallback immediately and start a prefetch
+            showLocalFallbackQuote(true, false);
+            prefetchNextQuote();
+        }
     }
 
-    private void showQuote(String entry) {
+    private void prefetchNextQuote() {
+        if (isPrefetching) return;
+        isPrefetching = true;
+
+        java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newSingleThreadExecutor();
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+
+        executor.execute(() -> {
+            String jsonResult = null;
+            try {
+                java.net.URL url = new java.net.URL("https://zenquotes.io/api/random");
+                java.net.HttpURLConnection urlConnection = (java.net.HttpURLConnection) url.openConnection();
+                urlConnection.setConnectTimeout(4000);
+                urlConnection.setReadTimeout(4000);
+                try {
+                    java.io.InputStream in = new java.io.BufferedInputStream(urlConnection.getInputStream());
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(in));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    jsonResult = result.toString();
+                } finally {
+                    urlConnection.disconnect();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            final String response = jsonResult;
+            handler.post(() -> {
+                isPrefetching = false;
+                if (!isAdded()) return;
+                if (response != null && !response.isEmpty()) {
+                    try {
+                        com.google.gson.JsonArray array = com.google.gson.JsonParser.parseString(response).getAsJsonArray();
+                        if (array.size() > 0) {
+                            com.google.gson.JsonObject obj = array.get(0).getAsJsonObject();
+                            cachedQuoteText = obj.get("q").getAsString();
+                            cachedQuoteAuthor = obj.get("a").getAsString();
+                            return; // Pre-fetch succeeded
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                
+                // Fallback: Populate cache locally
+                cacheLocalRandomQuote();
+            });
+        });
+    }
+
+    private void cacheLocalRandomQuote() {
+        if (!isAdded()) return;
+        String[] raw = getResources().getStringArray(R.array.quotes);
+        if (raw.length == 0) return;
+        String entry = raw[new Random().nextInt(raw.length)];
         String[] parts = entry.split("\\|");
-        tvQuote.setText(getString(R.string.quote_format, parts[0]));
-        tvQuoteAuthor.setText(parts.length > 1 ? getString(R.string.quote_author_format, parts[1]) : "");
+        cachedQuoteText = parts[0];
+        cachedQuoteAuthor = parts.length > 1 ? parts[1] : "";
+    }
+
+    private void showLocalFallbackQuote(boolean animate, boolean useDailyFallback) {
+        if (!isAdded()) return;
+        String[] raw = getResources().getStringArray(R.array.quotes);
+        if (raw.length == 0) return;
+        
+        String entry;
+        if (useDailyFallback) {
+            int dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            Random seededRandom = new Random(dayOfYear + year * 365L);
+            entry = raw[seededRandom.nextInt(raw.length)];
+        } else {
+            entry = raw[new Random().nextInt(raw.length)];
+        }
+
+        String[] parts = entry.split("\\|");
+        String text = parts[0];
+        String author = parts.length > 1 ? parts[1] : "";
+
+        if (animate) {
+            tvQuote.animate().alpha(0f).setDuration(150).withEndAction(() -> {
+                tvQuote.setText(getString(R.string.quote_format, text));
+                tvQuote.animate().alpha(1f).setDuration(250).start();
+            }).start();
+
+            tvQuoteAuthor.animate().alpha(0f).setDuration(150).withEndAction(() -> {
+                tvQuoteAuthor.setText(getString(R.string.quote_author_format, author));
+                tvQuoteAuthor.animate().alpha(1f).setDuration(250).start();
+            }).start();
+        } else {
+            tvQuote.setText(getString(R.string.quote_format, text));
+            tvQuoteAuthor.setText(getString(R.string.quote_author_format, author));
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -425,16 +599,41 @@ public class HomeFragment extends Fragment {
     }
 
     private void showRestDayDialog() {
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("😴 Rest Day")
-                .setMessage("Mark today as a rest day? Your streaks won't be broken.")
-                .setPositiveButton("Yes, rest today", (d, w) -> {
-                    HabitStore.get(requireContext()).markRestDay(requireContext());
+        boolean isRest = HabitStore.get(requireContext()).isTodayRestDay();
+        String title = isRest ? "⏰ Unmark Rest Day" : "😴 Rest Day";
+        String message = isRest ? "Unmark today as a rest day? This will resume tracking for today's habits." : "Mark today as a rest day? Your streaks won't be broken.";
+        String positiveBtn = isRest ? "Unmark rest day" : "Yes, rest today";
+
+        new MaterialAlertDialogBuilder(requireContext(), R.style.Theme_HabitFlow_Dialog)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(positiveBtn, (d, w) -> {
+                    if (isRest) {
+                        HabitStore.get(requireContext()).unmarkRestDay(requireContext());
+                        Toast.makeText(getContext(), "Rest day unmarked", Toast.LENGTH_SHORT).show();
+                    } else {
+                        HabitStore.get(requireContext()).markRestDay(requireContext());
+                        Toast.makeText(getContext(), R.string.rest_day_toast, Toast.LENGTH_SHORT).show();
+                    }
                     loadHabits();
-                    Toast.makeText(getContext(), R.string.rest_day_toast, Toast.LENGTH_SHORT).show();
+                    updateRestDayButtonState();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void updateRestDayButtonState() {
+        if (btnRestDay == null) return;
+        boolean isRest = HabitStore.get(requireContext()).isTodayRestDay();
+        if (isRest) {
+            btnRestDay.setText("Unmark Rest Day");
+            btnRestDay.setTextColor(Color.WHITE);
+            btnRestDay.setBackgroundResource(R.drawable.bg_chip_selected);
+        } else {
+            btnRestDay.setText(R.string.label_rest_day);
+            btnRestDay.setTextColor(getResources().getColor(R.color.primary_blue, null));
+            btnRestDay.setBackgroundResource(R.drawable.bg_chip_outline);
+        }
     }
 
     private void openEditSheet(Habit habit) {

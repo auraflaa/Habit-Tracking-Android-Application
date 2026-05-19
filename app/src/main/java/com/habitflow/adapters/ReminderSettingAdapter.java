@@ -42,6 +42,7 @@ public class ReminderSettingAdapter extends RecyclerView.Adapter<ReminderSetting
         Habit h = habits.get(position);
         holder.tvName.setText(h.name);
         holder.tvTime.setText(h.notifyTime.isEmpty() ? "08:00" : h.notifyTime);
+        holder.tvEmoji.setText(h.emoji == null || h.emoji.isEmpty() ? "🏃" : h.emoji);
         holder.switchNotify.setChecked(h.notifyEnabled);
 
         holder.tvTime.setOnClickListener(v -> {
@@ -74,13 +75,14 @@ public class ReminderSettingAdapter extends RecyclerView.Adapter<ReminderSetting
     }
 
     static class VH extends RecyclerView.ViewHolder {
-        TextView tvName, tvTime;
+        TextView tvName, tvTime, tvEmoji;
         SwitchMaterial switchNotify;
 
         VH(View v) {
             super(v);
             tvName = v.findViewById(R.id.tv_habit_name);
             tvTime = v.findViewById(R.id.tv_reminder_time);
+            tvEmoji = v.findViewById(R.id.tv_habit_emoji);
             switchNotify = v.findViewById(R.id.switch_habit_notify);
         }
     }

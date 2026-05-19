@@ -32,7 +32,6 @@ public class Habit implements Serializable {
     public String frequency = FREQ_DAILY; // Default to daily
     public String description = "";
     public String emoji;
-    public String colorHex;
     public String category;
     public String priority;
     public boolean notifyEnabled;
@@ -47,22 +46,21 @@ public class Habit implements Serializable {
     
     // Checklist
     public List<ChecklistItem> checklist = new ArrayList<>();
-
+ 
     // Track completion history and rest days
     public List<String> completedDates = new ArrayList<>();
     public List<String> restDates = new ArrayList<>();
-
+ 
     public Habit() {
         this.id = UUID.randomUUID().toString();
     }
-
-    public Habit(String id, String name, String emoji, String category, String priority, String colorHex) {
+ 
+    public Habit(String id, String name, String emoji, String category, String priority) {
         this.id = id;
         this.name = name;
         this.emoji = emoji;
         this.category = category;
         this.priority = priority;
-        this.colorHex = colorHex;
     }
 
     /** 

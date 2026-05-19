@@ -179,9 +179,9 @@ public class CalendarFragment extends Fragment {
         int totalPadding = gridCalendar.getPaddingLeft() + gridCalendar.getPaddingRight();
         int availableWidth = gridCalendar.getWidth() > 0 ? gridCalendar.getWidth() : getResources().getDisplayMetrics().widthPixels - dpToPx(32);
         int cellWidth  = (availableWidth - totalPadding) / 7;
-        int cellHeight = (int)(cellWidth * 1.1f); // Slightly taller for dots
+        int cellHeight = (int)(cellWidth * 1.25f); // Slightly taller for dots
 
-        for (int i = 0; i < firstDow; i++) addBlankCell(cellWidth, cellHeight);
+        for (int i = 0; i < firstDow; i++) addBlankCell(cellHeight);
 
         for (int day = 1; day <= daysInMonth; day++) {
             final int d = day;
@@ -197,33 +197,20 @@ public class CalendarFragment extends Fragment {
             float completionPct = getCompletionForDay(day);
 
             android.widget.FrameLayout cellContainer = new android.widget.FrameLayout(requireContext());
-            GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
-            lp.width  = cellWidth;
+            GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+                GridLayout.spec(GridLayout.UNDEFINED),
+                GridLayout.spec(GridLayout.UNDEFINED, 1f)
+            );
+            lp.width  = 0;
             lp.height = cellHeight;
             cellContainer.setLayoutParams(lp);
-
-            // Subtle background for past days or fully completed days
-            GradientDrawable containerBg = new GradientDrawable();
-            containerBg.setShape(GradientDrawable.RECTANGLE);
-            containerBg.setCornerRadius(dpToPx(12));
-
-            if (isPast) {
-                if (completionPct > 0.99f) {
-                    containerBg.setColor(adjustAlpha(colorPrimary, 0.20f)); // Slightly more visible for full completion
-                } else if (completionPct > 0) {
-                    containerBg.setColor(adjustAlpha(colorPrimary, 0.10f)); // Subtle for partial
-                } else {
-                    containerBg.setColor(Color.parseColor("#10808080")); // Very light gray for empty past days
-                }
-            }
-            cellContainer.setBackground(containerBg);
 
             TextView cell = new TextView(requireContext());
             cell.setText(String.valueOf(day));
             cell.setGravity(Gravity.CENTER);
-            cell.setTextSize(15f);
+            cell.setTextSize(13f);
             
-            android.widget.FrameLayout.LayoutParams cellLp = new android.widget.FrameLayout.LayoutParams(dpToPx(36), dpToPx(36));
+            android.widget.FrameLayout.LayoutParams cellLp = new android.widget.FrameLayout.LayoutParams(dpToPx(32), dpToPx(32));
             cellLp.gravity = Gravity.CENTER;
             cell.setLayoutParams(cellLp);
 
@@ -239,10 +226,23 @@ public class CalendarFragment extends Fragment {
                 cell.setTextColor(colorPrimary);
                 cell.setTypeface(null, Typeface.BOLD);
             } else if (isPast) {
-                cell.setTextColor(completionPct > 0 ? colorTextPrimary : colorTextSecondary);
-                if (completionPct > 0.99f) cell.setTypeface(null, Typeface.BOLD);
+                if (completionPct > 0.99f) {
+                    cell.setTextColor(Color.WHITE);
+                    cell.setTypeface(null, Typeface.BOLD);
+                    bg.setColor(adjustAlpha(colorPrimary, 0.40f)); // 40% opacity highlight for full completion
+                } else if (completionPct > 0) {
+                    cell.setTextColor(colorTextPrimary);
+                    cell.setTypeface(null, Typeface.NORMAL);
+                    bg.setColor(adjustAlpha(colorPrimary, 0.20f)); // 20% opacity highlight for partial completion
+                } else {
+                    cell.setTextColor(colorTextSecondary);
+                    cell.setTypeface(null, Typeface.NORMAL);
+                    bg.setColor(adjustAlpha(colorTextPrimary, 0.08f)); // Soft light highlight for past days
+                }
             } else {
-                cell.setTextColor(completionPct > 0 ? colorTextPrimary : colorTextSecondary);
+                cell.setTextColor(colorTextSecondary);
+                cell.setTypeface(null, Typeface.NORMAL);
+                bg.setColor(Color.TRANSPARENT);
             }
 
             cell.setBackground(bg);
@@ -303,10 +303,14 @@ public class CalendarFragment extends Fragment {
         c.set(Calendar.MILLISECOND, 0);
     }
 
-    private void addBlankCell(int w, int h) {
+    private void addBlankCell(int h) {
         View blank = new View(requireContext());
-        GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
-        lp.width = w; lp.height = h;
+        GridLayout.LayoutParams lp = new GridLayout.LayoutParams(
+            GridLayout.spec(GridLayout.UNDEFINED),
+            GridLayout.spec(GridLayout.UNDEFINED, 1f)
+        );
+        lp.width = 0;
+        lp.height = h;
         blank.setLayoutParams(lp);
         gridCalendar.addView(blank);
     }
@@ -331,7 +335,6 @@ public class CalendarFragment extends Fragment {
             display.id = h.id;
             display.name = h.name;
             display.emoji = h.emoji;
-            display.colorHex = h.colorHex;
             display.category = h.category;
             display.priority = h.priority;
             display.type = h.type;

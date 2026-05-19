@@ -145,7 +145,6 @@ public class HabitDao {
         v.put(HabitDbHelper.COLUMN_FREQUENCY, h.frequency);
         v.put(HabitDbHelper.COLUMN_DESCRIPTION, h.description);
         v.put(HabitDbHelper.COLUMN_EMOJI, h.emoji);
-        v.put(HabitDbHelper.COLUMN_COLOR, h.colorHex);
         v.put(HabitDbHelper.COLUMN_CATEGORY, h.category);
         v.put(HabitDbHelper.COLUMN_PRIORITY, h.priority);
         v.put(HabitDbHelper.COLUMN_NOTIFY_ENABLED, h.notifyEnabled ? 1 : 0);
@@ -168,7 +167,6 @@ public class HabitDao {
         h.frequency = c.getString(c.getColumnIndexOrThrow(HabitDbHelper.COLUMN_FREQUENCY));
         h.description = c.getString(c.getColumnIndexOrThrow(HabitDbHelper.COLUMN_DESCRIPTION));
         h.emoji = c.getString(c.getColumnIndexOrThrow(HabitDbHelper.COLUMN_EMOJI));
-        h.colorHex = c.getString(c.getColumnIndexOrThrow(HabitDbHelper.COLUMN_COLOR));
         h.category = c.getString(c.getColumnIndexOrThrow(HabitDbHelper.COLUMN_CATEGORY));
         h.priority = c.getString(c.getColumnIndexOrThrow(HabitDbHelper.COLUMN_PRIORITY));
         h.notifyEnabled = c.getInt(c.getColumnIndexOrThrow(HabitDbHelper.COLUMN_NOTIFY_ENABLED)) == 1;

@@ -21,8 +21,22 @@ public class ReminderReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        String habitName = intent.getStringExtra(EXTRA_HABIT_NAME);
+        android.content.SharedPreferences prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE);
+        boolean globalEnabled = prefs.getBoolean("notifications_enabled", true);
+        if (!globalEnabled) return;
+
         String habitId = intent.getStringExtra(EXTRA_HABIT_ID);
+        if (habitId != null) {
+            com.habitflow.model.Habit habit = com.habitflow.data.HabitStore.get(context).findById(habitId);
+            if (habit != null) {
+                String todayStr = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(new java.util.Date());
+                if (habit.completedDates != null && habit.completedDates.contains(todayStr)) {
+                    return; // Skip notification, already completed today
+                }
+            }
+        }
+
+        String habitName = intent.getStringExtra(EXTRA_HABIT_NAME);
 
         showNotification(context, habitName, habitId);
     }
