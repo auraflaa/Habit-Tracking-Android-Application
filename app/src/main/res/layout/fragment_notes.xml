@@ -36,7 +36,7 @@
                 android:background="@drawable/bg_icon_btn"
                 android:src="@drawable/ic_add"
                 app:tint="@color/primary_blue"
-                android:contentDescription="Add Note"/>
+                android:contentDescription="@string/content_description_add_note"/>
         </LinearLayout>
 
         <!-- Notes List -->

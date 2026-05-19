@@ -89,13 +89,13 @@
     <style name="AppTitleLarge">
         <item name="android:textSize">28sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">-0.02</item>
+        <item name="android:letterSpacing">0</item>
     </style>
 
     <style name="AppTitleMedium">
         <item name="android:textSize">18sp</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:letterSpacing">0</item>
     </style>
 
     <style name="AppBodyLarge">
@@ -148,11 +148,12 @@
     </style>
 
     <style name="FilterChip" parent="Widget.Material3.Chip.Filter">
-        <item name="chipBackgroundColor">?attr/customCardBackground</item>
-        <item name="android:textColor">?attr/customTextSecondary</item>
+        <item name="chipBackgroundColor">@color/chip_bg_selector</item>
+        <item name="android:textColor">@color/chip_text_selector</item>
         <item name="chipStrokeColor">?attr/customBorderColor</item>
         <item name="chipStrokeWidth">1dp</item>
         <item name="shapeAppearance">@style/ChipShape</item>
+        <item name="checkedIconVisible">false</item>
     </style>
 
     <style name="ChipShape" parent="">

@@ -15,10 +15,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.habitflow.R;
 import com.habitflow.data.HabitStore;
@@ -80,7 +82,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
 
         view.findViewById(R.id.btn_close).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.btn_save).setOnClickListener(v -> saveHabit());
-        view.findViewById(R.id.btn_delete).setOnClickListener(v -> deleteHabit());
+        view.findViewById(R.id.btn_delete).setOnClickListener(v -> showDeleteConfirmation());
     }
 
     private void bindViews(View v) {
@@ -119,7 +121,6 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     }
 
     private void setupTimePicker() {
-        // Updated trigger: Tap on the whole row or the time text changes the reminder
         View row = getView() != null ? getView().findViewById(R.id.row_reminder_time) : null;
         if (row != null) {
             row.setOnClickListener(v -> showTimePicker());
@@ -135,7 +136,6 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         new TimePickerDialog(getContext(), (view, hourOfDay, minute) -> {
             selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
             tvReminderTime.setText(selectedTime);
-            // Auto-enable notification if time is picked
             switchNotify.setChecked(true);
         }, h, m, true).show();
     }
@@ -205,11 +205,14 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     }
 
     private void setupChecklist() {
-        getView().findViewById(R.id.btn_add_checklist_item).setOnClickListener(v -> {
-            ChecklistItem item = new ChecklistItem("");
-            tempChecklist.add(item);
-            addChecklistItemView(item);
-        });
+        View addBtn = getView() != null ? getView().findViewById(R.id.btn_add_checklist_item) : null;
+        if (addBtn != null) {
+            addBtn.setOnClickListener(v -> {
+                ChecklistItem item = new ChecklistItem("");
+                tempChecklist.add(item);
+                addChecklistItemView(item);
+            });
+        }
     }
 
     private void addChecklistItemView(ChecklistItem item) {
@@ -230,7 +233,7 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
     }
 
     private void setupEditMode(View view) {
-        tvSheetTitle.setText("Edit Habit");
+        tvSheetTitle.setText(R.string.edit_habit_title);
         etName.setText(habitToEdit.name);
         etDesc.setText(habitToEdit.description);
         selectedEmoji = habitToEdit.emoji;
@@ -262,7 +265,6 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
 
         llFrequencyContainer.setVisibility(Habit.TYPE_HABIT.equals(habitToEdit.type) ? View.VISIBLE : View.GONE);
 
-        // Load checklist
         if (habitToEdit.checklist != null) {
             tempChecklist.clear();
             tempChecklist.addAll(habitToEdit.checklist);
@@ -283,7 +285,6 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
                 return;
             }
         }
-        // If no match found and it's frequency, it might be custom
         if (group.getId() == R.id.chips_frequency) {
             View customChip = group.findViewById(R.id.chip_freq_custom);
             if (customChip instanceof Chip) {
@@ -324,7 +325,6 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         h.notifyEnabled = switchNotify.isChecked();
         h.notifyTime = selectedTime;
 
-        // Sync checklist back to habit
         h.checklist.clear();
         for (int i = 0; i < llChecklistContainer.getChildCount(); i++) {
             View v = llChecklistContainer.getChildAt(i);
@@ -341,7 +341,6 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
             HabitStore.get(requireContext()).add(requireContext(), h);
         }
 
-        // Handle Reminder scheduling
         ReminderManager.scheduleReminder(requireContext(), h);
 
         if (onSaveListener != null) onSaveListener.run();
@@ -354,6 +353,25 @@ public class AddHabitSheet extends BottomSheetDialogFragment {
         Chip chip = group.findViewById(id);
         String text = chip.getText().toString();
         return text.replaceAll("[^a-zA-Z]", "").trim();
+    }
+
+    private void showDeleteConfirmation() {
+        if (habitToEdit == null) return;
+
+        int titleRes = Habit.TYPE_TASK.equals(habitToEdit.type) ?
+                R.string.delete_confirm_title_task : R.string.delete_confirm_title_habit;
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(titleRes))
+                .setMessage(getString(R.string.delete_confirm_message, habitToEdit.name))
+                .setPositiveButton(R.string.btn_confirm_delete, (d, which) -> deleteHabit())
+                .setNegativeButton(R.string.btn_cancel, null)
+                .create();
+
+        dialog.show();
+        // Make the delete button red
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+              .setTextColor(getResources().getColor(R.color.error_red, null));
     }
 
     private void deleteHabit() {

@@ -26,6 +26,7 @@
     <color name="nav_bg">@color/dark_nav_bg</color>
     <color name="error_red">#FF5252</color>
     <color name="white">#FFFFFF</color>
+    <color name="white_10">#1AFFFFFF</color>
 
     <!-- Habit Category Colors -->
     <color name="cat_fitness">#FF5252</color>
@@ -43,7 +44,7 @@
     <color name="dark_text_primary">#EEEAE0</color>
     <color name="dark_text_secondary">#8A8880</color>
     <color name="dark_text_dim">#52504C</color>
-    <color name="dark_border">#1F1F2E</color>
+    <color name="dark_border">@color/white_10</color>
     <color name="dark_nav_bg">#13131A</color>
 
     <!-- Light Theme -->

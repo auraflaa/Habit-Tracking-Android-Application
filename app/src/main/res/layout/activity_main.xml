@@ -50,7 +50,7 @@
         app:tint="@color/white"
         android:contentDescription="@string/content_description_add_habit"
         app:layout_anchor="@id/bottom_bar"
-        app:backgroundTint="@color/primary_blue"
+        app:backgroundTint="?attr/colorPrimary"
         app:fabSize="normal"
         app:elevation="8dp"
         app:shapeAppearanceOverlay="@style/FabShape"

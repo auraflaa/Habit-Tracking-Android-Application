@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
+    android:minHeight="48dp"
     android:paddingVertical="4dp">
 
     <CheckBox
@@ -17,7 +18,7 @@
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content"
-        android:hint="Subtask"
+        android:hint="@string/subtask_hint"
         android:textSize="14sp"
         android:background="@null"
         android:padding="8dp"
@@ -30,6 +31,7 @@
         android:layout_height="32dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_close"
-        android:contentDescription="Remove task"
-        android:alpha="0.5"/>
+        android:contentDescription="@string/content_description_remove_task"
+        android:alpha="0.65"
+        android:tint="?attr/customTextSecondary"/>
 </LinearLayout>

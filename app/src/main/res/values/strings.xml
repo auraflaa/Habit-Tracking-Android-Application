@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">HabitFlow</string>
     <string name="app_tagline">Build your best self, one day at a time.</string>
+    <string name="content_description_app_logo">HabitFlow logo</string>
+    <string name="content_description_close">Close</string>
 
     <!-- Nav Labels -->
     <string name="nav_today">Today</string>
@@ -56,12 +58,25 @@
     <string name="label_priority">Priority</string>
     <string name="label_time_of_day">Time of Day</string>
     <string name="label_reminder">Reminder</string>
+    <string name="label_reminder_initial">R</string>
     <string name="label_color">Habit Color</string>
     <string name="label_icon">Icon</string>
+    <string name="label_checklist">Checklist</string>
+    <string name="label_add_item">Add Item</string>
+    <string name="label_daily_reminder">Daily Reminder</string>
+    <string name="default_reminder_time">08:00 AM</string>
     <string name="no_reminder">No reminder set</string>
     <string name="btn_save">Save Habit</string>
     <string name="btn_delete">Delete Habit</string>
     <string name="content_description_add_habit">Add Habit</string>
+    <string name="content_description_add_note">Add Note</string>
+
+    <!-- Delete Confirmation -->
+    <string name="delete_confirm_title_habit">Delete Habit</string>
+    <string name="delete_confirm_title_task">Delete Task</string>
+    <string name="delete_confirm_message">Are you sure you want to delete \'%1$s\'? This action cannot be undone.</string>
+    <string name="btn_confirm_delete">Delete</string>
+    <string name="btn_cancel">Cancel</string>
 
     <!-- Calendar -->
     <string name="calendar_title">Calendar</string>
@@ -79,6 +94,9 @@
     <string name="label_current">Current Streak</string>
     <string name="label_breakdown">Habit Breakdown</string>
     <string name="label_heatmap">Activity Heatmap</string>
+    <string name="label_day">Day</string>
+    <string name="label_week">Week</string>
+    <string name="label_month">Month</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
@@ -102,6 +120,7 @@
     <string name="error_register_failed">Could not create your account. Please try again.</string>
     <string name="error_google_sign_in_failed">Could not connect to Google. Please try again.</string>
     <string name="subtask_hint">Subtask name</string>
+    <string name="content_description_remove_task">Remove task</string>
 
     <!-- Quotes -->
     <string-array name="quotes">
@@ -141,6 +160,7 @@
     <string name="toast_google_connected">Google account connected. Your local habits are syncing.</string>
     <string name="error_google_connect_failed">Could not connect to Google. Please try again.</string>
     <string name="btn_sign_out">Sign Out</string>
+    <string name="sign_out_message">Are you sure you want to sign out from HabitFlow?</string>
     <string name="version_format">Version %1$s</string>
     <string name="email_verification_sent">Verification email sent to %1$s</string>
     <string name="error_email_required">Email required</string>

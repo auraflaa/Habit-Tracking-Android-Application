@@ -77,14 +77,16 @@
             </LinearLayout>
 
             <!-- ── PROGRESS CARD ──────────────────────────── -->
-            <androidx.cardview.widget.CardView
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_progress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/customCardBackground">
+                app:cardBackgroundColor="?attr/customCardBackground"
+                app:strokeColor="?attr/customBorderColor"
+                app:strokeWidth="1dp">
 
                 <LinearLayout android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -130,7 +132,7 @@
                         android:layout_marginTop="12dp"
                         android:alpha="0.8"/>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- ── QUOTE / SPARK ───────────────────────────── -->
             <LinearLayout android:layout_width="match_parent"

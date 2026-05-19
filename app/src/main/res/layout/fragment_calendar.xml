@@ -53,7 +53,8 @@
                         android:layout_height="36dp"
                         android:background="@drawable/bg_icon_btn"
                         android:src="@drawable/ic_chevron_left"
-                        app:tint="?attr/customTextPrimary"/>
+                        app:tint="?attr/customTextPrimary"
+                        android:contentDescription="@string/prev_month"/>
 
                     <ImageButton
                         android:id="@+id/btn_next"
@@ -62,7 +63,8 @@
                         android:layout_marginStart="8dp"
                         android:background="@drawable/bg_icon_btn"
                         android:src="@drawable/ic_chevron_right"
-                        app:tint="?attr/customTextPrimary"/>
+                        app:tint="?attr/customTextPrimary"
+                        android:contentDescription="@string/next_month"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -106,7 +108,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_sheet_handle"
-                android:alpha="0.3"/>
+                android:alpha="0.8"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -126,7 +128,7 @@
                         android:id="@+id/tv_selected_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Today"
+                        android:text="@string/today"
                         android:textColor="?attr/customTextPrimary"
                         android:textSize="18sp"
                         android:fontFamily="sans-serif-medium"/>
@@ -148,10 +150,10 @@
                     android:gravity="center_vertical">
                     <View android:layout_width="8dp" android:layout_height="8dp"
                         android:background="@drawable/bg_heatmap_0" android:layout_marginEnd="2dp"
-                        android:alpha="0.3"/>
+                        android:alpha="0.6"/>
                     <View android:layout_width="8dp" android:layout_height="8dp"
                         android:background="@drawable/bg_heatmap_3"
-                        android:backgroundTint="@color/brand_primary"/>
+                        android:backgroundTint="?attr/colorPrimary"/>
                 </LinearLayout>
             </LinearLayout>
 
