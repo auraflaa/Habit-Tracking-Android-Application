@@ -235,7 +235,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private void onAuthSuccess() {
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null) return;
+        if (user == null) {
+            goToMain();
+            return;
+        }
 
         if (!isLoginMode) {
             // REGISTRATION: Move existing local guest data to this new account

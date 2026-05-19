@@ -19,73 +19,85 @@
             android:paddingTop="32dp"
             android:paddingBottom="24dp"/>
 
-        <!-- Stats row -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        <!-- Stats row (Fixed height and centered content alignment) -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="135dp"
             android:orientation="horizontal" android:paddingHorizontal="18dp"
             android:layout_marginBottom="24dp">
 
             <!-- Best Streak -->
-            <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_weight="1"
-                android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
-                app:cardCornerRadius="20dp" app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/customCardBackground">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="match_parent" android:layout_marginHorizontal="6dp"
+                app:cardCornerRadius="24dp" app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/customCardBackground"
+                app:strokeColor="?attr/customBorderColor"
+                app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:orientation="vertical" android:padding="12dp" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="🔥" android:textSize="20sp"/>
                     <TextView android:id="@+id/tv_best_streak"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="12"
+                        android:text="0"
                         android:textColor="@color/brand_fire" android:textSize="24sp"
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Best Streak"
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Best\nStreak"
+                        android:gravity="center"
+                        android:lines="2"
                         android:textColor="?attr/customTextSecondary" android:textSize="11sp"
                         android:textAllCaps="true" android:letterSpacing="0.05"/>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Total Completions -->
-            <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_weight="1"
-                android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
-                app:cardCornerRadius="20dp" app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/customCardBackground">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="match_parent" android:layout_marginHorizontal="6dp"
+                app:cardCornerRadius="24dp" app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/customCardBackground"
+                app:strokeColor="?attr/customBorderColor"
+                app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:orientation="vertical" android:padding="12dp" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="✅" android:textSize="20sp"/>
                     <TextView android:id="@+id/tv_total"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="84"
+                        android:text="0"
                         android:textColor="@color/primary_green" android:textSize="24sp"
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Total Done"
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:text="Total\nDone"
+                        android:gravity="center"
+                        android:lines="2"
                         android:textColor="?attr/customTextSecondary" android:textSize="11sp"
                         android:textAllCaps="true" android:letterSpacing="0.05"/>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Current Streak -->
-            <androidx.cardview.widget.CardView android:layout_width="0dp" android:layout_weight="1"
-                android:layout_height="wrap_content" android:layout_marginHorizontal="6dp"
-                app:cardCornerRadius="20dp" app:cardElevation="0dp"
-                app:cardBackgroundColor="?attr/customCardBackground">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" android:padding="16dp" android:gravity="center">
+            <com.google.android.material.card.MaterialCardView android:layout_width="0dp" android:layout_weight="1"
+                android:layout_height="match_parent" android:layout_marginHorizontal="6dp"
+                app:cardCornerRadius="24dp" app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/customCardBackground"
+                app:strokeColor="?attr/customBorderColor"
+                app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
+                    android:orientation="vertical" android:padding="12dp" android:gravity="center">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="⚡" android:textSize="20sp"/>
                     <TextView android:id="@+id/tv_current_streak"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="5"
+                        android:text="0"
                         android:textColor="@color/primary_blue" android:textSize="24sp"
                         android:textStyle="bold" android:layout_marginTop="4dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:text="Current"
+                        android:gravity="center"
+                        android:lines="2"
                         android:textColor="?attr/customTextSecondary" android:textSize="11sp"
                         android:textAllCaps="true" android:letterSpacing="0.05"/>
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
         <!-- Scope tabs -->
@@ -96,9 +108,9 @@
             android:layout_marginHorizontal="24dp"
             android:layout_marginBottom="20dp"
             android:background="@drawable/bg_tab_layout"
-            app:tabGravity="fill"
-            app:tabMaxWidth="0dp"
-            app:tabIndicatorHeight="0dp"
+            app:tabGravity="fill" app:tabMaxWidth="0dp"
+            app:tabIndicatorHeight="48dp" app:tabIndicator="@drawable/bg_tab_indicator"
+            app:tabIndicatorAnimationMode="elastic" app:tabIndicatorFullWidth="true"
             app:tabSelectedTextColor="@color/white"
             app:tabTextColor="?attr/customTextSecondary"
             app:tabRippleColor="@color/transparent"
@@ -109,18 +121,19 @@
         </com.google.android.material.tabs.TabLayout>
 
         <!-- Bar chart card -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent" android:layout_height="240dp"
             android:layout_marginHorizontal="24dp" android:layout_marginBottom="24dp"
             app:cardCornerRadius="24dp" app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/customCardBackground">
+            app:cardBackgroundColor="?attr/customCardBackground"
+            app:strokeColor="?attr/customBorderColor"
+            app:strokeWidth="1dp">
 
             <com.habitflow.views.BarChartView
                 android:id="@+id/bar_chart"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="match_parent" android:layout_height="match_parent"
                 android:padding="20dp"/>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Breakdown list -->
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -131,8 +144,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_breakdown"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
             android:paddingHorizontal="16dp"/>
 
@@ -143,11 +155,13 @@
             android:textColor="?attr/customTextPrimary" android:paddingHorizontal="24dp"
             android:paddingTop="24dp" android:paddingBottom="16dp"/>
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
             app:cardCornerRadius="24dp" app:cardElevation="0dp"
-            app:cardBackgroundColor="?attr/customCardBackground">
+            app:cardBackgroundColor="?attr/customCardBackground"
+            app:strokeColor="?attr/customBorderColor"
+            app:strokeWidth="1dp">
 
             <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:padding="16dp" android:scrollbars="none">
@@ -156,7 +170,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
             </HorizontalScrollView>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

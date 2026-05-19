@@ -63,6 +63,13 @@
     <string name="btn_delete">Delete Habit</string>
     <string name="content_description_add_habit">Add Habit</string>
 
+    <!-- Delete Confirmation -->
+    <string name="delete_confirm_title_habit">Delete Habit</string>
+    <string name="delete_confirm_title_task">Delete Task</string>
+    <string name="delete_confirm_message">Are you sure you want to delete \'%1$s\'? This action cannot be undone.</string>
+    <string name="btn_confirm_delete">Delete</string>
+    <string name="btn_cancel">Cancel</string>
+
     <!-- Calendar -->
     <string name="calendar_title">Calendar</string>
     <string name="completion_percentage">%1$d%% completion</string>
@@ -102,6 +109,9 @@
     <string name="error_register_failed">Could not create your account. Please try again.</string>
     <string name="error_google_sign_in_failed">Could not connect to Google. Please try again.</string>
     <string name="subtask_hint">Subtask name</string>
+
+    <!-- Google Auth (Placeholder for missing google-services.json) -->
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID</string>
 
     <!-- Quotes -->
     <string-array name="quotes">
