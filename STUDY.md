@@ -67,12 +67,12 @@ The project architecture is organized by feature and functionality into the foll
 
 # Android Concepts Study Guide: HabitFlow
 
-This section explores core Android development concepts, ranging from basic UI components to advanced backend synchronization. Each concept includes a description, a reference to its implementation in this project, and an explanation of how the code works.
+This section explores core Android development concepts, ranging from basic UI components to advanced backend synchronization. Each concept includes a detailed description, a reference to its implementation in this project, and an in-depth explanation of how the code works to serve as comprehensive study material.
 
 ## 1. Basic: Efficient List Rendering with RecyclerView
 
 **Description:**
-Android uses `RecyclerView` to display long lists of data efficiently. Instead of creating a new view for every item (which would consume too much memory and cause lag), it "recycles" views that scroll off the screen to display new incoming data.
+Android uses `RecyclerView` to display large datasets or long lists of UI elements efficiently. Creating a new View object in memory for every single item in a list (especially one with thousands of entries) would consume immense memory and cause UI frame stuttering (lag). `RecyclerView` solves this by creating only enough views to fill the screen. As the user scrolls, views that disappear off the top of the screen are "recycled" and moved to the bottom to display the new incoming data.
 
 **Code Reference:** `app/src/main/java/com/habitflow/adapters/HabitAdapter.java`
 
@@ -82,14 +82,14 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
     @NonNull
     @Override
     public HabitVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflates the XML layout for a single item (item_habit.xml)
+        // Inflates the XML layout for a single list item (item_habit.xml)
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_habit, parent, false);
         return new HabitVH(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull HabitVH holder, int position) {
-        // Binds the data to the view holder
+        // Binds the underlying data object to the recycled view holder
         Habit h = habits.get(position);
         holder.tvName.setText(h.name);
         holder.tvEmoji.setText(h.emoji);
@@ -99,14 +99,15 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitVH> {
 ```
 
 **Explanation:**
-- `onCreateViewHolder`: Called only when the RecyclerView needs a new view to represent an item. It inflates `item_habit.xml`.
-- `onBindViewHolder`: Called much more frequently. As the user scrolls, views that disappear are passed back into this method with a new `position` so they can be updated with new data (e.g., a different habit's name and completion status).
-- `ViewHolder (HabitVH)`: Caches the `findViewById` lookups to improve scrolling performance.
+- `Adapter`: The bridge between your underlying data array (`habits`) and the UI visually representing them.
+- `onCreateViewHolder`: Called *only* when the RecyclerView needs a brand new view to represent an item (e.g., when initially loading the screen). It inflates the XML layout into a Java View object.
+- `onBindViewHolder`: Called much more frequently. As the user scrolls, old views that disappeared are passed back into this method with a new `position` integer. The method's job is to update the text, colors, and images of that old view to represent the new data, avoiding the costly operation of inflating XML again.
+- `ViewHolder (HabitVH)`: A static inner class that caches the results of `findViewById()` lookups. Calling `findViewById` is an expensive operation that traverses the view hierarchy; caching these references inside the ViewHolder ensures smooth 60fps scrolling performance.
 
 ## 2. Intermediate: Local Persistence with SQLite
 
 **Description:**
-To allow an app to work offline, data must be saved to the device's local storage. Android provides built-in SQLite database support. Apps use `SQLiteOpenHelper` to manage database creation and version management.
+To ensure an application remains fully functional without an internet connection (Offline-First architecture), data must be persisted to the device's local file system. Android provides built-in support for SQLite, a lightweight relational database. Developers typically use `SQLiteOpenHelper` to manage database creation, schema definitions, and version migrations safely.
 
 **Code Reference:** `app/src/main/java/com/habitflow/data/db/HabitDbHelper.java` and `HabitDao.java`
 
@@ -128,15 +129,15 @@ public class HabitDbHelper extends SQLiteOpenHelper {
 ```
 
 **Explanation:**
-- `SQLiteOpenHelper`: A helper class that handles the lifecycle of the database. 
-- `onCreate`: Runs only once when the database is first created. Here, we execute raw SQL to create our tables (like `habits` and `checklists`).
-- `onUpgrade`: (Not shown, but present) Handles schema migrations if `DATABASE_VERSION` is incremented in future app updates.
-- Data Access Object (DAO): In `HabitDao.java`, we use methods like `db.query()` and `db.insert()` to safely interact with this SQLite database without writing manual SQL for every operation.
+- `SQLiteOpenHelper`: A structural helper class that abstracts away the complexity of opening database connections and manages the lifecycle of the database file on the Android file system.
+- `onCreate`: Triggered automatically the very first time the app attempts to access the database. Here, we execute raw SQL commands to construct our relational tables (like `habits` and `checklists`).
+- `onUpgrade`: (Not shown in snippet) Handles schema migrations. If an update to the app requires a new database column, the developer increments `DATABASE_VERSION`. The system then detects the mismatch and triggers `onUpgrade` to alter the tables without losing the user's existing data.
+- **DAO (Data Access Object)**: Located in `HabitDao.java`, this pattern abstracts raw SQL queries into clean Java methods. It uses `db.query()` to read and `db.insert()`/`db.update()` to write, leveraging Android's `ContentValues` to safely map Java variables to database columns, protecting against SQL injection.
 
 ## 3. Intermediate: Background Processing (BroadcastReceivers)
 
 **Description:**
-Sometimes the app needs to execute code even when it is closed, such as triggering a daily reminder. `BroadcastReceiver` is an Android component that responds to system-wide broadcast announcements.
+Android enforces strict background execution limits to preserve battery life. However, certain features—like triggering a daily habit reminder at exactly 9:00 AM—require the app to wake up and execute code even when the user isn't actively using it. A `BroadcastReceiver` is an Android component designed to listen for and respond to these specific system-wide or scheduled announcements.
 
 **Code Reference:** `app/src/main/java/com/habitflow/util/ReminderReceiver.java`
 
@@ -161,14 +162,15 @@ public class ReminderReceiver extends BroadcastReceiver {
 ```
 
 **Explanation:**
-- We use Android's `AlarmManager` (in `ReminderSettingAdapter.java`) to schedule exact times.
-- When the time hits, the system broadcasts an `Intent` that wakes up the `ReminderReceiver`.
-- `onReceive`: The entry point for the receiver. We extract the `habit_name` from the intent extras and use `NotificationCompat.Builder` to construct and display a system notification, reminding the user to complete their habit.
+- `AlarmManager`: Used elsewhere in the project to schedule exact times. It holds a `PendingIntent` that acts as a token, granting the Android system permission to fire an `Intent` on behalf of our app at a future time.
+- `onReceive`: The singular entry point for the receiver. When the scheduled time arrives, the OS wakes the app up for a few seconds and executes this block on the main thread.
+- `Intent Extras`: The `Intent` passed in contains string data (`habit_name`) injected when the alarm was originally scheduled, allowing the receiver to display context-specific information.
+- `NotificationCompat`: A backward-compatible builder class used to construct the visual notification. It requires a specific Notification Channel ID (e.g., `"habit_reminders"`) which is mandatory in Android 8.0+ for categorizing user alerts.
 
 ## 4. Advanced: Modular UI with Fragments and ViewPager2
 
 **Description:**
-Modern Android apps use a single Activity (`MainActivity`) that swaps out different "Screens" known as `Fragments`. `ViewPager2` allows users to swipe horizontally between these fragments.
+Modern Android architecture favors a single-activity design, where one `MainActivity` acts as a host container that dynamically swaps out different UI "Screens" known as `Fragments`. This makes the codebase highly modular and adaptable to tablet layouts. `ViewPager2` is a specialized container that allows users to gesture horizontally to swipe between these fragments.
 
 **Code Reference:** `app/src/main/java/com/habitflow/activities/MainActivity.java`
 
@@ -190,14 +192,14 @@ viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 ```
 
 **Explanation:**
-- `MainPagerAdapter`: Returns a different `Fragment` instance (e.g., `HomeFragment`, `CalendarFragment`, `NotesFragment`) based on the current page position.
-- `registerOnPageChangeCallback`: Listens for physical swipe gestures by the user. When the user swipes to a new page, it programmatically highlights the corresponding icon in the `BottomNavigationView`.
-- Fragments have their own lifecycle (e.g., `onCreateView`, `onViewCreated`), keeping the code for each tab modular and isolated.
+- `Fragment`: A self-contained portion of the user interface with its own distinct lifecycle (e.g., `onCreateView` for inflating layouts, `onViewCreated` for setting up listeners). This isolation means `HomeFragment` doesn't need to know anything about `CalendarFragment`.
+- `MainPagerAdapter`: A specialized adapter extending `FragmentStateAdapter`. Instead of recycling UI Views like a standard RecyclerView, it instantiates and manages the lifecycle of entire Fragments based on the user's current swipe position.
+- `registerOnPageChangeCallback`: A listener that actively monitors physical swipe gestures. When a user swipes left to a new page, it intercepts the event and programmatically highlights the corresponding icon in the `BottomNavigationView`, ensuring the UI tab indicators stay perfectly synchronized with the active fragment.
 
 ## 5. Advanced: Real-time Cloud Synchronization
 
 **Description:**
-To allow users to access their data on multiple devices, the app syncs the local SQLite database with a cloud database (Firebase Realtime Database).
+To provide a seamless cross-device experience, modern mobile apps must synchronize their local state with a cloud backend. Firebase Realtime Database is a cloud-hosted NoSQL database where data is stored as JSON and synchronized in real-time to every connected client.
 
 **Code Reference:** `app/src/main/java/com/habitflow/data/FirebaseSyncManager.java`
 
@@ -205,6 +207,7 @@ To allow users to access their data on multiple devices, the app syncs the local
 public class FirebaseSyncManager {
     private DatabaseReference getHabitsRef() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        // Generates path: /users/{user_id}/habits
         return FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).child("habits");
     }
 
@@ -217,6 +220,7 @@ public class FirebaseSyncManager {
 ```
 
 **Explanation:**
-- `FirebaseAuth`: Verifies the user's identity.
-- `DatabaseReference`: Points to a specific location in the JSON tree of the Firebase Database. Here, data is strictly isolated under `users -> {user_id} -> habits`.
-- `setValue(habit)`: Firebase automatically serializes the Java `Habit` object into JSON and pushes it to the cloud. Because Firebase supports offline capabilities out-of-the-box, if the user has no internet, the push is queued locally and executed automatically when connectivity is restored.
+- `FirebaseAuth`: Ensures that the operation is securely tied to the verified identity of the current user.
+- `DatabaseReference`: Acts as a pointer to a specific node in the remote JSON tree. By structuring the path as `users -> {uid} -> habits`, the database enforces strict multi-tenant data isolation—users can only query their own data branch.
+- `setValue(habit)`: Firebase utilizes reflection to automatically serialize the Java `Habit` object into a JSON dictionary and pushes it to the cloud. 
+- **Offline Capabilities**: If `setValue` is called while the device is in an airplane mode, the Firebase SDK queues the operation locally. The success listener won't fire immediately, but the moment network connectivity is re-established, the SDK transparently executes the queued push in the background, making it remarkably robust for mobile environments.
