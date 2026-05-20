@@ -46,3 +46,7 @@ HabitFlow is an Android-based habit tracking application engineered to facilitat
 ## Security Considerations
 
 Sensitive configuration artifacts, such as `google-services.json`, and generated build outputs are explicitly excluded from source control mechanisms via `.gitignore` to prevent credential exposure.
+
+## Educational Resources
+
+For developers examining this codebase for educational purposes, please refer to the [STUDY.md](file:///c:/Users/priya/AndroidStudioProjects/Habit-Tracking-Android-Application/STUDY.md) document. It provides detailed explanations of key Android concepts (such as RecyclerViews, SQLite, BroadcastReceivers, and Firebase Realtime Database) with direct code references from this repository.
